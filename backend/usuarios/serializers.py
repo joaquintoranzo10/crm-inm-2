@@ -1,0 +1,207 @@
+from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError as DjangoValidationError
+# from django.contrib.auth.password_validation import validate_password  # si querés validadores avanzados
+import re
+from .models import Usuario
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+
+def _sync_auth_user(email: str, first_name: str, last_name: str, raw_password: str):
+    user, _ = User.objects.get_or_create(
+        username=email,
+        defaults={
+            "email": email,
+            "first_name": first_name or "",
+            "last_name": last_name or "",
+            "is_active": True,
+        },
+    )
+    changed = False
+    if raw_password:
+        user.set_password(raw_password); changed = True
+    if user.email != email:
+        user.email = email; changed = True
+    if user.first_name != (first_name or ""):
+        user.first_name = first_name or ""; changed = True
+    if user.last_name != (last_name or ""):
+        user.last_name = last_name or ""; changed = True
+    if not user.is_active:
+        user.is_active = True; changed = True
+    if changed:
+        user.save()
+    return user
+
+
+class UsuarioSerializer(serializers.ModelSerializer):
+    # password no es obligatorio en update; sí en create (validado en create)
+    password = serializers.CharField(
+        write_only=True, required=False, allow_blank=False, style={"input_type": "password"}
+    )
+
+    class Meta:
+        model = Usuario
+        fields = [
+            "id", "nombre", "apellido", "email",
+            "password",
+            "token",
+            "creado", "actualizado",
+            "telefono", "dni",
+            "reminder_every_days",
+        ]
+        read_only_fields = ["id", "token", "creado", "actualizado"]
+
+    # ---------- Validaciones de campos ----------
+    def validate_email(self, value: str):
+        if not value:
+            raise serializers.ValidationError("El email es obligatorio.")
+        email = value.strip().lower()
+        if " " in email:
+            raise serializers.ValidationError("El email no puede contener espacios.")
+        qs = Usuario.objects.filter(email__iexact=email)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("Ya existe un usuario con ese email.")
+        return email
+
+    def validate_telefono(self, value: str):
+        """
+        Teléfono: solo dígitos, sin espacios, sin + ni símbolos.
+        Permitimos vacío porque el modelo lo permite.
+        """
+        if value in (None, ""):
+            return value
+        if " " in value:
+            raise serializers.ValidationError("El teléfono no puede contener espacios.")
+        if not re.fullmatch(r"\d{1,15}", value):
+            raise serializers.ValidationError("Teléfono inválido: solo dígitos (máx. 15).")
+        return value
+
+    def validate_dni(self, value: str):
+        """DNI: 7 u 8 dígitos, sin espacios."""
+        if value in (None, ""):
+            return value
+        if " " in value:
+            raise serializers.ValidationError("El DNI no puede contener espacios.")
+        if not re.fullmatch(r"\d{7,8}", value):
+            raise serializers.ValidationError("DNI inválido: solo números (7 u 8 dígitos).")
+        return value
+
+    def validate_reminder_every_days(self, value):
+        # Aceptamos números positivos pequeños; default del modelo es 3
+        if value is None:
+            return 3
+        try:
+            v = int(value)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError("Debe ser un número entero.")
+        if v <= 0:
+            raise serializers.ValidationError("Debe ser mayor a 0.")
+        if v > 365:
+            raise serializers.ValidationError("Debe ser ≤ 365 días.")
+        return v
+
+    def _validate_password_rules(self, raw_password: str):
+        if len(raw_password) < 8:
+            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        # Descomentar si querés validar con los validadores de Django
+        # try:
+        #     validate_password(raw_password, user=self.instance)
+        # except DjangoValidationError as e:
+        #     raise serializers.ValidationError(list(e.messages))
+
+    # ---------- Create / Update ----------
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+        if not password:
+            raise serializers.ValidationError({"password": "La contraseña es obligatoria al crear."})
+
+        # Reglas de password
+        self._validate_password_rules(password)
+
+        validated_data["password_hash"] = make_password(password)
+        obj = Usuario.objects.create(**validated_data)
+
+        _sync_auth_user(
+            email=obj.email,
+            first_name=obj.nombre,
+            last_name=obj.apellido,
+            raw_password=password,
+        )
+        return obj
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        # Actualizar atributos normales
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Si viene contraseña, validar y setear
+        if password:
+            self._validate_password_rules(password)
+            instance.password_hash = make_password(password)
+
+        instance.save()
+
+        _sync_auth_user(
+            email=instance.email,
+            first_name=instance.nombre,
+            last_name=instance.apellido,
+            raw_password=password or "",
+        )
+        return instance
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        try:
+            return super().validate(attrs)
+        except AuthenticationFailed:
+            # Mensaje en español:
+            raise AuthenticationFailed("Correo o contraseña incorrectos.")
+        
+
+class RegisterSerializer(UsuarioSerializer):
+    email = serializers.EmailField(
+        error_messages={
+            "required": "Falta completar el email.",
+            "blank": "Falta completar el email.",
+            "invalid": "El email no tiene un formato válido.",
+        }
+    )
+    password = serializers.CharField(
+        write_only=True,
+        required=True,          
+        allow_blank=False,
+        style={"input_type": "password"},
+        error_messages={
+            "required": "Falta completar la contraseña.",
+            "blank": "Falta completar la contraseña.",
+        },
+    )
+
+    class Meta(UsuarioSerializer.Meta):
+        model = Usuario
+        fields = ["nombre", "apellido", "email", "password", "telefono", "dni"]
+        read_only_fields = []  
+        extra_kwargs = {
+            "nombre":   {"required": True, "allow_blank": False,
+                         "error_messages": {
+                             "required": "Falta completar el nombre.",
+                             "blank": "Falta completar el nombre."
+                         }},
+            "apellido": {"required": True, "allow_blank": False,
+                         "error_messages": {
+                             "required": "Falta completar el apellido.",
+                             "blank": "Falta completar el apellido."
+                         }},
+            "email":    {"required": True, "allow_blank": False,
+                         "error_messages": {
+                             "required": "Falta completar el email.",
+                             "blank": "Falta completar el email.",
+                             "invalid": "El email no tiene un formato válido."
+                         }},
+           
+        }
