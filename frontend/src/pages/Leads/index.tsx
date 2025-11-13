@@ -104,6 +104,7 @@ export default function LeadsPage() {
   const [historyItems, setHistoryItems] = useState<HistItem[] | null>(null); // (Dejado por si lo re-activas)
   const [historyLoading, setHistoryLoading] = useState(false); // (Dejado por si lo re-activas)
 
+  const [createOpen, setCreateOpen] = useState(false);
   //  Filtros remotos (golpean API)
   const [vencimiento, setVencimiento] = useState<"" | "pendiente" | "vencido" | "hoy" | "proximo">("");
   
@@ -239,7 +240,7 @@ export default function LeadsPage() {
   /* ----------------------------- UI ------------------------------ */
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between">
         <div className="space-y-1">
           <h2 className="text-xl font-semibold">Gestión de Lead</h2>
           <div className="text-xs rc-muted rc-muted">
@@ -256,9 +257,17 @@ export default function LeadsPage() {
               Cargar estados recomendados
             </button>
           )}
-          {/* Botón "+ Añadir" eliminado, ahora es global */}
+
+          {/* Nuevo botón para crear lead */}
+          <button
+            className="h-9 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm"
+            onClick={() => setCreateOpen(true)}
+          >
+            + Añadir Lead
+          </button>
         </div>
       </div>
+
 
       {/* KPIs */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -553,6 +562,25 @@ export default function LeadsPage() {
       </div>
 
       {/* Modales */}
+      {createOpen && (
+        <LeadModal
+          title="Añadir Lead"
+          estados={estados}
+          onClose={() => setCreateOpen(false)}
+          onSubmit={async (payload) => {
+            try {
+              await saveContacto("contactos/", "post", payload);
+              await fetchContactos();
+              setCreateOpen(false);
+              setResult({ ok: true, msg: "Lead creado correctamente." });
+            } catch (e) {
+              console.error(e);
+              setResult({ ok: false, msg: "No se pudo crear el lead." });
+            }
+          }}
+        />
+      )}
+
       
       {editTarget && (
         <LeadModal
