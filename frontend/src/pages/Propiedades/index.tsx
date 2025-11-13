@@ -106,6 +106,76 @@ const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   return "venta";
 };
 
+/* Select muestra 4 en el desplegable */
+import type { ReactNode } from "react";
+
+function Select4<T extends string>({
+  label, value, onChange, options, render = (v) => v as unknown as string, className = "",
+}: {
+  label?: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: T[];
+  render?: (v: T) => string
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  
+  useEffect(() => {
+    function onDoc(ev: MouseEvent) {
+      if (!rootRef.current) return;
+      const target = ev.target as Node | null;
+      if (target && !rootRef.current.contains(target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  const ITEM_H = 36;                // altura por item
+  const maxH = ITEM_H * 4;          // 4 visibles
+
+  return (
+    <div ref={rootRef} className="relative">
+      {label && <label className="text-sm">{label}</label>}
+      <button
+        type="button"
+        className={`rc-input h-10 w-full text-left flex items-center justify-between ${className}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="truncate">{render(value)}</span>
+        <span className="ml-2 text-xs">▾</span>
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 mt-1 w-full rounded-md border rc-border shadow-lg overflow-hidden bg-[var(--surface)] text-[var(--base-clr)]"
+          style={{ maxHeight: maxH, overflowY: "auto" }}
+        >
+          {options.map(opt => {
+            const active = opt === value;
+            return (
+              <button
+                key={opt}
+                type="button"
+                className={`w-full text-left px-3 h-9 text-sm
+                            hover:bg-[var(--hover)]
+                            ${active ? "bg-[var(--chip-bg)] font-medium" : ""}`}
+                onClick={() => { onChange(opt); setOpen(false); }}
+              >
+                {render(opt)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
 /* carrusel simple para mostrar imágenes */
 
 function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
@@ -582,16 +652,16 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Row label="Tipo de propiedad">
-                <select
-                  className="rc-input h-10 w-full"
+                <Select4
                   value={form.tipo_de_propiedad}
-                  onChange={(e) => set("tipo_de_propiedad", e.target.value as any)}
-                >
-                  {[
-                    "casa","departamento","ph","terreno","cochera","local","oficina","consultorio",
-                    "quinta","chacra","galpon","deposito","campo","hotel","fondo de comercio","edificio","otro",
-                  ].map((v) => (<option key={v} value={v}>{v[0].toUpperCase()+v.slice(1)}</option>))}
-                </select>
+                  onChange={(v) => set("tipo_de_propiedad", v)}
+                  options={[
+                    "casa","departamento","ph","terreno","cochera","local","oficina",
+                    "consultorio","quinta","chacra","galpon","deposito","campo",
+                    "hotel","fondo de comercio","edificio","otro",
+                  ]}
+                  render={(v) => v[0].toUpperCase() + v.slice(1)}
+                />
               </Row>
 
               <Row label="Disponibilidad">

@@ -28,6 +28,76 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
   const [superficie, setSuperficie] = useState<number | "">("");
   const [estado, setEstado] = useState<Estado>("disponible");
 
+
+  function Select4<T extends string>({
+    value, onChange, options, render,
+  }: {
+    value: T;
+    onChange: (v: T) => void;
+    options: T[];
+    render?: (v: T) => string;
+  }) {
+    const [open, setOpen] = useState(false);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    // cerrar al clickear fuera
+    useEffect(() => {
+      function onDoc(ev: MouseEvent) {
+        if (!rootRef.current) return;
+        const t = ev.target as Node | null;
+        if (t && !rootRef.current.contains(t)) setOpen(false);
+      }
+      document.addEventListener("mousedown", onDoc);
+      return () => document.removeEventListener("mousedown", onDoc);
+    }, []);
+
+    const label = render ? render(value) : value;
+    const ITEM_H = 36;
+    const maxH = ITEM_H * 4; 
+
+    return (
+      <div ref={rootRef} className="relative">
+        <button
+          type="button"
+          className="rc-input mt-1 w-full h-10 text-left flex items-center justify-between
+                    bg-[var(--surface)] text-[var(--base-clr)]"
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className="truncate">{label}</span>
+          <span className="ml-2 text-xs">▾</span>
+        </button>
+
+        {open && (
+          <div
+            className="absolute z-50 mt-1 w-full rounded-md border rc-border shadow-lg overflow-hidden
+                      bg-[var(--surface)] text-[var(--base-clr)]"
+            style={{ maxHeight: maxH, overflowY: "auto" }}
+          >
+            <ul className="py-1">
+              {options.map((opt) => {
+                const active = opt === value;
+                return (
+                  <li key={opt}>
+                    <button
+                      type="button"
+                      className={`w-full px-3 h-9 text-left text-sm
+                                  hover:bg-[var(--hover)]
+                                  ${active ? "bg-[var(--chip-bg)] font-medium" : ""}`}
+                      onClick={() => { onChange(opt); setOpen(false); }}
+                    >
+                      {render ? render(opt) : opt}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+
   // Imagen (opcional – se sube luego de crear la propiedad)
   const filesRef = useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -187,28 +257,16 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm">Tipo de propiedad *</label>
-                  <select
-                    className="rc-input mt-1 w-full h-10"
+                  <Select4<TipoProp>
                     value={tipoDePropiedad}
-                    onChange={(e) => setTipoDePropiedad(e.target.value as any)}
-                  >
-                    <option value="casa">Casa</option>
-                    <option value="departamento">Departamento</option>
-                    <option value="ph">Ph</option>
-                    <option value="terreno">Terreno</option>
-                    <option value="cochera">Cochera</option>
-                    <option value="local">Local</option>
-                    <option value="oficina">Oficina</option>
-                    <option value="consultorio">Consultorio</option>
-                    <option value="quinta">Quinta</option>
-                    <option value="chacra">Chacra</option>
-                    <option value="galpon">Galpon</option>
-                    <option value="deposito">Deposito</option>
-                    <option value="campo">Campo</option>
-                    <option value="fondo de comercio">Fondo de Comercio</option>
-                    <option value="edificio">Edificio</option>
-                    <option value="otro">Otro</option>
-                  </select>
+                    onChange={(v) => setTipoDePropiedad(v)}
+                    options={[
+                      "casa","departamento","ph","terreno","cochera","local","oficina",
+                      "consultorio","quinta","chacra","galpon","deposito","campo",
+                      "hotel","fondo de comercio","edificio","otro",
+                    ]}
+                    render={(v) => v[0].toUpperCase() + v.slice(1)}
+                  />
                 </div>
 
                 <div>
@@ -257,6 +315,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   <input
                     type="number"
                     min={0}
+                    value={ambiente}
                     className="rc-input mt-1 w-full h-10"
                     onChange={(e) => setAmbiente(e.target.value === "" ? "" : Number(e.target.value))}
                   />
@@ -276,6 +335,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   <input
                     type="number"
                     min={0}
+                    value={antiguedad} 
                     className="rc-input mt-1 w-full h-10"
                     onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
                   />
@@ -345,6 +405,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               Cancelar
             </button>
             <button
+              type="submit"
               disabled={submitting || !codigo || !titulo || !ubicacion || precio === "" || !disponibilidad}
               className="rounded-md px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 transition-colors"
             >
