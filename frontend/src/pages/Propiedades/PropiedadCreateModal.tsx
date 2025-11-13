@@ -38,35 +38,65 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
     render?: (v: T) => string;
   }) {
     const [open, setOpen] = useState(false);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    // cerrar al clickear fuera
+    useEffect(() => {
+      function onDoc(ev: MouseEvent) {
+        if (!rootRef.current) return;
+        const t = ev.target as Node | null;
+        if (t && !rootRef.current.contains(t)) setOpen(false);
+      }
+      document.addEventListener("mousedown", onDoc);
+      return () => document.removeEventListener("mousedown", onDoc);
+    }, []);
+
     const label = render ? render(value) : value;
+    const ITEM_H = 36;
+    const maxH = ITEM_H * 4; 
+
     return (
-      <div className="relative">
-        <button type="button" className="rc-input mt-1 w-full h-10 text-left"
-                onClick={() => setOpen((o) => !o)}>
-          {label}
+      <div ref={rootRef} className="relative">
+        <button
+          type="button"
+          className="rc-input mt-1 w-full h-10 text-left flex items-center justify-between
+                    bg-[var(--surface)] text-[var(--base-clr)]"
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className="truncate">{label}</span>
+          <span className="ml-2 text-xs">▾</span>
         </button>
+
         {open && (
-          <div className="absolute z-10 mt-1 w-full rounded-md border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow">
-            <ul className="max-h-40 overflow-y-auto py-1">
-              {options.map((opt) => (
-                <li key={opt}>
-                  <button
-                    type="button"
-                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                      opt === value ? "font-medium" : ""
-                    }`}
-                    onClick={() => { onChange(opt); setOpen(false); }}
-                  >
-                    {render ? render(opt) : opt}
-                  </button>
-                </li>
-              ))}
+          <div
+            className="absolute z-50 mt-1 w-full rounded-md border rc-border shadow-lg overflow-hidden
+                      bg-[var(--surface)] text-[var(--base-clr)]"
+            style={{ maxHeight: maxH, overflowY: "auto" }}
+          >
+            <ul className="py-1">
+              {options.map((opt) => {
+                const active = opt === value;
+                return (
+                  <li key={opt}>
+                    <button
+                      type="button"
+                      className={`w-full px-3 h-9 text-left text-sm
+                                  hover:bg-[var(--hover)]
+                                  ${active ? "bg-[var(--chip-bg)] font-medium" : ""}`}
+                      onClick={() => { onChange(opt); setOpen(false); }}
+                    >
+                      {render ? render(opt) : opt}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
       </div>
     );
   }
+
 
   // Imagen (opcional – se sube luego de crear la propiedad)
   const filesRef = useRef<HTMLInputElement | null>(null);
