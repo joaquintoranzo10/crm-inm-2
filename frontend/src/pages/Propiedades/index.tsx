@@ -107,36 +107,39 @@ const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
 };
 
 /* Select muestra 4 en el desplegable */
+import type { ReactNode } from "react";
+
 function Select4<T extends string>({
-  label, value, onChange, options, render = (v) => v, className = "",
+  label, value, onChange, options, render = (v) => v as unknown as string, className = "",
 }: {
   label?: string;
   value: T;
   onChange: (v: T) => void;
   options: T[];
-  render?: (v: T) => React.ReactNode;
+  render?: (v: T) => string
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
+  
   useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (!btnRef.current) return;
-      if (!btnRef.current.closest("[data-select4]")) setOpen(false);
+    function onDoc(ev: MouseEvent) {
+      if (!rootRef.current) return;
+      const target = ev.target as Node | null;
+      if (target && !rootRef.current.contains(target)) setOpen(false);
     }
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const ITEM_H = 36;            // altura aproximada de cada ítem
-  const maxH = ITEM_H * 4;      // 4 visibles
+  const ITEM_H = 36;                // altura por item
+  const maxH = ITEM_H * 4;          // 4 visibles
 
   return (
-    <div className="relative" data-select4>
+    <div ref={rootRef} className="relative">
       {label && <label className="text-sm">{label}</label>}
       <button
-        ref={btnRef}
         type="button"
         className={`rc-input h-10 w-full text-left flex items-center justify-between ${className}`}
         onClick={() => setOpen(o => !o)}
@@ -147,7 +150,7 @@ function Select4<T extends string>({
 
       {open && (
         <div
-          className="absolute z-50 mt-1 w-full rounded-md border rc-border bg-white dark:bg-gray-900 shadow-lg overflow-hidden"
+          className="absolute z-50 mt-1 w-full rounded-md border rc-border shadow-lg overflow-hidden bg-[var(--surface)] text-[var(--base-clr)]"
           style={{ maxHeight: maxH, overflowY: "auto" }}
         >
           {options.map(opt => {
@@ -156,9 +159,9 @@ function Select4<T extends string>({
               <button
                 key={opt}
                 type="button"
-                className={`w-full text-left px-3 h-9 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                  active ? "bg-gray-100 dark:bg-gray-800 font-medium" : ""
-                }`}
+                className={`w-full text-left px-3 h-9 text-sm
+                            hover:bg-[var(--hover)]
+                            ${active ? "bg-[var(--chip-bg)] font-medium" : ""}`}
                 onClick={() => { onChange(opt); setOpen(false); }}
               >
                 {render(opt)}
@@ -170,6 +173,8 @@ function Select4<T extends string>({
     </div>
   );
 }
+
+
 
 /* carrusel simple para mostrar imágenes */
 
