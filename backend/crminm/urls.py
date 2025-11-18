@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 # ViewSets existentes
 from avisos.views import AvisoViewSet
 from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
-from propiedades.views import PropiedadViewSet
+from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
 
 # Usuarios
 from usuarios.views import (
@@ -31,6 +31,7 @@ router.register(r"estados-lead", EstadoLeadViewSet)
 router.register(r"contactos", ContactoViewSet)
 router.register(r"eventos", EventoViewSet)
 router.register(r"propiedades", PropiedadViewSet)
+router.register(r"propiedad-imagenes", PropiedadImagenViewSet, basename="propiedad-imagen")
 router.register(r"avisos", AvisoViewSet)
 
 urlpatterns = [

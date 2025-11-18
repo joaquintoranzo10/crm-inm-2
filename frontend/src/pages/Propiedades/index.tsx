@@ -568,9 +568,12 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   // Para borrar 1 imagen existente
   async function eliminarImagen(imgId: number) {
     try {
-      await axios.delete(`/api/propiedades/imagenes/${imgId}/`);
+      
+      await axios.delete(`/api/propiedad-imagenes/${imgId}/`);
+      // si salió bien, la saca de la galería en el frontend
       setGaleria((g) => g.filter((x) => x.id !== imgId));
     } catch (e) {
+      console.error(e);
       setError("No se pudo eliminar la imagen.");
     }
   }
