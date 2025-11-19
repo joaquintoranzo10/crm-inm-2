@@ -122,7 +122,7 @@ function Select4<T extends string>({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  
+
   useEffect(() => {
     function onDoc(ev: MouseEvent) {
       if (!rootRef.current) return;
@@ -344,7 +344,7 @@ export default function PropiedadesPage() {
               <article
                 key={p.id}
                 className="rc-card rc-text border rc-border rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow"
-                >
+              >
                 {/* Imagen superior */}
                 <div className="relative">
                   <CardCarousel images={(p.imagenes || []).map(x => absMedia(x.imagen))} />
@@ -373,18 +373,18 @@ export default function PropiedadesPage() {
                 <div className="mt-auto px-4 py-3 border-t rc-border">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
                     {[
-                      { k: "AMBIENTES",  v: p.ambiente ?? "—" },
-                      { k: "BAÑOS",      v: p.banos ?? "—" },
+                      { k: "AMBIENTES", v: p.ambiente ?? "—" },
+                      { k: "BAÑOS", v: p.banos ?? "—" },
                       { k: "SUPERFICIE", v: `${p.superficie} m²` },
                       { k: "ANTIGÜEDAD", v: p.antiguedad != null ? `${p.antiguedad} años` : "—" },
-                      { k: "CÓDIGO",     v: p.codigo },
-                      { k: "MONEDA",     v: p.moneda },
-                      ].map((it) => (
-                        <div key={it.k} className="rounded-lg px-2.5 py-1.5 min-w-0 bg-white text-gray-900 border border-gray-200 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800">
-                          <div className="text-[10px] rc-muted uppercase">{it.k}</div>
-                          <div className="text-[12px] font-medium truncate">{it.v}</div>
-                        </div>
-                      ))}
+                      { k: "CÓDIGO", v: p.codigo },
+                      { k: "MONEDA", v: p.moneda },
+                    ].map((it) => (
+                      <div key={it.k} className="rounded-lg px-2.5 py-1.5 min-w-0 bg-white text-gray-900 border border-gray-200 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800">
+                        <div className="text-[10px] rc-muted uppercase">{it.k}</div>
+                        <div className="text-[12px] font-medium truncate">{it.v}</div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Botones de acción */}
@@ -392,7 +392,7 @@ export default function PropiedadesPage() {
                     <button className="h-9 px-3 rounded-md border rc-border text-xs" onClick={() => setDetail(p)}>Ver</button>
                     <button className="h-9 px-3 rounded-md border rc-border text-xs" onClick={() => setEditTarget(p)}>Editar</button>
                     <button className="h-9 px-3 rounded-md border text-xs border-rose-600 text-rose-600 dark:border-rose-500 dark:text-rose-400"
-                            onClick={() => setDeleteTarget(p)}>
+                      onClick={() => setDeleteTarget(p)}>
                       Borrar
                     </button>
                     {/* CAMBIO: Botón @Propiedad X eliminado */}
@@ -472,8 +472,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Imagen principal (Carrusel) */}
-        <div className="rounded-xl overflow-hidden border h-64 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-          {/* CAMBIO: Se reemplazó la imagen simple por el componente CardCarousel */}
+        <div className="rounded-xl overflow-hidden border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
           <CardCarousel images={(propiedad.imagenes || []).map((x: PropiedadImagen) => absMedia(x.imagen))} />
         </div>
 
@@ -509,7 +508,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
               {propiedad.descripcion}
             </div>
           )}
-          
+
           {/* CAMBIO: Miniaturas eliminadas (ahora están en el carrusel) */}
         </div>
       </div>
@@ -568,7 +567,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   // Para borrar 1 imagen existente
   async function eliminarImagen(imgId: number) {
     try {
-      
+
       await axios.delete(`/api/propiedad-imagenes/${imgId}/`);
       // si salió bien, la saca de la galería en el frontend
       setGaleria((g) => g.filter((x) => x.id !== imgId));
@@ -659,9 +658,9 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                   value={form.tipo_de_propiedad}
                   onChange={(v) => set("tipo_de_propiedad", v)}
                   options={[
-                    "casa","departamento","ph","terreno","cochera","local","oficina",
-                    "consultorio","quinta","chacra","galpon","deposito","campo",
-                    "hotel","fondo de comercio","edificio","otro",
+                    "casa", "departamento", "ph", "terreno", "cochera", "local", "oficina",
+                    "consultorio", "quinta", "chacra", "galpon", "deposito", "campo",
+                    "hotel", "fondo de comercio", "edificio", "otro",
                   ]}
                   render={(v) => v[0].toUpperCase() + v.slice(1)}
                 />
@@ -875,15 +874,15 @@ function ResultModal({
     return () => clearTimeout(t);
   }, [onClose, autoCloseMs]);
 
-  
+
   return (
     // CAMBIO: z-[10000] -> z-50
     <div className="fixed inset-0 z-50 flex items-end justify-center p-4 pointer-events-none">
       <div
         className={`pointer-events-auto rounded-xl px-4 py-3 shadow-lg border text-sm font-medium
         ${ok
-          ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-          : "bg-rose-50 border-rose-200 text-rose-800"}`}
+            ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+            : "bg-rose-50 border-rose-200 text-rose-800"}`}
       >
         <div className="flex items-center gap-2">
           <span

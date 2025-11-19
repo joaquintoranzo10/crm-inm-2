@@ -7,7 +7,7 @@ import SmartLocationCombo from "@/components/SmartLocationCombo";
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void };
 
 type Estado = "disponible" | "vendido" | "reservado";
-type TipoProp = "casa" | "departamento" |"ph"|"terreno"|"cochera"|"local"|"oficina"|"consultorio"|"quinta"|"chacra"|"galpon"|"deposito"|"campo"| "hotel"|"fondo de comercio"|"edificio"|"otro";
+type TipoProp = "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local" | "oficina" | "consultorio" | "quinta" | "chacra" | "galpon" | "deposito" | "campo" | "hotel" | "fondo de comercio" | "edificio" | "otro";
 type Moneda = "USD" | "ARS";
 type Disponibilidad = "venta" | "alquiler";
 
@@ -53,7 +53,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
 
     const label = render ? render(value) : value;
     const ITEM_H = 36;
-    const maxH = ITEM_H * 4; 
+    const maxH = ITEM_H * 4;
 
     return (
       <div ref={rootRef} className="relative">
@@ -171,7 +171,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       setTipoDePropiedad("casa"); setDisponibilidad("");
       setPrecio(""); setMoneda("USD"); setAmbiente(""); setAntiguedad("");
       setBanos(""); setSuperficie(""); setEstado("disponible");
-      setPreviews([]); if (filesRef.current) { filesRef.current.value = "";}
+      setPreviews([]); if (filesRef.current) { filesRef.current.value = ""; }
     } catch (err) {
       const e = err as AxiosError<any>;
       if (e.response) {
@@ -261,9 +261,9 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                     value={tipoDePropiedad}
                     onChange={(v) => setTipoDePropiedad(v)}
                     options={[
-                      "casa","departamento","ph","terreno","cochera","local","oficina",
-                      "consultorio","quinta","chacra","galpon","deposito","campo",
-                      "hotel","fondo de comercio","edificio","otro",
+                      "casa", "departamento", "ph", "terreno", "cochera", "local", "oficina",
+                      "consultorio", "quinta", "chacra", "galpon", "deposito", "campo",
+                      "hotel", "fondo de comercio", "edificio", "otro",
                     ]}
                     render={(v) => v[0].toUpperCase() + v.slice(1)}
                   />
@@ -335,7 +335,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   <input
                     type="number"
                     min={0}
-                    value={antiguedad} 
+                    value={antiguedad}
                     className="rc-input mt-1 w-full h-10"
                     onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
                   />
