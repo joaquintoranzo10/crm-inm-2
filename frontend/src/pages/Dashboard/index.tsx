@@ -91,11 +91,7 @@ type DashboardData = {
  * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
  * - Cierra al click fuera y con Escape.
  */
-<<<<<<< HEAD
 
-=======
- 
->>>>>>> a056fb7134c4d19f45eb53d7b0bb31733d30a971
 function ModalShell({
   title,
   children,
@@ -585,12 +581,12 @@ export default function DashboardPage() {
               <ArrowButton onClick={prevMonth}>
                 ←
               </ArrowButton>
-              
+
               {/* === MES CORREGIDO: Aumentamos tamaño de fuente y ancho mínimo === */}
               <div className="min-w-[200px] text-center font-bold text-lg rc-text" style={{ padding: '0 8px' }}>
-                  {monthLabel}
+                {monthLabel}
               </div>
-              
+
               {/* === BOTÓN SIGUIENTE === */}
               <ArrowButton onClick={nextMonth} disabled={sameDay(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1), today)}>
                 →
