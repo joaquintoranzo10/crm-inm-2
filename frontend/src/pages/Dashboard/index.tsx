@@ -402,7 +402,7 @@ export default function DashboardPage() {
 
     // Eliminamos el KPI de Avisos aquí
     return [
-      { label: "Leads", value: totalLeads, hint: "Totales" },
+      { label: "Leads", value: totalLeads, hint: "" },
       { label: "Propiedades en venta", value: enVenta, hint: "" },
       { label: "Propiedades en alquiler", value: enAlquiler, hint: "" },
       { label: "Propiedades vendidas", value: vendidas, hint: "" },
@@ -527,15 +527,40 @@ export default function DashboardPage() {
         </div>
 
         {/* KPIs */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {kpis.map((k) => (
-            <div key={k.label} className="rounded-xl border rc-card rc-border rc-border p-4">
-              <div className="text-3xl font-semibold">{k.value}</div>
-              <div className="text-sm rc-muted rc-muted">{k.label}</div>
-              {k.hint && <div className="text-xs rc-muted mt-1">{k.hint}</div>}
+            <div
+              key={k.label}
+              className="rounded-xl border rc-card rc-border p-4 flex items-center justify-between shadow-sm bg-card h-full"
+            >
+              {/* Contenedor de Texto (Izquierda) */}
+              {/* flex-1: Ocupa el espacio disponible */}
+              {/* min-w-0: Permite el wrap del texto */}
+              <div className="flex flex-col justify-center mr-3 min-w-0 flex-1">
+                <span
+                  className="text-lg font-semibold rc-muted text-gray-600 dark:text-gray-300 leading-tight"
+                >
+                  {k.label}
+                </span>
+
+                {/* Subtítulo / Hint (si existe) */}
+                {k.hint && (
+                  <span
+                    className="text-sm opacity-70 mt-1 text-gray-400"
+                  >
+                    {k.hint}
+                  </span>
+                )}
+              </div>
+
+              {/* Contenedor de Número (Derecha) */}
+              {/* flex-shrink-0: Evita que el número se aplaste */}
+              <div className="text-4xl font-bold text-base-clr dark:text-white flex-shrink-0 leading-none">
+                {k.value}
+              </div>
             </div>
           ))}
-        </section>
+        </div>
 
         {/* Calendar */}
         <div className="rounded-2xl border rc-card rc-border rc-border overflow-hidden">
