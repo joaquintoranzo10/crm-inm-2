@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from django.conf import settings  # <-- NUEVO
+from django.conf import settings  
 
 
 class Propiedad(models.Model):
