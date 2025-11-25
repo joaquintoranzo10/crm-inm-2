@@ -1,16 +1,73 @@
 // src/pages/Dashboard/index.tsx
 import { useEffect, useMemo, useState, useRef } from "react";
 import type { ReactNode } from "react";
+import styled from 'styled-components';
 import {
   api,
   fetchEventos,
-  fetchLeads,                 //  para autocompletar
+  fetchLeads,                 //  para autocompletar
   type Evento as EventoApi,
   type Propiedad as PropiedadApi,
   type Contacto as ContactoApi,
 } from "../../lib/api";
 import TopFilters from "./TopFilter";
 import { toast } from 'react-hot-toast'; 
+
+/* ============================== Styles ============================== */
+
+// Componente estilizado para las flechas de navegación
+const ArrowButton = styled.button`
+  /* Estilos base del botón */
+  font-size: 20px;
+  
+  /* Basado en los estilos de tu imagen, usaremos variables CSS si existen
+     o colores que simulen el modo oscuro/claro */
+  background-color: var(--rc-surface, white); /* Fondo blanco/claro */
+  color: var(--rc-text, black); /* Color del texto */
+  
+  width: 45px;
+  height: 45px;
+  opacity: 1; /* Quitamos opacidad baja para mejor visibilidad */
+  border: 1px solid var(--rc-border, #e7eae8);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* Ajustes para centrar el texto/flecha */
+  display: grid;
+  place-items: center;
+  line-height: 0;
+
+  /* Estilos del hover con la animación MÁS SUTIL */
+  &:hover {
+    animation: slide_513 0.6s infinite; /* Renombramos a slide para claridad */
+    opacity: 0.9; 
+    border-color: #522ba7; /* Pequeño cambio en el borde */
+  }
+  
+  /* Estilo cuando está deshabilitado, similar al botón gris que muestras */
+  &:disabled {
+    background-color: #525252; /* Gris oscuro para deshabilitado/siguiente */
+    color: #e7eae8;
+    border-color: #525252;
+    cursor: default;
+    animation: none;
+    opacity: 1;
+  }
+
+  /* Animación más sutil */
+  @keyframes slide_513 {
+    0%,
+    100% {
+      transform: translateX(-10%); /* Movimiento solo del 10% */
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateX(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+`;
 
 /* ============================== Types ============================== */
 // Reutilizo los tipos del cliente API para alinear con el back
@@ -34,7 +91,7 @@ type DashboardData = {
  * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
  * - Cierra al click fuera y con Escape.
  */
-  
+ 
 function ModalShell({
   title,
   children,
@@ -241,10 +298,10 @@ export default function DashboardPage() {
   async function fetchStatic() {
     // Verificar si el token existe antes de hacer la petición
     if (!localStorage.getItem('rc_token')) {
-        setLoading(false);
-        // Podrías lanzar un toast aquí o manejar el estado de No Logeado
-        toast.error("No autenticado. Por favor, inicia sesión.");
-        return;
+      setLoading(false);
+      // Podrías lanzar un toast aquí o manejar el estado de No Logeado
+      toast.error("No autenticado. Por favor, inicia sesión.");
+      return;
     }
 
     try {
@@ -369,7 +426,7 @@ export default function DashboardPage() {
     return map;
   }, [eventos]);
 
-  // Resumen por día
+  // Resumen por día (DEFINICIÓN ÚNICA)
   const summaryByDay = useMemo(() => {
     const m = new Map<string, { r: number; l: number; v: number; total: number }>();
     for (const [k, list] of eventsByDay.entries()) {
@@ -383,6 +440,7 @@ export default function DashboardPage() {
     }
     return m;
   }, [eventsByDay]);
+
 
   /* ------------------------------ KPIs ------------------------------ */
   const kpis = useMemo(() => {
@@ -417,8 +475,8 @@ export default function DashboardPage() {
   function openCreateOnDay(d: Date) { setOpenEventModal({ mode: "create", baseDate: d }); }
 
   /**
-   * saveEvento: valida solapamientos/duplicados (front) antes de post/patch
-   */
+    * saveEvento: valida solapamientos/duplicados (front) antes de post/patch
+    */
   async function saveEvento(data: Partial<Evento>, mode: "create" | "edit", id?: number) {
     if (!localStorage.getItem('rc_token')) {
       toast.error("Acción no permitida. Inicia sesión.");
@@ -519,9 +577,20 @@ export default function DashboardPage() {
               + Agregar evento
             </button>
             <div className="flex items-center gap-2">
-              <button className="h-9 w-9 rounded-lg border text-lg" onClick={prevMonth}>←</button>
-              <div className="min-w-[200px] text-center font-medium">{monthLabel}</div>
-              <button className="h-9 w-9 rounded-lg border text-lg" onClick={nextMonth}>→</button>
+              {/* === BOTÓN ANTERIOR === */}
+              <ArrowButton onClick={prevMonth}>
+                ←
+              </ArrowButton>
+              
+              {/* === MES CORREGIDO: Aumentamos tamaño de fuente y ancho mínimo === */}
+              <div className="min-w-[200px] text-center font-bold text-lg rc-text" style={{ padding: '0 8px' }}>
+                  {monthLabel}
+              </div>
+              
+              {/* === BOTÓN SIGUIENTE === */}
+              <ArrowButton onClick={nextMonth} disabled={sameDay(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1), today)}>
+                →
+              </ArrowButton>
             </div>
           </div>
         </div>
@@ -572,7 +641,7 @@ export default function DashboardPage() {
               return (
                 <div
                   key={i}
-                  className={`border-r border-b rc-border rc-border p-2 ${inMonth ? "" : "bg-app/50  dark:bg-gray-900/30"}`}
+                  className={`border-r border-b rc-border rc-border p-2 ${inMonth ? "" : "bg-app/50  dark:bg-gray-900/30"}`}
                   title={inMonth ? formatDate(d, { year: "numeric" }) : undefined}
                 >
                   {/* Contenedor columna + evitar desborde */}
@@ -590,7 +659,7 @@ export default function DashboardPage() {
                     {/* Resumen compacto en una sola línea */}
                     {inMonth && sum.total > 0 && (
                       <button
-                        className="mt-2 w-full rounded-lg border rc-border rc-border bg-app/50   dark:bg-gray-900/40 px-2 py-1 text-[11px] text-left hover:bg-gray-100 dark:hover:bg-gray-800/60 dark:hover:rc-card/60 truncate"
+                        className="mt-2 w-full rounded-lg border rc-border rc-border bg-app/50   dark:bg-gray-900/40 px-2 py-1 text-[11px] text-left hover:bg-gray-100 dark:hover:bg-gray-800/60 dark:hover:rc-card/60 truncate"
                         onClick={() => setOpenDayModal(d)}
                         title={`${sum.r} ${plural(sum.r, "reunión", "reuniones")} · ${sum.l} ${plural(sum.l, "llamada", "llamadas")} · ${sum.v} ${plural(sum.v, "visita", "visitas")}`}
                       >
