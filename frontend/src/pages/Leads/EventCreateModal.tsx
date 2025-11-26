@@ -230,11 +230,12 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
 
         <div className="flex items-center justify-end gap-2 pt-2">
           <button type="button" onClick={onClose}
-            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm">
+            className="rounded-md border px-4 py-2 text-sm rc-border"> {/* CAMBIO: Clases limpiadas */}
             Cancelar
           </button>
           <button disabled={submitting || !propiedadId || !fechaHora || !tipo}
-            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm">
+            className="rounded-md px-4 py-2 text-sm rc-text bg-blue-600 hover:bg-blue-700 disabled:opacity-60"> {/* CAMBIO: Clases limpiadas */}
+            {submitting ? "Guardando..." : "Registrar"}
           </button>
         </div>
       </form>
