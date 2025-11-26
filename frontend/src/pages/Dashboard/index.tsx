@@ -11,7 +11,7 @@ import {
   type Contacto as ContactoApi,
 } from "../../lib/api";
 import TopFilters from "./TopFilter";
-import { toast } from 'react-hot-toast'; 
+import { toast } from 'react-hot-toast';
 
 /* ============================== Styles ============================== */
 
@@ -91,7 +91,7 @@ type DashboardData = {
  * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
  * - Cierra al click fuera y con Escape.
  */
- 
+
 function ModalShell({
   title,
   children,
@@ -460,7 +460,7 @@ export default function DashboardPage() {
 
     // Eliminamos el KPI de Avisos aquí
     return [
-      { label: "Leads", value: totalLeads, hint: "Totales" },
+      { label: "Leads", value: totalLeads, hint: "" },
       { label: "Propiedades en venta", value: enVenta, hint: "" },
       { label: "Propiedades en alquiler", value: enAlquiler, hint: "" },
       { label: "Propiedades vendidas", value: vendidas, hint: "" },
@@ -581,12 +581,12 @@ export default function DashboardPage() {
               <ArrowButton onClick={prevMonth}>
                 ←
               </ArrowButton>
-              
+
               {/* === MES CORREGIDO: Aumentamos tamaño de fuente y ancho mínimo === */}
               <div className="min-w-[200px] text-center font-bold text-lg rc-text" style={{ padding: '0 8px' }}>
-                  {monthLabel}
+                {monthLabel}
               </div>
-              
+
               {/* === BOTÓN SIGUIENTE === */}
               <ArrowButton onClick={nextMonth} disabled={sameDay(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1), today)}>
                 →
@@ -595,26 +595,41 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Filtros rápidos */}
-        <div className="flex items-center gap-3">
-          <TopFilters onChange={applyFilters} />
-          {activeFilters && (
-            <button className="h-9 px-3 rounded-lg border text-sm" onClick={clearFilters}>
-              Limpiar filtros
-            </button>
-          )}
-        </div>
-
         {/* KPIs */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {kpis.map((k) => (
-            <div key={k.label} className="rounded-xl border rc-card rc-border rc-border p-4">
-              <div className="text-3xl font-semibold">{k.value}</div>
-              <div className="text-sm rc-muted rc-muted">{k.label}</div>
-              {k.hint && <div className="text-xs rc-muted mt-1">{k.hint}</div>}
+            <div
+              key={k.label}
+              className="rounded-xl border rc-card rc-border p-4 flex items-center justify-between shadow-sm bg-card h-full"
+            >
+              {/* Contenedor de Texto (Izquierda) */}
+              {/* flex-1: Ocupa el espacio disponible */}
+              {/* min-w-0: Permite el wrap del texto */}
+              <div className="flex flex-col justify-center mr-3 min-w-0 flex-1">
+                <span
+                  className="text-lg font-semibold rc-muted text-gray-600 dark:text-gray-300 leading-tight"
+                >
+                  {k.label}
+                </span>
+
+                {/* Subtítulo / Hint (si existe) */}
+                {k.hint && (
+                  <span
+                    className="text-sm opacity-70 mt-1 text-gray-400"
+                  >
+                    {k.hint}
+                  </span>
+                )}
+              </div>
+
+              {/* Contenedor de Número (Derecha) */}
+              {/* flex-shrink-0: Evita que el número se aplaste */}
+              <div className="text-4xl font-bold text-base-clr dark:text-white flex-shrink-0 leading-none">
+                {k.value}
+              </div>
             </div>
           ))}
-        </section>
+        </div>
 
         {/* Calendar */}
         <div className="rounded-2xl border rc-card rc-border rc-border overflow-hidden">
@@ -846,21 +861,21 @@ function EventModal({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  if (form.contacto != null) {
-    const c = contactos.find(x => x.id === Number(form.contacto));
-    if (c) {
-      if (!(form.nombre || form.apellido || form.email)) {
-        setForm(f => ({
-          ...f,
-          nombre: c.nombre || "",
-          apellido: c.apellido || "",
-          email: c.email || ""
-        }));
+    if (form.contacto != null) {
+      const c = contactos.find(x => x.id === Number(form.contacto));
+      if (c) {
+        if (!(form.nombre || form.apellido || form.email)) {
+          setForm(f => ({
+            ...f,
+            nombre: c.nombre || "",
+            apellido: c.apellido || "",
+            email: c.email || ""
+          }));
+        }
       }
     }
-  }
-  
-}, [form.contacto, contactos]);
+
+  }, [form.contacto, contactos]);
 
   function set<K extends keyof Evento>(k: K, v: Evento[K] | any) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -1163,9 +1178,8 @@ function ContactAutocomplete({
                   key={it.id}
                   type="button"
                   onClick={() => pick(it)}
-                  className={`w-full text-left px-3 py-2 text-sm ${
-                    idx === highlight ? "bg-blue-600 rc-text rc-text" : "hover:bg-app dark:hover:rc-card"
-                  }`}
+                  className={`w-full text-left px-3 py-2 text-sm ${idx === highlight ? "bg-blue-600 rc-text rc-text" : "hover:bg-app dark:hover:rc-card"
+                    }`}
                   onMouseEnter={() => setHighlight(idx)}
                 >
                   <div className="font-medium truncate">{full}</div>
