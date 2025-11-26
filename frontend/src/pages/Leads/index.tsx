@@ -260,7 +260,7 @@ export default function LeadsPage() {
 
           {/* Nuevo botón para crear lead */}
           <button
-            className="h-9 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm"
+            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
             onClick={() => setCreateOpen(true)}
           >
             + Añadir Lead
@@ -427,14 +427,14 @@ export default function LeadsPage() {
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap justify-end gap-2">
                         <button
-                          className="h-8 px-2 rounded-md border rc-border rc-border text-xs"
+                          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
                           onClick={() => setEditTarget(c)}
                           disabled={isBusy}
                         >
                           Editar
                         </button>
                         <button
-                          className="h-8 px-2 rounded-md border border-rose-600/40 text-rose-500 text-xs disabled:opacity-60"
+                          className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
                           onClick={() => setDeleteTarget(c)}
                           disabled={isBusy}
                         >
@@ -549,7 +549,7 @@ export default function LeadsPage() {
                     Editar
                   </button>
                   <button
-                    className="h-8 px-3 rounded-md border border-rose-600/40 text-rose-500 text-xs"
+                    className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
                     onClick={() => setDeleteTarget(c)}
                     disabled={isBusy}
                   >
@@ -903,13 +903,15 @@ function LeadModal({
     {error && <div className="mt-4 text-sm text-rose-500">{error}</div>}
 
     <div className="mt-6 flex items-center justify-end gap-2">
-      <button className="h-10 px-4 rounded-lg border text-sm" onClick={onClose} disabled={saving}>
-        Cancelar
-      </button>
       <button
-        className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm disabled:opacity-60"
-        onClick={handleSubmit}
-        disabled={saving}
+          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white"
+          onClick={onClose}
+        >
+          Cancelar
+        </button>
+
+      <button
+        className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-500 dark:border-emerald-500 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm disabled:opacity-60"
       >
         {saving ? "Guardando..." : "Guardar"}
       </button>
@@ -942,16 +944,16 @@ function ConfirmModal({
   }
   return (
     <ModalShell title={title} onClose={onCancel} maxWidth="max-w-lg">
-      <div className="text-sm rc-muted dark:text-gray-300">{message}</div>
+      <div className="text-sm font-bold text-base-clr">{message}</div>
       <div className="mt-5 flex items-center justify-end gap-2">
-        <button className="h-9 px-3 rounded-lg border text-sm" onClick={onCancel} disabled={working}>
+        <button className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"  onClick={onCancel} disabled={working}>
           Cancelar
         </button>
         <button
           className={
             confirmType === "danger"
-              ? "h-9 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 rc-text text-sm disabled:opacity-60"
-              : "h-9 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm disabled:opacity-60"
+              ? "h-10 px-6 rounded-lg text-sm font-bold transition-all border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 dark:hover:text-white shadow-sm disabled:opacity-60"
+              : "h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-sm disabled:opacity-60"
           }
           onClick={go}
           disabled={working}

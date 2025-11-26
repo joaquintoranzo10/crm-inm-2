@@ -91,7 +91,11 @@ type DashboardData = {
  * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
  * - Cierra al click fuera y con Escape.
  */
+<<<<<<<<< Temporary merge branch 1
 
+=========
+ 
+>>>>>>>>> Temporary merge branch 2
 function ModalShell({
   title,
   children,
@@ -461,6 +465,7 @@ export default function DashboardPage() {
     // Eliminamos el KPI de Avisos aquí
     return [
       { label: "Leads", value: totalLeads, hint: "" },
+      { label: "Leads", value: totalLeads, hint: "" },
       { label: "Propiedades en venta", value: enVenta, hint: "" },
       { label: "Propiedades en alquiler", value: enAlquiler, hint: "" },
       { label: "Propiedades vendidas", value: vendidas, hint: "" },
@@ -571,7 +576,7 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-2">
             <button
-              className="rounded-lg bg-blue-600 hover:bg-blue-700 rc-text rc-text text-sm px-3 h-9"
+              className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
             >
               + Agregar evento
@@ -596,6 +601,7 @@ export default function DashboardPage() {
         </div>
 
         {/* KPIs */}
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {kpis.map((k) => (
             <div
@@ -627,8 +633,38 @@ export default function DashboardPage() {
               <div className="text-4xl font-bold text-base-clr dark:text-white flex-shrink-0 leading-none">
                 {k.value}
               </div>
+            <div
+              key={k.label}
+              className="rounded-xl border rc-card rc-border p-4 flex items-center justify-between shadow-sm bg-card h-full"
+            >
+              {/* Contenedor de Texto (Izquierda) */}
+              {/* flex-1: Ocupa el espacio disponible */}
+              {/* min-w-0: Permite el wrap del texto */}
+              <div className="flex flex-col justify-center mr-3 min-w-0 flex-1">
+                <span
+                  className="text-lg font-semibold rc-muted text-gray-600 dark:text-gray-300 leading-tight"
+                >
+                  {k.label}
+                </span>
+
+                {/* Subtítulo / Hint (si existe) */}
+                {k.hint && (
+                  <span
+                    className="text-sm opacity-70 mt-1 text-gray-400"
+                  >
+                    {k.hint}
+                  </span>
+                )}
+              </div>
+
+              {/* Contenedor de Número (Derecha) */}
+              {/* flex-shrink-0: Evita que el número se aplaste */}
+              <div className="text-4xl font-bold text-base-clr dark:text-white flex-shrink-0 leading-none">
+                {k.value}
+              </div>
             </div>
           ))}
+        </div>
         </div>
 
         {/* Calendar */}
@@ -1023,11 +1059,11 @@ function EventModal({
       {error && <div className="mt-3 text-sm text-rose-500">{error}</div>}
 
       <div className="mt-6 flex items-center justify-end gap-2">
-        <button className="h-10 px-4 rounded-lg border text-sm" onClick={onCancel} disabled={saving}>
+        <button className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm" onClick={onCancel} disabled={saving}>
           Cancelar
         </button>
         <button
-          className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm disabled:opacity-60"
+          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-500 dark:border-emerald-500 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm disabled:opacity-60"
           onClick={handleSubmit}
           disabled={saving}
         >
