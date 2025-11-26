@@ -571,7 +571,7 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-2">
             <button
-              className="rounded-lg bg-blue-600 hover:bg-blue-700 rc-text rc-text text-sm px-3 h-9"
+              className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
             >
               + Agregar evento
@@ -1023,11 +1023,11 @@ function EventModal({
       {error && <div className="mt-3 text-sm text-rose-500">{error}</div>}
 
       <div className="mt-6 flex items-center justify-end gap-2">
-        <button className="h-10 px-4 rounded-lg border text-sm" onClick={onCancel} disabled={saving}>
+        <button className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm" onClick={onCancel} disabled={saving}>
           Cancelar
         </button>
         <button
-          className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 rc-text text-sm disabled:opacity-60"
+          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-500 dark:border-emerald-500 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm disabled:opacity-60"
           onClick={handleSubmit}
           disabled={saving}
         >
