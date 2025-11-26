@@ -91,11 +91,7 @@ type DashboardData = {
  * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
  * - Cierra al click fuera y con Escape.
  */
-<<<<<<< HEAD
-
-=======
  
->>>>>>> a056fb7134c4d19f45eb53d7b0bb31733d30a971
 function ModalShell({
   title,
   children,
