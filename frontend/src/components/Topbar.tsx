@@ -1,45 +1,14 @@
 // src/components/Topbar.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// CAMBIO: Importamos FiCheckCircle y quitamos los otros íconos
-import { FiSearch, FiBell, FiCheckCircle } from "react-icons/fi"; 
+// CAMBIO: Importamos FiCheckCircle y quitamos FiSearch
+import { FiBell, FiCheckCircle } from "react-icons/fi"; 
 import ThemeToggle from "@/components/ThemeToggle";
 import { api } from "@/lib/api"; // Asegúrate de que tu wrapper de api esté aquí
 
 /* ===================== Tipos de datos ===================== */
-type Evento = {
-  id: number;
-  tipo?: string;
-  fecha_hora?: string;
-  propiedad?: number;
-  nombre?: string;
-  apellido?: string;
-  email?: string;
-  notas?: string;
-};
+// --- CAMBIO: Tipos de Search (Evento, Propiedad, Usuario, SearchItem) eliminados ---
 
-type Propiedad = {
-  id: number;
-  titulo?: string;
-  direccion?: string;
-  estado?: string | null;
-  disponibilidad?: string | null;
-};
-
-type Usuario = {
-  id: number;
-  nombre?: string;
-  apellido?: string;
-  email?: string;
-  telefono?: string;
-};
-
-type SearchItem =
-  | { type: "evento"; id: number; title: string; subtitle?: string }
-  | { type: "propiedad"; id: number; title: string; subtitle?: string }
-  | { type: "usuario"; id: number; title: string; subtitle?: string };
-
-// --- CAMBIO: TIPO DE AVISO ACTUALIZADO ---
 // Este es el tipo para un objeto Aviso individual que viene de la API
 type Aviso = {
   id: number;
@@ -51,32 +20,19 @@ type Aviso = {
   propiedad?: number | null;
   evento?: number | null;
 };
-// --- FIN CAMBIO ---
-
-/* ===================== Hook simple de debounce ===================== */
-function useDebouncedValue<T>(value: T, delay = 300) {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return v;
-}
 
 /* ===================== Componente principal ===================== */
 export default function Topbar({ title }: { title: string }) {
   const navigate = useNavigate();
   const token = localStorage.getItem("rc_token") || "";
   
-  // Eliminamos 'headers' ya que 'api.ts' debe manejar el token
-  
-  /* --------- Estado del buscador --------- */
-  const [query, setQuery] = useState("");
-  const q = useDebouncedValue(query, 300);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<SearchItem[]>([]);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
+  /* --------- CAMBIO: Estados del buscador eliminados --------- */
+  // const [query, setQuery] = useState("");
+  // const q = useDebouncedValue(query, 300);
+  // const [open, setOpen] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  // const [results, setResults] = useState<SearchItem[]>([]);
+  // const wrapRef = useRef<HTMLDivElement | null>(null);
 
   /* --------- Estado de la campana (MODIFICADO) --------- */
   const [openBell, setOpenBell] = useState(false);
@@ -88,15 +44,15 @@ export default function Topbar({ title }: { title: string }) {
   const [loadingAvisos, setLoadingAvisos] = useState(false);
   const [errorAvisos, setErrorAvisos] = useState<string | null>(null);
 
-  /* --------- Cerrar popovers con click afuera o Escape --------- */
+  /* --------- Cerrar popovers con click afuera o Escape (MODIFICADO) --------- */
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      // CAMBIO: Lógica de wrapRef (buscador) eliminada
       if (bellWrapRef.current && !bellWrapRef.current.contains(e.target as Node)) setOpenBell(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        setOpen(false);
+        // CAMBIO: Lógica de setOpen(false) (buscador) eliminada
         setOpenBell(false);
       }
     }
@@ -106,93 +62,13 @@ export default function Topbar({ title }: { title: string }) {
       document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, []); // El 'wrapRef' ya no es dependencia
 
-  /* --------- Buscar cuando cambia q (mínimo 2 caracteres) --------- */
-  useEffect(() => {
-    async function run() {
-      const text = q.trim();
-      if (text.length < 2) {
-        setResults([]);
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const [evRes, prRes, usRes] = await Promise.all([
-          api.get(`/eventos/?search=${encodeURIComponent(text)}`),
-          api.get(`/propiedades/?search=${encodeURIComponent(text)}`),
-          api.get(`/usuarios/`),
-        ]);
-        
-        // Asumiendo que la API devuelve { results: [...] } para listas paginadas
-        const eventos: Evento[] = evRes.data?.results ?? (Array.isArray(evRes.data) ? evRes.data : []);
-        const propiedades: Propiedad[] = prRes.data?.results ?? (Array.isArray(prRes.data) ? prRes.data : []);
-        const usuarios: Usuario[] = usRes.data?.results ?? (Array.isArray(usRes.data) ? usRes.data : []);
+  /* --------- CAMBIO: useEffect de búsqueda eliminado --------- */
 
+  /* --------- CAMBIO: 'onSelect' de búsqueda eliminado --------- */
 
-        const needle = text.toLowerCase();
-        const eventosF = eventos
-          .filter((e) =>
-            [e.tipo, e.nombre, e.apellido, e.email, e.notas]
-              .filter(Boolean)
-              .some((s) => String(s).toLowerCase().includes(needle))
-          )
-          .slice(0, 5)
-          .map<SearchItem>((e) => ({
-            type: "evento",
-            id: e.id,
-            title: `${e.tipo ?? "Evento"} ${e.nombre ? `• ${e.nombre}` : ""}`.trim(),
-            subtitle: e.fecha_hora ? new Date(e.fecha_hora).toLocaleString() : undefined,
-          }));
-
-        const propiedadesF = propiedades
-          .filter((p) =>
-            [p.titulo, p.direccion, p.estado, p.disponibilidad]
-              .filter(Boolean)
-              .some((s) => String(s).toLowerCase().includes(needle))
-          )
-          .slice(0, 5)
-          .map<SearchItem>((p) => ({
-            type: "propiedad",
-            id: p.id,
-            title: p.titulo || `Propiedad #${p.id}`,
-            subtitle: [p.estado, p.disponibilidad].filter(Boolean).join(" • ") || undefined,
-          }));
-
-        const usuariosF = usuarios
-          .filter((u) =>
-            [u.nombre, u.apellido, u.email, u.telefono]
-              .filter(Boolean)
-              .some((s) => String(s).toLowerCase().includes(needle))
-          )
-          .slice(0, 5)
-          .map<SearchItem>((u) => ({
-            type: "usuario",
-            id: u.id,
-            title: [u.nombre, u.apellido].filter(Boolean).join(" ") || `Usuario #${u.id}`,
-            subtitle: u.email,
-          }));
-
-        setResults([...eventosF, ...propiedadesF, ...usuariosF]);
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    run();
-  }, [q, token]); // Dependemos de token
-
-  /* --------- Navegación al elegir un resultado --------- */
-  function onSelect(item: SearchItem) {
-    setOpen(false);
-    if (item.type === "propiedad") navigate("/app/propiedades");
-    else if (item.type === "usuario") navigate("/app/usuarios");
-    else navigate("/app");
-  }
-
-  /* --------- Fetch de avisos (MODIFICADO) --------- */
+  /* --------- Fetch de avisos --------- */
   async function fetchAvisos() {
     if (!token) return;
     setLoadingAvisos(true);
@@ -227,80 +103,32 @@ export default function Topbar({ title }: { title: string }) {
     navigate("/app/avisos");
   }
 
-  // --- NUEVA FUNCIÓN ---
+  /* --------- Función Marcar como leído --------- */
   async function handleMarcarLeido(e: React.MouseEvent, id: number) {
     e.stopPropagation(); // Evita que el clic cierre el dropdown
     
     // 1. Actualiza la UI localmente (optimista)
-    //    Filtra el aviso que coincide con el ID.
     setAvisos((prevAvisos) => prevAvisos?.filter((a) => a.id !== id) ?? null);
     
     // 2. Llama a la API en segundo plano
     try {
       await api.post(`/avisos/${id}/marcar-leido/`);
-      // Si tuvo éxito, la UI ya está actualizada.
     } catch (err) {
-      // Si falla, revierte el estado (o muestra un error)
       setErrorAvisos("Error al marcar aviso. Refrescando...");
       fetchAvisos(); // Refresca la lista completa para revertir
     }
   }
-  // --- FIN NUEVA FUNCIÓN ---
-
-
+  
   /* --------- Render --------- */
   return (
     <header className="flex items-center justify-between p-4 border-b rc-border">
       <h1 className="text-xl font-semibold rc-text">{title}</h1>
 
       <div className="flex items-center gap-3">
-        {/* ------- Search ------- */}
-        <div className="relative" ref={wrapRef}>
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-2.5 rc-muted pointer-events-none" />
-            <input
-              placeholder="Buscar (eventos, propiedades, usuarios)…"
-              className="rc-input w-72 pl-9 pr-3"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setOpen(true);
-              }}
-              onFocus={() => setOpen(true)}
-            />
-          </div>
-
-          {open && (loading || results.length > 0 || q.trim().length >= 2) && (
-            <div className="absolute z-50 mt-1 w-[28rem] rounded-lg rc-card shadow-lg">
-              <div className="max-h-80 overflow-auto">
-                {loading && <div className="px-3 py-2 text-sm rc-muted">Buscando…</div>}
-                {!loading && q.trim().length >= 2 && results.length === 0 && (
-                  <div className="px-3 py-2 text-sm rc-muted">Sin coincidencias</div>
-                )}
-                {!loading &&
-                  results.map((r) => (
-                    <button
-                      key={`${r.type}-${r.id}`}
-                      onClick={() => onSelect(r)}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-app/5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium rc-text">{r.title}</span>
-                        <span className="text-[10px] uppercase tracking-wide rc-muted">{r.type}</span>
-                      </div>
-                      {r.subtitle && <div className="text-xs rc-muted">{r.subtitle}</div>}
-                    </button>
-                  ))}
-              </div>
-
-              <div className="border-t rc-border p-2 text-right">
-                <span className="text-[11px] rc-muted">Mínimo 2 caracteres • Enter para buscar</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ------- Campana de avisos (MODIFICADA) ------- */}
+        
+        {/* ------- CAMBIO: Search eliminado ------- */}
+        
+        {/* ------- Campana de avisos ------- */}
         <div className="relative" ref={bellWrapRef}>
           <button
             className="relative h-9 w-9 grid place-items-center rounded-lg border rc-border bg-surface"
@@ -324,7 +152,7 @@ export default function Topbar({ title }: { title: string }) {
                 </button>
               </div>
 
-              {/* --- ÁREA DE AVISOS COMPLETAMENTE NUEVA --- */}
+              {/* --- ÁREA DE AVISOS --- */}
               <div className="max-h-96 overflow-auto">
                 {loadingAvisos && <div className="px-3 py-2 text-sm rc-muted">Cargando…</div>}
                 {errorAvisos && !loadingAvisos && (
@@ -371,7 +199,7 @@ export default function Topbar({ title }: { title: string }) {
                   <div className="px-3 py-2 text-sm rc-muted">No hay datos de avisos.</div>
                 )}
               </div>
-              {/* --- FIN ÁREA DE AVISOS NUEVA --- */}
+              {/* --- FIN ÁREA DE AVISOS --- */}
 
               <div className="px-2 py-2 border-t rc-border bg-surface-2/50">
                 <button className="w-full h-8 rounded-md border rc-border text-xs hover:bg-black/5 dark:hover:bg-white/5" onClick={fetchAvisos}>
@@ -388,6 +216,3 @@ export default function Topbar({ title }: { title: string }) {
     </header>
   );
 }
-
-// ELIMINADO: El componente BucketSmall ya no se usa en este archivo
-// function BucketSmall(...) { ... }

@@ -3,7 +3,6 @@ import os
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 SECRET_KEY = 'django-insecure-c45orq2z2o^*ogbjw_tb$fdd1d7lh(9nl7q&%u6s+jrapg23!m'
 DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "DESKTOP-0LTCLJK", "desktop-0ltcljk"]
