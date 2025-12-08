@@ -24,7 +24,7 @@ const items: Item[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard },
   { to: "/app/leads", label: "Leads", icon: Contact },
   { to: "/app/propiedades", label: "Propiedades", icon: Building2 },
-  { to: "/app/avisos", label: "Recordatorios y avisos", icon: Bell },
+  { to: "/app/avisos", label: "Recordatorios", icon: Bell },
   { to: "/app/configuracion", label: "Configuración", icon: Settings },
 ];
 
@@ -36,13 +36,11 @@ export default function Sidebar() {
   const width = collapsed ? "w-[76px]" : "w-64";
 
   useEffect(() => {
-    // lee (si existe) el nombre guardado
     const stored = localStorage.getItem("rc_user_name");
     setUserName(stored);
   }, []);
 
   const handleLogout = () => {
-    // limpia credenciales/session
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     localStorage.removeItem("rc_user_id");
@@ -53,22 +51,28 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        "h-screen sticky top-0 border-r border-soft dark:border-soft bg-app dark:bg-gray-950",
-        "transition-all duration-300 ease-in-out hidden md:flex flex-col",
+        // CORRECCIÓN: Fondo #050505 para igualar al Dashboard y borde casi invisible
+        "h-screen sticky top-0 border-r border-white/5 bg-[#050505]",
+        "transition-all duration-300 ease-in-out hidden md:flex flex-col z-50",
         width
       )}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-3 py-4 border-b border-soft dark:border-soft">
-        <img src="/logo.png" alt="Real Connect" className="h-8 w-8 rounded" />
+      <div className="flex items-center gap-3 px-4 py-6 border-b border-white/5">
+        <div className="relative group">
+            {/* Glow sutil detrás del logo */}
+            <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img src="/logo.png" alt="RC" className="relative h-8 w-8 rounded object-contain" />
+        </div>
+        
         {!collapsed && (
-          <div className="font-semibold leading-tight">
-            <div className="text-sm">Real Connect</div>
-            <div className="text-[10px] text-muted-clr dark:text-gray-400">CRM Inmobiliario</div>
+          <div className="font-semibold leading-tight animate-in fade-in slide-in-from-left-2 duration-300">
+            <div className="text-sm text-white tracking-wide">Real Connect</div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">CRM Inmobiliario</div>
           </div>
         )}
         <button
-          className="ml-auto inline-flex items-center justify-center rounded-md border border-soft dark:border-soft hover:bg-app dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300 h-8 w-8"
+          className="ml-auto inline-flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white h-7 w-7 transition-all"
           onClick={() => setCollapsed((c) => !c)}
           title={collapsed ? "Expandir" : "Colapsar"}
         >
@@ -77,7 +81,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navegación */}
-      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
         {items.map((it) => {
           const Icon = it.icon;
           return (
@@ -87,32 +91,37 @@ export default function Sidebar() {
               end={it.to === "/app"}
               className={({ isActive }) =>
                 clsx(
-                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
-                  // Normal
-                  "text-[color:var(--text)] hover:bg-[color:var(--bg-muted)] hover:text-[color:var(--primary)]",
-                  "dark:text-[color:var(--text-muted)] dark:hover:bg-[color:var(--surface-2)] dark:hover:text-[color:var(--text-strong)]",
-                  // Activo
-                  isActive &&
-                    "bg-[color:var(--primary)] text-white dark:bg-[color:var(--primary)] dark:text-white shadow-sm"
+                  "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 relative overflow-hidden",
+                  // Estado inactivo: Gris y hover sutil
+                  !isActive && "text-gray-400 hover:text-white hover:bg-white/5",
+                  // Estado activo: Texto blanco, fondo con gradiente sutil y borde
+                  isActive && "text-white bg-gradient-to-r from-blue-600/10 to-indigo-600/5 border border-blue-500/20"
                 )
               }
             >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span className="truncate">{it.label}</span>}
+               {({ isActive }) => (
+                <>
+                  {/* Indicador lateral activo */}
+                  {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-500 rounded-r-full shadow-[0_0_10px_#3b82f6]"></div>}
+                  
+                  <Icon className={clsx("h-5 w-5 shrink-0 transition-colors", isActive ? "text-blue-400" : "text-gray-500 group-hover:text-gray-300")} />
+                  {!collapsed && <span className="truncate">{it.label}</span>}
+                </>
+              )}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Pie: Cerrar sesión + versión */}
-      <div className="mt-auto border-t border-soft dark:border-soft">
+      {/* Footer */}
+      <div className="mt-auto border-t border-white/5 bg-[#050505]">
         <div className="p-3">
           <button
             onClick={handleLogout}
             className={clsx(
-              "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
-              "hover:bg-[color:var(--surface-2)] text-[color:var(--text)] dark:text-[color:var(--text-strong)]",
-              "transition-colors"
+              "w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium",
+              "hover:bg-rose-500/10 text-gray-400 hover:text-rose-400 border border-transparent hover:border-rose-500/20",
+              "transition-all duration-200"
             )}
             title="Cerrar sesión"
           >
@@ -121,14 +130,11 @@ export default function Sidebar() {
           </button>
 
           {!collapsed && userName && (
-            <p className="mt-2 text-[11px] text-muted-clr dark:text-gray-400">
-              Sesión iniciada como <strong>{userName}</strong>
-            </p>
+            <div className="mt-3 px-1 text-center">
+                <p className="text-[10px] text-gray-600 uppercase tracking-widest">Usuario</p>
+                <p className="text-xs text-gray-400 font-medium truncate">{userName}</p>
+            </div>
           )}
-        </div>
-
-        <div className="px-3 pb-3 text-[10px] text-muted-clr dark:text-gray-400">
-          {collapsed ? "v0.1" : "v0.1 • Dev"}
         </div>
       </div>
     </aside>

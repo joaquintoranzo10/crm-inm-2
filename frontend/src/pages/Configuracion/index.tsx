@@ -87,6 +87,69 @@ function Row({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{children}</div>;
 }
 
+function CustomSelect({
+  value,
+  onChange,
+  options,
+}: {
+  value: number | string;
+  onChange: (val: any) => void;
+  options: { value: string | number; label: string }[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleOutside(e: any) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
+  const selectedLabel = options.find((o) => o.value === value)?.label || value;
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      {/* BOTÓN PRINCIPAL: Forzamos bg-white para que no se vea negro en tema claro */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="h-10 w-full rounded-xl border border-gray-300 px-3 text-sm text-left flex items-center justify-between bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 transition-colors"
+      >
+        <span className="truncate">{selectedLabel}</span>
+        <span className="text-gray-400 text-xs pointer-events-none">▼</span>
+      </button>
+
+      {/* LISTA DESPLEGABLE */}
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-xl z-50 overflow-hidden dark:bg-gray-900 dark:border-gray-700">
+          <div className="max-h-[120px] overflow-y-auto">
+            {options.map((opt) => (
+              <div
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
+                  opt.value === value
+                    ? "bg-blue-100 text-blue-800 font-medium dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                }`}
+              >
+                {opt.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Button({
   children,
   onClick,
@@ -103,10 +166,10 @@ function Button({
   const base = "h-10 px-4 rounded-xl text-sm font-medium transition border";
   const style =
     variant === "primary"
-      ? "bg-blue-600 hover:bg-blue-700 rc-text rc-text border-blue-600"
+      ? "bg-transparent border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
       : variant === "danger"
-      ? "bg-red-600 hover:bg-red-700 rc-text rc-text border-red-600"
-      : "bg-transparent hover:bg-app dark:hover:rc-card rc-text rc-text rc-border rc-border";
+      ? "bg-transparent border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+      : "bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800";
   return (
     <button
       type={type}
@@ -471,7 +534,7 @@ export default function ConfiguracionPage() {
                 Recomendado: <b>3</b>, <b>5</b> o <b>7</b> días.
               </div>
             </div>
-            <div className="flex items-end gap-2">
+            <div className="md:col-span-2 flex items-end justify-end gap-2">
               <Button onClick={savePrefs} disabled={prefSaving || prefLoading}>
                 {prefSaving ? "Guardando…" : "Guardar preferencia"}
               </Button>
@@ -495,34 +558,23 @@ export default function ConfiguracionPage() {
         {/* Exportar datos */}
         <Section title="Exportar datos (CSV/JSON)">
           <Row>
-            <div className="space-y-2">
-              <Label>Periodo</Label>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={year}
-                  onChange={(e) => setYear(parseInt(e.target.value))}
-                >
-                  {useMemo(() => {
-                    const y = new Date().getFullYear();
-                    return Array.from({ length: 7 }, (_, i) => y - 3 + i);
-                  }, []).map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </Select>
-                <Select
-                  value={month}
-                  onChange={(e) => setMonth(parseInt(e.target.value))}
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                    <option key={m} value={m}>
-                      {fmt(m)}
-                    </option>
-                  ))}
-                </Select>
-              </div>
+            <div className="flex items-center gap-2">          
+              <CustomSelect
+                value={year}
+                onChange={(val) => setYear(Number(val))}
+                options={years.map((y) => ({ value: y, label: String(y) }))}
+              />
+
+              <CustomSelect
+                value={month}
+                onChange={(val) => setMonth(Number(val))}
+                options={Array.from({ length: 12 }, (_, i) => i + 1).map((m) => ({
+                  value: m,
+                  label: fmt(m),
+                }))}
+              />
             </div>
+            
             <div className="space-y-2">
               <Label>Formato</Label>
               <div className="flex items-center gap-3">
@@ -599,7 +651,7 @@ export default function ConfiguracionPage() {
                 ))}
               </div>
             </div>
-            <div className="flex items-end gap-2">
+            <div className="flex items-end justify-end gap-2">
               <Button onClick={handleExport} disabled={exportLoading}>
                 {exportLoading ? "Exportando…" : "Exportar"}
               </Button>
@@ -659,7 +711,7 @@ export default function ConfiguracionPage() {
               <Input ref={fileRef} type="file" accept=".csv, .json" />
             </div>
           </Row>
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex items-center justify-end gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -749,7 +801,7 @@ export default function ConfiguracionPage() {
                 required
               />
             </div>
-            <div className="md:col-span-3 flex items-center gap-2">
+            <div className="md:col-span-3 flex items-center justify-end gap-2">
               <Button type="submit" disabled={pwdLoading}>
                 {pwdLoading ? "Guardando…" : "Actualizar contraseña"}
               </Button>
@@ -789,7 +841,7 @@ export default function ConfiguracionPage() {
                 onChange={(e) => setDelPwd(e.target.value)}
               />
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end justify-end">
               <Button
                 type="submit"
                 variant="danger"

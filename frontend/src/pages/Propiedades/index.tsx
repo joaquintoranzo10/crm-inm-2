@@ -465,7 +465,7 @@ export default function PropiedadesPage() {
             />
             {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs rc-muted" onClick={() => setQ("")}>Limpiar</button>}
           </div>
-          <button onClick={() => setOpenCreate(true)} className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm">
+          <button onClick={() => setOpenCreate(true)} className="inline-flex items-center rounded-md px-3 h-9 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
             Registrar propiedad
           </button>
         </div>
