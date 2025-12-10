@@ -1,3 +1,4 @@
+// src/pages/Dashboard/index.tsx
 import { useEffect, useMemo, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { toast } from 'react-hot-toast';
@@ -26,63 +27,6 @@ type DashboardData = {
   avisos_pendientes: number;
   avisos_atrasados: number;
 };
-
-/** ModalShell
- * - Separa BACKDROP del CONTENIDO.
- * - Resuelve z-index y stacking contexts para que el fondo no "lave" el modal.
- * - Cierra al click fuera y con Escape.
- */
-function ModalShell({
-  title,
-  children,
-  maxWidth = "max-w-3xl",
-  onClose,
-}: {
-  title?: string;
-  children: ReactNode;
-  maxWidth?: "max-w-sm" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
-  onClose: () => void;
-}) {
-  // Cerrar con Escape
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  // Bloquear scroll del fondo
-  useEffect(() => {
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = prev; };
-  }, []);
-
-  return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
-
-      {/* Contenedor Modal */}
-      <div
-        className={`relative w-full ${maxWidth} bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden`}
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Glow decorativo */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>
-
-        {title && (
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">✕</button>
-          </div>
-        )}
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
-  );
-}
 
 /* ============================ Utilities ============================ */
 const MONTHS = [
@@ -137,7 +81,7 @@ function ymd(d: Date) {
 }
 function monthRange(d: Date) {
   const start = new Date(d.getFullYear(), d.getMonth(), 1);
-  const end = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 1); 
   return { from: ymd(start), to: ymd(end) };
 }
 
@@ -198,7 +142,7 @@ export default function DashboardPage() {
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
   const [today] = useState(new Date());
-  const [cursor, setCursor] = useState(new Date());
+  const [cursor, setCursor] = useState(new Date()); 
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [activeFilters, setActiveFilters] = useState<Filters | null>(null);
 
@@ -276,7 +220,7 @@ export default function DashboardPage() {
       setLoading(true);
       try {
         if (activeFilters) await fetchWithFilters(activeFilters);
-        else await fetchMonthEvents(cursor); // Pass cursor explicitly as it's a dependency
+        else await fetchMonthEvents();
       } catch (e: any) {
         console.error(e);
         setEventos([]);
@@ -287,7 +231,892 @@ export default function DashboardPage() {
     return () => { mounted = false; };
   }, [cursor, activeFilters]);
 
-  // The previous useEffect block already handles fetching based on cursor and activeFilters.
-  // This useEffect block was incomplete and redundant, so it has been removed.
-  // If a separate refresh mechanism is intended, it should be implemented explicitly.
+  useEffect(() => {
+    const handler = () => {
+      if (!localStorage.getItem('rc_token')) return;
+      if (activeFilters) fetchWithFilters(activeFilters);
+      else fetchMonthEvents();
+      fetchStatic();
+    };
+    window.addEventListener("assistant:refresh-calendar", handler as EventListener);
+    return () => window.removeEventListener("assistant:refresh-calendar", handler as EventListener);
+  }, [activeFilters, cursor]);
+
+  /* ------------------------ Calendar helpers ------------------------ */
+  const monthLabel = `${MONTHS[cursor.getMonth()]} de ${cursor.getFullYear()}`;
+
+  const monthGrid = useMemo(() => {
+    const start = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const startDay = (start.getDay() + 6) % 7;
+    const gridStart = new Date(start);
+    gridStart.setDate(start.getDate() - startDay);
+
+    const days: Date[] = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(gridStart);
+      d.setDate(gridStart.getDate() + i);
+      days.push(d);
+    }
+    return { days };
+  }, [cursor]);
+
+  const eventsByDay = useMemo(() => {
+    const map = new Map<string, Evento[]>();
+    for (const ev of eventos) {
+      const d = new Date(ev.fecha_hora);
+      const key = toKey(d);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(ev);
+    }
+    for (const list of map.values()) list.sort(sortByDateAsc);
+    return map;
+  }, [eventos]);
+
+  const summaryByDay = useMemo(() => {
+    const m = new Map<string, { r: number; l: number; v: number; total: number }>();
+    for (const [k, list] of eventsByDay.entries()) {
+      let r = 0, l = 0, v = 0;
+      for (const ev of list) {
+        if (ev.tipo === "Reunion") r++;
+        else if (ev.tipo === "Llamada") l++;
+        else if (ev.tipo === "Visita") v++;
+      }
+      m.set(k, { r, l, v, total: list.length });
+    }
+    return m;
+  }, [eventsByDay]);
+
+
+  /* ------------------------------ KPIs ------------------------------ */
+  const kpis = useMemo(() => {
+    const totalLeads = contactos.length;
+    const norm = (s?: string | null) => (s || "").trim().toLowerCase();
+    const isVendida = (p: Propiedad) => norm(p.estado).includes("vendid");
+
+    let enVenta = 0, enAlquiler = 0, vendidas = 0;
+    for (const p of propiedades) {
+      if (isVendida(p)) { vendidas++; continue; }
+      const d = norm(p.disponibilidad);
+      if (d === "venta") enVenta++;
+      else if (d === "alquiler") enAlquiler++;
+    }
+
+    const evInMonth = eventos.length;
+
+    return [
+      { label: "Leads", value: totalLeads, hint: "" },
+      { label: "Propiedades en venta", value: enVenta, hint: "" },
+      { label: "Propiedades en alquiler", value: enAlquiler, hint: "" },
+      { label: "Propiedades vendidas", value: vendidas, hint: "" },
+      { label: "Reuniones programadas", value: evInMonth, hint: "" },
+    ];
+  }, [contactos, propiedades, eventos]);
+
+  /* ---------------------------- Handlers ---------------------------- */
+  const prevMonth = () => { const d = new Date(cursor); d.setMonth(cursor.getMonth() - 1); setCursor(d); };
+  const nextMonth = () => { const d = new Date(cursor); d.setMonth(cursor.getMonth() + 1); setCursor(d); };
+
+  function openCreateOnDay(d: Date) { setOpenEventModal({ mode: "create", baseDate: d }); }
+
+  async function saveEvento(data: Partial<Evento>, mode: "create" | "edit", id?: number) {
+    if (!localStorage.getItem('rc_token')) {
+      toast.error("Acción no permitida. Inicia sesión.");
+      return;
+    }
+
+    const payload: any = {};
+    (["nombre", "apellido", "email", "tipo", "fecha_hora", "notas", "propiedad", "contacto"] as const)
+      .forEach((k) => { const v = (data as any)[k]; if (v !== undefined) payload[k] = v; });
+
+    const ignoreId = mode === "edit" ? id : undefined;
+    const valid = validateEventoNoSolapa(payload, eventos, { ignoreId });
+    if (!valid.ok) {
+      toast.error(valid.msg);
+      return;
+    }
+
+    try {
+      let fechaISO = String(payload.fecha_hora);
+      if (fechaISO.length <= 16 && fechaISO.includes("T")) {
+        const d = new Date(fechaISO);
+        fechaISO = d.toISOString();
+      }
+      payload.fecha_hora = fechaISO;
+
+      if (mode === "create") await api.post("eventos/", payload);
+      else if (id) await api.patch(`eventos/${id}/`, payload);
+
+      if (activeFilters) await fetchWithFilters(activeFilters);
+      else await fetchMonthEvents();
+
+      await fetchStatic();
+
+      setOpenEventModal(null);
+      setOpenDayModal(null);
+      toast.success("Evento guardado correctamente.");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.response?.data?.detail || "No se pudo guardar el evento.");
+    }
+  }
+
+  async function deleteEvento(ev: Evento) {
+    if (!localStorage.getItem('rc_token')) {
+      toast.error("Acción no permitida. Inicia sesión.");
+      return;
+    }
+
+    try {
+      await api.delete(`eventos/${ev.id}/`);
+      if (activeFilters) await fetchWithFilters(activeFilters);
+      else await fetchMonthEvents();
+      await fetchStatic();
+
+      setDeleting(null);
+      toast.success("Evento eliminado.");
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo eliminar el evento.");
+    }
+  }
+
+  /* ------------------------------- UI ------------------------------- */
+  return (
+    // CORRECCIÓN: Fondo fijo que asegura cobertura total (#050505) y evita el corte visual
+    <div className="relative w-full min-h-screen bg-[#050505] text-white font-sans p-6 overflow-x-hidden">
+      
+      {/* --- ESTILOS LOCALES --- */}
+      <style>{`
+        @keyframes slide {
+          0%, 100% { transform: translateX(-10%); }
+          50% { transform: translateX(0); }
+        }
+        .hover-slide:hover { animation: slide 0.6s infinite; }
+      `}</style>
+
+      {/* --- FONDO FIJO (Fixed) --- */}
+      <div className="fixed inset-0 -z-10 bg-[#050505]">
+        <div className="absolute inset-0 opacity-[0.03]" 
+             style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-8 max-w-[1600px] mx-auto relative z-10">
+        
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-3xl font-black tracking-tighter">
+            Bienvenido a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Real Connect</span>
+          </h2>
+
+          <div className="flex items-center gap-3">
+            <button
+              className="h-10 px-6 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-900/20"
+              onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
+            >
+              + Agregar evento
+            </button>
+            
+            {/* Controles de navegación */}
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-1 backdrop-blur-sm">
+              <button 
+                onClick={prevMonth}
+                className="w-9 h-9 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors hover-slide"
+              >
+                ←
+              </button>
+
+              <div className="min-w-[140px] text-center font-bold text-sm text-white px-2 uppercase tracking-wide">
+                {monthLabel}
+              </div>
+
+              <button 
+                onClick={nextMonth} 
+                disabled={sameDay(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1), today)}
+                className="w-9 h-9 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI CARDS (Glassmorphism) */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {kpis.map((k) => (
+            <div
+              key={k.label}
+              className="relative group overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-5 backdrop-blur-md hover:bg-white/10 transition-all duration-300"
+            >
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
+              <div className="relative flex flex-col justify-between h-full min-h-[100px]">
+                <div>
+                    <span className="text-sm font-medium text-gray-400 uppercase tracking-wider block mb-1">
+                    {k.label}
+                    </span>
+                    {k.hint && (
+                    <span className="text-xs text-gray-500 block mb-2">{k.hint}</span>
+                    )}
+                </div>
+                <div className="text-4xl font-bold text-white tracking-tight">
+                  {k.value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CALENDAR (Glassmorphism) */}
+        <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl overflow-hidden shadow-2xl">
+          <div className="grid grid-cols-7 border-b border-white/10 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-white/5">
+            {WEEKDAYS.map((w) => (
+              <div key={w} className="px-4 py-3 text-center">{w}</div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 auto-rows-[minmax(8rem,auto)]">
+            {monthGrid.days.map((d, i) => {
+              const inMonth = d.getMonth() === cursor.getMonth();
+              const key = toKey(d);
+              const isToday = sameDay(d, today);
+              const allEvents = inMonth ? (eventsByDay.get(key) || []) : [];
+              const sum = summaryByDay.get(key) || { r: 0, l: 0, v: 0, total: 0 };
+
+              const dd = String(d.getDate()).padStart(2, "0");
+              const monthAbbr = MONTHS[d.getMonth()].slice(0, 3);
+              const dayLabel = inMonth ? (d.getDate() === 1 ? `${dd} ${monthAbbr}` : dd) : "";
+
+              return (
+                <div
+                  key={i}
+                  className={`border-r border-b border-white/5 p-3 flex flex-col transition-colors ${
+                      inMonth ? "bg-transparent hover:bg-white/[0.02]" : "bg-white/[0.02] opacity-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between shrink-0 mb-2">
+                    <div className={`text-sm font-medium ${inMonth ? "text-gray-300" : "text-gray-600"}`}>
+                      {dayLabel}
+                    </div>
+                    {inMonth && isToday && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/50">
+                        HOY
+                      </span>
+                    )}
+                  </div>
+
+                  {inMonth && sum.total > 0 && (
+                    <button
+                      className="w-full text-left bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg p-2 transition-all group"
+                      onClick={() => setOpenDayModal(d)}
+                    >
+                        <div className="flex flex-wrap gap-1.5">
+                            {sum.r > 0 && <span className="text-[10px] px-1.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">{sum.r} Reun.</span>}
+                            {sum.l > 0 && <span className="text-[10px] px-1.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">{sum.l} Llam.</span>}
+                            {sum.v > 0 && <span className="text-[10px] px-1.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{sum.v} Visit.</span>}
+                        </div>
+                    </button>
+                  )}
+
+                  <div className="flex-1" />
+
+                  {inMonth && (
+                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-2">
+                      <button
+                        className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                        onClick={() => openCreateOnDay(d)}
+                        title="Nuevo evento"
+                      >
+                        +
+                      </button>
+                      {allEvents.length > 0 && (
+                         <button
+                         className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                         onClick={() => setOpenDayModal(d)}
+                         title="Ver detalles"
+                       >
+                         👁
+                       </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* --- MODALES --- */}
+      {openDayModal && (
+        <DayEventsModal
+          date={openDayModal}
+          eventos={(eventsByDay.get(toKey(openDayModal)) || []).slice().sort(sortByDateAsc)}
+          resumen={summaryByDay.get(toKey(openDayModal)) || { r: 0, l: 0, v: 0, total: 0 }}
+          onClose={() => setOpenDayModal(null)}
+          onEdit={(ev) => setOpenEventModal({ mode: "edit", evento: ev })}
+          onDelete={(ev) => setDeleting(ev)}
+          onCreate={() => setOpenEventModal({ mode: "create", baseDate: openDayModal })}
+        />
+      )}
+
+      {openEventModal && (
+        <EventModal
+          mode={openEventModal.mode}
+          baseDate={openEventModal.baseDate}
+          evento={openEventModal.evento}
+          contactos={contactos}
+          propiedades={propiedades}
+          onCancel={() => setOpenEventModal(null)}
+          onSave={saveEvento}
+        />
+      )}
+
+      {deleting && (
+        <ConfirmModal
+          title="Eliminar evento"
+          message={`¿Seguro que querés eliminar el evento de ${formatHour(deleting.fecha_hora)} (${deleting.tipo})?`}
+          confirmLabel="Eliminar"
+          confirmType="danger"
+          onCancel={() => setDeleting(null)}
+          onConfirm={() => deleteEvento(deleting)}
+        />
+      )}
+
+      {result && <ResultModal ok={result.ok} message={result.msg} onClose={() => setResult(null)} />}
+      
+      {loading && (
+          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              <div className="text-white animate-pulse">Cargando datos...</div>
+          </div>
+      )}
+
+    </div>
+  );
+}
+
+/* ============================ Modals Components ============================ */
+
+function ModalShell({
+  title,
+  children,
+  maxWidth = "max-w-3xl",
+  onClose,
+}: {
+  title?: string;
+  children: ReactNode;
+  maxWidth?: "max-w-sm" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  useEffect(() => {
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    return () => { document.documentElement.style.overflow = prev; };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
+      
+      {/* Contenedor Modal */}
+      <div
+        className={`relative w-full ${maxWidth} bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden`}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Glow decorativo */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>
+
+        {title && (
+          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
+            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">✕</button>
+          </div>
+        )}
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function DayEventsModal({
+  date,
+  eventos,
+  resumen,
+  onClose,
+  onEdit,
+  onDelete,
+  onCreate,
+}: {
+  date: Date;
+  eventos: Evento[];
+  resumen: { r: number; l: number; v: number; total: number };
+  onClose: () => void;
+  onEdit: (ev: Evento) => void;
+  onDelete: (ev: Evento) => void;
+  onCreate: () => void;
+}) {
+  return (
+    <ModalShell title={`Eventos del ${formatDate(date, { year: "numeric" })}`} onClose={onClose}>
+      <div className="flex flex-wrap gap-2 mb-6 text-sm">
+        <span className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+          {resumen.r} {plural(resumen.r, "Reunión", "Reuniones")}
+        </span>
+        <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+          {resumen.l} {plural(resumen.l, "Llamada", "Llamadas")}
+        </span>
+        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          {resumen.v} {plural(resumen.v, "Visita", "Visitas")}
+        </span>
+      </div>
+
+      {eventos.length === 0 ? (
+        <div className="py-8 text-center text-gray-500 border border-dashed border-white/10 rounded-xl">
+            No hay eventos agendados.
+        </div>
+      ) : (
+        <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          {eventos.map((ev) => (
+            <li key={ev.id} className="group flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-2 h-2 rounded-full ${
+                        ev.tipo === 'Reunion' ? 'bg-blue-500' : 
+                        ev.tipo === 'Llamada' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}></span>
+                    <span className="font-semibold text-white">{formatHour(ev.fecha_hora)}</span>
+                    <span className="text-gray-400 text-sm">· {ev.tipo}</span>
+                </div>
+                
+                <div className="text-sm text-gray-300 truncate">
+                  {typeof (ev as any).propiedad_titulo === "string"
+                    ? (ev as any).propiedad_titulo
+                    : ev.propiedad ? `Propiedad #${ev.propiedad}` : "—"}
+                </div>
+                <div className="text-xs text-gray-500 truncate mt-0.5">
+                   {(ev as any).contacto_nombre
+                    ? `👤 ${(ev as any).contacto_nombre}`
+                    : ev.contacto ? `👤 Lead #${ev.contacto}` : "Sin contacto asignado"}
+                </div>
+                {ev.notas && <div className="text-xs text-gray-400 mt-2 italic border-l-2 border-white/20 pl-2">"{ev.notas}"</div>}
+              </div>
+              
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white" onClick={() => onEdit(ev)} title="Editar">✏️</button>
+                <button className="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-400" onClick={() => onDelete(ev)} title="Eliminar">🗑️</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-white/10">
+        <button className="h-9 px-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm" onClick={onClose}>Cerrar</button>
+        <button className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20" onClick={onCreate}>+ Agregar Evento</button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function EventModal({
+  mode,
+  baseDate,
+  evento,
+  contactos,
+  propiedades,
+  onCancel,
+  onSave,
+}: {
+  mode: "create" | "edit";
+  baseDate?: Date;
+  evento?: Evento;
+  contactos: Contacto[];
+  propiedades: Propiedad[];
+  onCancel: () => void;
+  onSave: (data: Partial<Evento>, mode: "create" | "edit", id?: number) => void | Promise<void>;
+}) {
+  const [form, setForm] = useState<Partial<Evento>>(
+    evento
+      ? { ...evento }
+      : {
+        tipo: "Reunion",
+        fecha_hora: toLocalInputValue(baseDate || new Date()),
+        propiedad: propiedades[0]?.id,
+        contacto: undefined,
+      }
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (form.contacto != null) {
+      const c = contactos.find(x => x.id === Number(form.contacto));
+      if (c) {
+        if (!(form.nombre || form.apellido || form.email)) {
+          setForm(f => ({
+            ...f,
+            nombre: c.nombre || "",
+            apellido: c.apellido || "",
+            email: c.email || ""
+          }));
+        }
+      }
+    }
+  }, [form.contacto, contactos]);
+
+  function set<K extends keyof Evento>(k: K, v: Evento[K] | any) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function handleSubmit() {
+    setError(null);
+    if (!form.propiedad) { setError("Seleccioná una propiedad."); return; }
+    if (!form.fecha_hora) { setError("Cargá fecha y hora."); return; }
+    setSaving(true);
+    try {
+      let fechaISO = String(form.fecha_hora);
+      if (fechaISO.length <= 16 && fechaISO.includes("T")) {
+        const d = new Date(fechaISO);
+        fechaISO = d.toISOString();
+      }
+      await onSave(
+        {
+          ...form,
+          fecha_hora: fechaISO,
+          contacto: (form as any).contacto === "" ? null : form.contacto,
+          email: form.email || undefined,
+          nombre: form.nombre || undefined,
+          apellido: form.apellido || undefined,
+          notas: form.notas || undefined,
+        },
+        mode,
+        evento?.id
+      );
+    } catch {
+      setError("Ocurrió un error. Intentá otra vez.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <ModalShell title={mode === "create" ? "Nuevo evento" : "Editar evento"} onClose={onCancel}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Field label="Tipo de evento">
+          <select
+            className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
+            value={form.tipo || "Reunion"}
+            onChange={(e) => set("tipo", e.target.value as Evento["tipo"])}
+          >
+            <option value="Reunion" className="bg-gray-900">Reunión</option>
+            <option value="Visita" className="bg-gray-900">Visita</option>
+            <option value="Llamada" className="bg-gray-900">Llamada</option>
+          </select>
+        </Field>
+
+        <Field label="Fecha y Hora">
+          <input
+            type="datetime-local"
+            className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none placeholder-gray-500"
+            value={
+              form.fecha_hora && form.fecha_hora.includes("T") && form.fecha_hora.length > 16
+                ? toLocalInputValue(new Date(form.fecha_hora))
+                : String(form.fecha_hora || "")
+            }
+            onChange={(e) => set("fecha_hora", e.target.value)}
+          />
+        </Field>
+
+        <div className="md:col-span-2">
+            <Field label="Propiedad">
+            <select
+                className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
+                value={String(form.propiedad || "")}
+                onChange={(e) => set("propiedad", Number(e.target.value))}
+            >
+                {propiedades.map((p) => (
+                <option key={p.id} value={String(p.id)} className="bg-gray-900">
+                    {p.titulo || (p as any).direccion || `Propiedad #${p.id}`}
+                </option>
+                ))}
+            </select>
+            </Field>
+        </div>
+
+        <div className="md:col-span-2 p-4 rounded-xl bg-white/5 border border-white/10 space-y-4">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Datos del Contacto</h4>
+            
+            <Field label="Buscar Lead existente (Opcional)">
+                <ContactAutocomplete
+                    valueId={form.contacto == null ? null : Number(form.contacto)}
+                    initialList={contactos}
+                    onChange={(id, item) => {
+                    set("contacto", id);
+                    if (item) {
+                        set("nombre", item.nombre || "");
+                        set("apellido", item.apellido || "");
+                        set("email", item.email || "");
+                    } else {
+                        set("nombre", "");
+                        set("apellido", "");
+                        set("email", "");
+                    }
+                    }}
+                    onClear={() => {
+                    set("contacto", null);
+                    set("nombre", "");
+                    set("apellido", "");
+                    set("email", "");
+                    }}
+                />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+                <Field label="Nombre">
+                <input
+                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    value={form.nombre || ""}
+                    onChange={(e) => set("nombre", e.target.value)}
+                    placeholder="Nombre visitante"
+                />
+                </Field>
+                <Field label="Apellido">
+                <input
+                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    value={form.apellido || ""}
+                    onChange={(e) => set("apellido", e.target.value)}
+                    placeholder="Apellido visitante"
+                />
+                </Field>
+            </div>
+             <Field label="Email">
+                <input
+                    type="email"
+                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    value={form.email || ""}
+                    onChange={(e) => set("email", e.target.value)}
+                    placeholder="email@ejemplo.com"
+                />
+            </Field>
+        </div>
+
+        <div className="md:col-span-2">
+          <Field label="Notas adicionales">
+            <textarea
+              rows={3}
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none resize-none"
+              value={form.notas || ""}
+              onChange={(e) => set("notas", e.target.value)}
+              placeholder="Detalles importantes..."
+            />
+          </Field>
+        </div>
+      </div>
+
+      {error && <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-300">{error}</div>}
+
+      <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        <button 
+            className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors" 
+            onClick={onCancel} 
+            disabled={saving}
+        >
+          Cancelar
+        </button>
+        <button
+          className="h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-900/20 disabled:opacity-50 transition-all"
+          onClick={handleSubmit}
+          disabled={saving}
+        >
+          {saving ? "Guardando..." : "Guardar Evento"}
+        </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function ContactAutocomplete({
+  valueId,
+  initialList,
+  onChange,
+  onClear,
+}: {
+  valueId: number | null;
+  initialList: Contacto[];
+  onChange: (id: number | null, item?: Contacto | null) => void;
+  onClear: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [items, setItems] = useState<Contacto[]>(initialList || []);
+  const [open, setOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Debounce simple
+  useEffect(() => {
+    const t = setTimeout(async () => {
+        if (!localStorage.getItem('rc_token')) {
+            setItems(initialList.slice(0, 10));
+            return;
+        }
+        const q = query.trim();
+        if (!q) {
+            setItems(initialList.slice(0, 10));
+            return;
+        }
+        try {
+             const res = await fetchLeads({ q, limit: 10 });
+             setItems(Array.isArray(res) ? res : res?.results ?? []);
+        } catch(e) {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query, initialList]);
+
+
+  const selected = useMemo(
+    () => (valueId ? items.find((i) => i.id === valueId) || initialList.find(i => i.id === valueId) : null),
+    [valueId, items, initialList]
+  );
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!wrapRef.current) return;
+      if (!wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  function pick(it: Contacto | null) {
+    onChange(it ? it.id : null, it || null);
+    setOpen(false);
+    setQuery("");
+  }
+
+  return (
+    <div className="relative" ref={wrapRef}>
+      <div className="flex gap-2">
+        <input
+          className="flex-1 h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+          placeholder="Buscar lead..."
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); setHighlight(0); }}
+          onFocus={() => setOpen(true)}
+        />
+        {valueId != null && (
+          <button
+            type="button"
+            className="h-10 px-3 rounded-lg border border-white/10 text-xs text-gray-300 hover:bg-white/10"
+            onClick={onClear}
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+
+      {valueId != null && selected && (
+        <div className="mt-2 text-xs text-blue-300 bg-blue-500/10 border border-blue-500/20 p-2 rounded-lg inline-block">
+          Seleccionado: <strong>{(selected.nombre || "") + " " + (selected.apellido || "")}</strong>
+        </div>
+      )}
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-white/10 bg-[#1a1a1a] shadow-xl custom-scrollbar">
+          {items.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-500">Sin resultados…</div>
+          ) : (
+            items.map((it, idx) => (
+                <button
+                  key={it.id}
+                  type="button"
+                  onClick={() => pick(it)}
+                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${idx === highlight ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-white/5"}`}
+                  onMouseEnter={() => setHighlight(idx)}
+                >
+                  <div className="font-medium truncate">{it.nombre} {it.apellido}</div>
+                  <div className={`text-xs truncate ${idx === highlight ? "text-blue-100" : "text-gray-500"}`}>
+                    {it.email || "Sin email"}
+                  </div>
+                </button>
+              ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConfirmModal({
+  title,
+  message,
+  confirmLabel = "Confirmar",
+  confirmType = "primary",
+  onCancel,
+  onConfirm,
+}: {
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    confirmType?: "primary" | "danger";
+    onCancel: () => void;
+    onConfirm: () => void | Promise<void>;
+}) {
+  const [working, setWorking] = useState(false);
+  async function go() {
+    setWorking(true);
+    await onConfirm();
+    setWorking(false);
+  }
+  return (
+    <ModalShell title={title} onClose={onCancel} maxWidth="max-w-lg">
+      <div className="text-gray-300">{message}</div>
+      <div className="mt-6 flex justify-end gap-3">
+        <button className="h-9 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10" onClick={onCancel} disabled={working}>
+          Cancelar
+        </button>
+        <button
+          className={
+            confirmType === "danger"
+              ? "h-9 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium shadow-lg shadow-rose-900/20"
+              : "h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20"
+          }
+          onClick={go}
+          disabled={working}
+        >
+          {working ? "Procesando..." : confirmLabel}
+        </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; onClose: () => void }) {
+  return (
+    <ModalShell title={ok ? "Éxito" : "Error"} onClose={onClose} maxWidth="max-w-sm">
+      <div className={`rounded-xl p-4 border ${ok ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-rose-500/10 border-rose-500/20 text-rose-300"}`}>
+        <div className="text-sm">{message}</div>
+      </div>
+      <div className="mt-4 text-right">
+        <button className="h-9 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{label}</label>
+      {children}
+    </div>
+  );
 }
