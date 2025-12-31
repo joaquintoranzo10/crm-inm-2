@@ -1,14 +1,13 @@
-// src/components/SmartLocationCombo.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import data from "@/data/arg-geo.json";
+import data from "@/data/arg-geo.json"; 
 
 type Option = {
-  prov_id: string; // "14"
-  prov: string;    // "Córdoba"
-  depto_id: string; // "14049"
-  depto: string;    // "Marcos Juárez"
-  label: string;    // "Córdoba, Marcos Juárez"
-  tokens: string;   // normalizado para búsqueda
+  prov_id: string;
+  prov: string;
+  depto_id: string;
+  depto: string;
+  label: string;
+  tokens: string;
 };
 
 const norm = (s: string) =>
@@ -46,12 +45,8 @@ type Props = {
   placeholder?: string;
   required?: boolean;
   className?: string;
-
-  /** No mostrar resultados hasta que se escriban al menos N letras (default: 2) */
   minChars?: number;
-  /** Límite de resultados (evita scroll) (default: 12) */
   limit?: number;
-  /** Si true, muestra resultados aun sin escribir (default: false) */
   showOnEmpty?: boolean;
 };
 
@@ -73,7 +68,6 @@ export default function SmartLocationCombo({
 
   useEffect(() => setQ(value || ""), [value]);
 
-  // debounce liviano
   const [raw, setRaw] = useState("");
   useEffect(() => {
     const id = setTimeout(() => setRaw(q), 80);
@@ -89,7 +83,6 @@ export default function SmartLocationCombo({
     const nq = norm(raw);
     if (!canOpen) return [];
     if (!nq) {
-      // sólo si showOnEmpty === true se mostraría algo acá; por defecto no
       return ALL_OPTIONS.slice(0, limit);
     }
     const starts: Option[] = [];
@@ -102,7 +95,7 @@ export default function SmartLocationCombo({
           includes.push(opt);
         }
       }
-      if (starts.length + includes.length >= limit * 3) break; // corta trabajo
+      if (starts.length + includes.length >= limit * 3) break;
     }
     return [...starts, ...includes].slice(0, limit);
   }, [raw, canOpen, limit]);
@@ -112,7 +105,6 @@ export default function SmartLocationCombo({
     setActive(0);
   }, [canOpen, results.length]);
 
-  // cerrar al click fuera
   useEffect(() => {
     function onDoc(e: MouseEvent) {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
@@ -164,7 +156,7 @@ export default function SmartLocationCombo({
     else if (liBottom > viewBottom) ul.scrollTop = liBottom - ul.clientHeight;
   }
 
-  return (
+   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <input
         value={q}
@@ -177,24 +169,27 @@ export default function SmartLocationCombo({
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         required={required}
-        className="mt-1 w-full border rounded-md px-3 py-2 bg-app dark:bg-gray-950 border-soft dark:border-gray-700"
+        className="rc-input mt-1 block transition-all"
       />
 
-      {/* Hint cuando aún no se alcanzó el mínimo */}
       {!showOnEmpty && norm(q).length > 0 && norm(q).length < minChars && (
-        <div className="absolute left-0 top-full mt-1 text-xs text-muted-clr">
+        <div className="absolute left-0 top-full mt-1 text-xs text-gray-500 dark:text-gray-400">
           Escribí al menos {minChars} {minChars === 1 ? "carácter" : "caracteres"}…
         </div>
       )}
 
       {open && (
-        <div className="absolute z-20 mt-1 w-full rounded-md border bg-app dark:bg-gray-950 border-soft dark:border-soft shadow-lg">
+
+        <div className="absolute z-50 mt-1 w-full rounded-lg border shadow-lg overflow-hidden
+             bg-white border-gray-200 
+             dark:bg-zinc-900 dark:border-zinc-700">
+          
           {results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-muted-clr">Sin coincidencias</div>
+            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Sin coincidencias</div>
           ) : (
             <ul
               ref={listRef}
-              className="py-1 /* sin scroll interno al limitar los resultados */"
+              className="py-1 max-h-[180px] overflow-y-auto"
               role="listbox"
               aria-label="Resultados de ubicación"
             >
@@ -205,13 +200,13 @@ export default function SmartLocationCombo({
                   aria-selected={i === active}
                   onMouseEnter={() => setActive(i)}
                   onMouseDown={(e) => {
-                    e.preventDefault(); // evita blur antes del click
+                    e.preventDefault();
                     select(opt);
                   }}
-                  className={`px-3 py-2 text-sm cursor-pointer ${
+                  className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
                     i === active
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-900"
+                      ? "bg-blue-600 text-white font-bold"
+                      : "text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-zinc-800"
                   }`}
                 >
                   {opt.label}
