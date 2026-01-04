@@ -1,8 +1,7 @@
-// src/layouts/AppLayout.tsx
 import { Outlet, useLocation, Link } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
-import { useMemo, useState, useEffect, ReactNode, FormEvent } from "react";
+import { useMemo, useState, useEffect, ReactNode } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import AssistantWidget from "@/components/AssistantWidget";
 import { api } from "@/lib/api";
@@ -69,31 +68,48 @@ export default function AppLayout() {
   }, []);
 
   return (
-    // CORRECCIÓN 1: Fondo negro sólido global (#050505) y texto blanco.
-    // Esto elimina el "marco azul" externo.
-    <div className="min-h-screen bg-[#050505] text-white font-sans relative z-0 selection:bg-blue-500/30">
-      <div className="flex">
+    <div className="min-h-screen text-base-clr font-sans relative selection:bg-blue-500/30 transition-colors duration-300">
+      
+      {/*FONDOS */}
+      <div className="fixed inset-0 z-0 pointer-events-none w-full h-full">
+        
+
+        <div
+          className="absolute inset-0 w-full h-full bg-black"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120, 180, 255, 0.25), transparent 70%), #000000",
+          }}
+        />
+
+        <div
+          className="absolute inset-0 w-full h-full bg-white transition-opacity duration-500 ease-in-out opacity-100 [.dark_&]:opacity-0"
+          style={{
+            background: "radial-gradient(125% 125% at 50% 90%, #fff 40%, #6366f1 100%)",
+          }}
+        />
+      </div>
+
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="relative z-10 flex min-h-screen">
         <Sidebar />
 
         {/* Columna principal */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Topbar: Quitamos bg-surface/border-soft para que no choque con el Topbar.tsx que ya tiene estilos */}
           <header className="sticky top-0 z-50">
             <Topbar title={sectionTitle} />
           </header>
 
-          {/* Contenido: Fondo negro continuo */}
-          <main className="flex-1 bg-[#050505]">
+          <main className="flex-1 bg-transparent">
             <div className="p-4 md:p-6">
               <Outlet />
             </div>
           </main>
 
-          {/* Footer: Estilo oscuro minimalista */}
-          <footer className="px-4 py-4 text-xs text-gray-600 border-t border-white/5 bg-[#050505]">
+          {/* Footer */}
+          <footer className="px-4 py-4 text-xs text-muted-clr border-t border-soft bg-transparent">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
               <span>© {new Date().getFullYear()} Real Connect</span>
-              <Link to="/app" className="hover:text-white transition-colors">Home</Link>
+              <Link to="/app" className="hover:text-primary transition-colors">Home</Link>
             </div>
           </footer>
         </div>
@@ -102,7 +118,7 @@ export default function AppLayout() {
       {/* Asistente */}
       <AssistantWidget />
 
-      {/* --- RENDER DE MODALES --- */}
+      {/* RENDER DE MODALES */}
       {leadModalOpen && (
         <LeadModal
           title="Nuevo Lead"
@@ -150,11 +166,6 @@ export default function AppLayout() {
     </div>
   );
 }
-
-
-// ==================================================================
-// --- COMPONENTES INTERNOS (Estilos actualizados a Dark) ---
-// ==================================================================
 
 async function saveContacto(
   url: string,
@@ -271,14 +282,14 @@ function LeadModal({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Nombre">
           <input
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.nombre}
             onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
           />
         </Field>
         <Field label="Apellido">
           <input
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.apellido}
             onChange={(e) => setForm((f) => ({ ...f, apellido: e.target.value }))}
           />
@@ -286,7 +297,7 @@ function LeadModal({
         <Field label="Email">
           <input
             type="email"
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
           />
@@ -294,7 +305,7 @@ function LeadModal({
         <Field label="Teléfono">
           <input
             type="tel"
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.telefono}
             onChange={(e) =>
               setForm(f => ({ ...f, telefono: e.target.value.replace(/\D/g, "") }))
@@ -315,15 +326,15 @@ function LeadModal({
         </Field>
 
         <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Estado</label>
+          <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1.5 ml-1">Estado</label>
           <select
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.estadoId}
             onChange={(e) => setForm((f) => ({ ...f, estadoId: e.target.value }))}
           >
-            <option value="" className="bg-[#050505]">— Seleccionar —</option>
+            <option value="">— Seleccionar —</option>
             {estados.map((e) => (
-              <option key={e.id} value={String(e.id)} className="bg-[#050505]">
+              <option key={e.id} value={String(e.id)}>
                 {e.fase}
               </option>
             ))}
@@ -333,7 +344,7 @@ function LeadModal({
         <Field label="Próximo contacto (opcional)">
           <input
             type="datetime-local"
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.next_contact_at || ""}
             onChange={(e) => setForm((f) => ({ ...f, next_contact_at: e.target.value }))}
           />
@@ -341,7 +352,7 @@ function LeadModal({
 
         <Field label="Nota del próximo contacto">
           <input
-            className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+            className="rc-input w-full"
             value={form.next_contact_note || ""}
             onChange={(e) => setForm((f) => ({ ...f, next_contact_note: e.target.value }))}
             placeholder="Ej: Llamar para confirmar visita"
@@ -350,14 +361,19 @@ function LeadModal({
         </Field>
       </div>
 
-      {error && <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-300">{error}</div>}
+      {error && <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-500">{error}</div>}
 
-      <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
-        <button className="h-10 px-4 rounded-lg border border-white/10 hover:bg-white/10 text-white text-sm" onClick={onClose} disabled={saving}>
+      <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-soft">
+        <button 
+            className="px-4 py-2 rounded-xl text-sm font-medium text-muted-clr border border-soft hover:bg-surface-2 hover:text-base-clr transition-colors" 
+            onClick={onClose} 
+            disabled={saving}
+        >
           Cancelar
         </button>
+        
         <button
-          className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20 disabled:opacity-50"
+          className="px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
           onClick={handleSubmit}
           disabled={saving}
         >
@@ -379,8 +395,8 @@ function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; o
       <div
         className={`w-full rounded-xl border p-5 shadow-2xl ${
           ok
-            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
-            : "bg-rose-500/10 border-rose-500/20 text-rose-300"
+            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+            : "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-300"
         }`}
       >
         <div className="text-lg font-bold mb-2">{ok ? "¡Listo!" : "Error"}</div>
@@ -393,7 +409,7 @@ function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; o
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{label}</label>
+      <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1.5 ml-1">{label}</label>
       {children}
     </div>
   );
@@ -420,9 +436,9 @@ function ModalShell({
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
-        className={`relative w-full ${maxWidth} bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden`}
+        className={`relative w-full ${maxWidth} bg-surface border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -431,9 +447,9 @@ function ModalShell({
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>
 
         {title && (
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">✕</button>
+          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-surface-2">
+            <h3 className="text-lg font-bold text-base-clr tracking-wide">{title}</h3>
+            <button onClick={onClose} className="text-muted-clr hover:text-base-clr transition-colors">✕</button>
           </div>
         )}
         <div className="p-6">{children}</div>

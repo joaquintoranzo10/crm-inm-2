@@ -1,6 +1,7 @@
 // src/pages/Dashboard/index.tsx
 import { useEffect, useMemo, useState, useRef } from "react";
 import type { ReactNode } from "react";
+import { CalendarPlus } from "lucide-react";
 import { toast } from 'react-hot-toast';
 import {
   api,
@@ -381,59 +382,42 @@ export default function DashboardPage() {
   }
 
   /* ------------------------------- UI ------------------------------- */
-  return (
-    // CORRECCIÓN: Fondo fijo que asegura cobertura total (#050505) y evita el corte visual
-    <div className="relative w-full min-h-screen bg-[#050505] text-white font-sans p-6 overflow-x-hidden">
+ return (
+    <div className="relative w-full h-full">
       
-      {/* --- ESTILOS LOCALES --- */}
-      <style>{`
-        @keyframes slide {
-          0%, 100% { transform: translateX(-10%); }
-          50% { transform: translateX(0); }
-        }
-        .hover-slide:hover { animation: slide 0.6s infinite; }
-      `}</style>
-
-      {/* --- FONDO FIJO (Fixed) --- */}
-      <div className="fixed inset-0 -z-10 bg-[#050505]">
-        <div className="absolute inset-0 opacity-[0.03]" 
-             style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
-        </div>
-      </div>
-
       <div className="flex flex-col gap-8 max-w-[1600px] mx-auto relative z-10">
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-3xl font-black tracking-tighter">
-            Bienvenido a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Real Connect</span>
+          <h2 className="text-3xl font-black tracking-tighter text-base-clr">
+            Bienvenido a Real Connect
           </h2>
 
           <div className="flex items-center gap-3">
             <button
-              className="h-10 px-6 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-900/20"
+              className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
             >
-              + Agregar evento
+              <CalendarPlus className="w-5 h-5" />
+              <span>Agregar evento</span>
             </button>
             
-            {/* Controles de navegación */}
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-1 backdrop-blur-sm">
+            {/* Controles navegación*/}
+            <div className="flex items-center gap-2 bg-surface border border-soft rounded-xl p-1 shadow-sm">
               <button 
                 onClick={prevMonth}
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors hover-slide"
+                className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-clr hover:bg-surface-2 hover:text-base-clr transition-colors"
               >
                 ←
               </button>
 
-              <div className="min-w-[140px] text-center font-bold text-sm text-white px-2 uppercase tracking-wide">
-                {monthLabel}
+              <div className="min-w-[140px] text-center font-bold text-sm text-base-clr px-2 uppercase tracking-wide">
+                {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
               </div>
 
               <button 
                 onClick={nextMonth} 
-                disabled={sameDay(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1), today)}
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-clr hover:bg-surface-2 hover:text-base-clr transition-colors"
               >
                 →
               </button>
@@ -441,34 +425,38 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* KPI CARDS (Glassmorphism) */}
+        {/* KPI CARDS */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {kpis.map((k) => (
             <div
               key={k.label}
-              className="relative group overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-5 backdrop-blur-md hover:bg-white/10 transition-all duration-300"
+             
+              className="relative group overflow-hidden rounded-2xl bg-surface p-5 transition-all duration-300 ease-in-out
+                         shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]
+                         hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)]
+                         border-t border-white/40 dark:border-white/5"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
+            
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+              
               <div className="relative flex flex-col justify-between h-full min-h-[100px]">
                 <div>
-                    <span className="text-sm font-medium text-gray-400 uppercase tracking-wider block mb-1">
+                    <span className="text-sm font-medium text-muted-clr uppercase tracking-wider block mb-1">
                     {k.label}
                     </span>
-                    {k.hint && (
-                    <span className="text-xs text-gray-500 block mb-2">{k.hint}</span>
-                    )}
                 </div>
-                <div className="text-4xl font-bold text-white tracking-tight">
+                <div className="text-4xl font-bold text-base-clr tracking-tight">
                   {k.value}
                 </div>
               </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
             </div>
           ))}
         </div>
 
         {/* CALENDAR (Glassmorphism) */}
-        <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl overflow-hidden shadow-2xl">
-          <div className="grid grid-cols-7 border-b border-white/10 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-white/5">
+        <div className="rounded-2xl border border-soft bg-surface shadow-lg overflow-hidden">
+          <div className="grid grid-cols-7 border-b border-soft text-xs font-semibold text-muted-clr uppercase tracking-wider bg-surface-2">
             {WEEKDAYS.map((w) => (
               <div key={w} className="px-4 py-3 text-center">{w}</div>
             ))}
@@ -489,16 +477,16 @@ export default function DashboardPage() {
               return (
                 <div
                   key={i}
-                  className={`border-r border-b border-white/5 p-3 flex flex-col transition-colors ${
-                      inMonth ? "bg-transparent hover:bg-white/[0.02]" : "bg-white/[0.02] opacity-50"
+                  className={`border-r border-b border-soft p-3 flex flex-col transition-colors ${
+                      inMonth ? "bg-transparent hover:bg-surface-2" : "bg-surface-2/30 opacity-50"
                   }`}
                 >
                   <div className="flex items-center justify-between shrink-0 mb-2">
-                    <div className={`text-sm font-medium ${inMonth ? "text-gray-300" : "text-gray-600"}`}>
-                      {dayLabel}
+                    <div className={`text-sm font-medium ${inMonth ? "text-base-clr" : "text-muted-clr"}`}>
+                      {dd}
                     </div>
                     {inMonth && isToday && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/50">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">
                         HOY
                       </span>
                     )}
@@ -621,23 +609,12 @@ function ModalShell({
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
-      
-      {/* Contenedor Modal */}
-      <div
-        className={`relative w-full ${maxWidth} bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden`}
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Glow decorativo */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>
-
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className={`relative w-full ${maxWidth} bg-surface border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}>
         {title && (
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">✕</button>
+          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-surface-2">
+            <h3 className="text-lg font-bold text-base-clr tracking-wide">{title}</h3>
+            <button onClick={onClose} className="text-muted-clr hover:text-base-clr">✕</button>
           </div>
         )}
         <div className="p-6">{children}</div>
@@ -807,131 +784,158 @@ function EventModal({
   }
 
   return (
-    <ModalShell title={mode === "create" ? "Nuevo evento" : "Editar evento"} onClose={onCancel}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Tipo de evento">
-          <select
-            className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
-            value={form.tipo || "Reunion"}
-            onChange={(e) => set("tipo", e.target.value as Evento["tipo"])}
-          >
-            <option value="Reunion" className="bg-gray-900">Reunión</option>
-            <option value="Visita" className="bg-gray-900">Visita</option>
-            <option value="Llamada" className="bg-gray-900">Llamada</option>
-          </select>
-        </Field>
-
-        <Field label="Fecha y Hora">
-          <input
-            type="datetime-local"
-            className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none placeholder-gray-500"
-            value={
-              form.fecha_hora && form.fecha_hora.includes("T") && form.fecha_hora.length > 16
-                ? toLocalInputValue(new Date(form.fecha_hora))
-                : String(form.fecha_hora || "")
-            }
-            onChange={(e) => set("fecha_hora", e.target.value)}
-          />
-        </Field>
-
-        <div className="md:col-span-2">
-            <Field label="Propiedad">
-            <select
-                className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-3 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
-                value={String(form.propiedad || "")}
-                onChange={(e) => set("propiedad", Number(e.target.value))}
-            >
-                {propiedades.map((p) => (
-                <option key={p.id} value={String(p.id)} className="bg-gray-900">
-                    {p.titulo || (p as any).direccion || `Propiedad #${p.id}`}
-                </option>
-                ))}
-            </select>
+    
+    <ModalShell title={mode === "create" ? "Nuevo evento" : "Editar evento"} onClose={onCancel} maxWidth="max-w-3xl">
+      
+      <div className="flex flex-col gap-6">
+ 
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          
+          {/* Tipo */}
+          <div className="md:col-span-1">
+             <Field label="Tipo de Evento">
+                <select
+                  className="rc-input w-full h-10 text-sm"
+                  value={form.tipo || "Reunion"}
+                  onChange={(e) => set("tipo", e.target.value as Evento["tipo"])}
+                >
+                  <option value="Reunion">Reunión</option>
+                  <option value="Visita">Visita</option>
+                  <option value="Llamada">Llamada</option>
+                </select>
             </Field>
+          </div>
+
+          {/* Fecha */}
+          <div className="md:col-span-1">
+             <Field label="Fecha y Hora">
+                <input
+                  type="datetime-local"
+                  className="rc-input w-full h-10 text-sm"
+                  value={
+                      form.fecha_hora && form.fecha_hora.includes("T") && form.fecha_hora.length > 16
+                      ? toLocalInputValue(new Date(form.fecha_hora))
+                      : String(form.fecha_hora || "")
+                  }
+                  onChange={(e) => set("fecha_hora", e.target.value)}
+                />
+            </Field>
+          </div>
+          
+          {/* Propiedad */}
+          <div className="md:col-span-2">
+             <Field label="Propiedad">
+                
+                <select
+                    className="rc-input w-full h-10 text-sm" 
+                    value={String(form.propiedad || "")}
+                    onChange={(e) => set("propiedad", Number(e.target.value))}
+                >
+                    {propiedades.map((p) => (
+                    <option key={p.id} value={String(p.id)}>
+                        {p.titulo || (p as any).direccion || `Propiedad #${p.id}`}
+                    </option>
+                    ))}
+                </select>
+            </Field>
+          </div>
         </div>
 
-        <div className="md:col-span-2 p-4 rounded-xl bg-white/5 border border-white/10 space-y-4">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Datos del Contacto</h4>
+        {/*  (Contacto | Notas) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            <Field label="Buscar Lead existente (Opcional)">
-                <ContactAutocomplete
-                    valueId={form.contacto == null ? null : Number(form.contacto)}
-                    initialList={contactos}
-                    onChange={(id, item) => {
-                    set("contacto", id);
-                    if (item) {
-                        set("nombre", item.nombre || "");
-                        set("apellido", item.apellido || "");
-                        set("email", item.email || "");
-                    } else {
-                        set("nombre", "");
-                        set("apellido", "");
-                        set("email", "");
-                    }
-                    }}
-                    onClear={() => {
-                    set("contacto", null);
-                    set("nombre", "");
-                    set("apellido", "");
-                    set("email", "");
-                    }}
-                />
-            </Field>
+            {/*  Contacto */}
+            <div className="p-5 rounded-xl bg-surface-2 border border-soft flex flex-col gap-4">
+                <div className="flex justify-between items-center border-b border-soft pb-2 mb-1">
+                   <h4 className="text-xs font-bold text-muted-clr uppercase tracking-wider">Datos del Contacto</h4>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <Field label="Nombre">
-                <input
-                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
-                    value={form.nombre || ""}
-                    onChange={(e) => set("nombre", e.target.value)}
-                    placeholder="Nombre visitante"
-                />
-                </Field>
-                <Field label="Apellido">
-                <input
-                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
-                    value={form.apellido || ""}
-                    onChange={(e) => set("apellido", e.target.value)}
-                    placeholder="Apellido visitante"
-                />
-                </Field>
+                <div className="space-y-4">
+                   <div>
+                       <label className="text-[10px] uppercase text-muted-clr font-bold mb-1.5 block">Buscar Lead Existente</label>
+                       <ContactAutocomplete
+                            valueId={form.contacto == null ? null : Number(form.contacto)}
+                            initialList={contactos}
+                            onChange={(id, item) => {
+                                set("contacto", id);
+                                if (item) {
+                                    set("nombre", item.nombre || "");
+                                    set("apellido", item.apellido || "");
+                                    set("email", item.email || "");
+                                } else {
+                                    set("nombre", "");
+                                    set("apellido", "");
+                                    set("email", "");
+                                }
+                            }}
+                            onClear={() => {
+                                set("contacto", null);
+                                set("nombre", "");
+                                set("apellido", "");
+                                set("email", "");
+                            }}
+                        />
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-[10px] uppercase text-muted-clr font-bold mb-1 block">Nombre</label>
+                            <input
+                                className="rc-input w-full h-9 text-sm"
+                                value={form.nombre || ""}
+                                onChange={(e) => set("nombre", e.target.value)}
+                                placeholder="Ej: Juan"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] uppercase text-muted-clr font-bold mb-1 block">Apellido</label>
+                            <input
+                                className="rc-input w-full h-9 text-sm"
+                                value={form.apellido || ""}
+                                onChange={(e) => set("apellido", e.target.value)}
+                                placeholder="Ej: Perez"
+                            />
+                        </div>
+                   </div>
+                   
+                   <div>
+                        <label className="text-[10px] uppercase text-muted-clr font-bold mb-1 block">Email</label>
+                        <input
+                            type="email"
+                            className="rc-input w-full h-9 text-sm"
+                            value={form.email || ""}
+                            onChange={(e) => set("email", e.target.value)}
+                            placeholder="juan@ejemplo.com"
+                        />
+                   </div>
+                </div>
             </div>
-             <Field label="Email">
-                <input
-                    type="email"
-                    className="w-full h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
-                    value={form.email || ""}
-                    onChange={(e) => set("email", e.target.value)}
-                    placeholder="email@ejemplo.com"
-                />
-            </Field>
-        </div>
 
-        <div className="md:col-span-2">
-          <Field label="Notas adicionales">
-            <textarea
-              rows={3}
-              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500/50 outline-none resize-none"
-              value={form.notas || ""}
-              onChange={(e) => set("notas", e.target.value)}
-              placeholder="Detalles importantes..."
-            />
-          </Field>
+            {/* Notas */}
+            <div className="flex flex-col h-full">
+               <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-2 ml-1">Notas Adicionales</label>
+               <textarea
+                  className="rc-input w-full flex-1 resize-none text-sm p-4 leading-relaxed"
+                  value={form.notas || ""}
+                  onChange={(e) => set("notas", e.target.value)}
+                  placeholder="Escribe aquí los detalles importantes del evento, instrucciones de ingreso, o temas a tratar..."
+               />
+            </div>
         </div>
       </div>
 
-      {error && <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-300">{error}</div>}
+      {error && <div className="mt-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-sm text-rose-500 font-medium">{error}</div>}
 
-      <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+      <div className="mt-8 flex items-center justify-end gap-3 pt-5 border-t border-soft">
         <button 
-            className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors" 
+            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-slate-600 text-slate-600 dark:text-slate-400 dark:border-slate-400 hover:bg-slate-600 hover:text-white dark:hover:bg-slate-500 dark:hover:text-white shadow-sm"
             onClick={onCancel} 
             disabled={saving}
         >
           Cancelar
         </button>
         <button
-          className="h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-900/20 disabled:opacity-50 transition-all"
+          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm"
           onClick={handleSubmit}
           disabled={saving}
         >
@@ -1004,7 +1008,7 @@ function ContactAutocomplete({
     <div className="relative" ref={wrapRef}>
       <div className="flex gap-2">
         <input
-          className="flex-1 h-10 rounded-lg bg-black/20 border border-white/10 px-3 text-sm text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+          className="rc-input flex-1 h-10"
           placeholder="Buscar lead..."
           value={query}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); setHighlight(0); }}
@@ -1013,7 +1017,7 @@ function ContactAutocomplete({
         {valueId != null && (
           <button
             type="button"
-            className="h-10 px-3 rounded-lg border border-white/10 text-xs text-gray-300 hover:bg-white/10"
+            className="h-10 px-3 rounded-lg border border-soft text-xs text-muted-clr hover:bg-surface-2"
             onClick={onClear}
           >
             Limpiar
@@ -1028,20 +1032,20 @@ function ContactAutocomplete({
       )}
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-white/10 bg-[#1a1a1a] shadow-xl custom-scrollbar">
+        <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-soft bg-surface shadow-xl custom-scrollbar">
           {items.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500">Sin resultados…</div>
+            <div className="px-3 py-2 text-sm text-muted-clr">Sin resultados…</div>
           ) : (
             items.map((it, idx) => (
                 <button
                   key={it.id}
                   type="button"
                   onClick={() => pick(it)}
-                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${idx === highlight ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-white/5"}`}
+                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${idx === highlight ? "bg-blue-600 text-white" : "text-base-clr hover:bg-surface-2"}`}
                   onMouseEnter={() => setHighlight(idx)}
                 >
                   <div className="font-medium truncate">{it.nombre} {it.apellido}</div>
-                  <div className={`text-xs truncate ${idx === highlight ? "text-blue-100" : "text-gray-500"}`}>
+                  <div className={`text-xs truncate ${idx === highlight ? "text-blue-100" : "text-muted-clr"}`}>
                     {it.email || "Sin email"}
                   </div>
                 </button>
@@ -1112,10 +1116,10 @@ function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; o
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({ label, children }: any) {
   return (
     <div>
-      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{label}</label>
+      <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1.5 ml-1">{label}</label>
       {children}
     </div>
   );

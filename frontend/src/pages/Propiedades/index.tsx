@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import PropiedadCreateModal from "./PropiedadCreateModal";
 import Modal from "@/components/Modal";
 import clsx from "clsx";
-
+import { Ruler } from "lucide-react";
 // Tipo de imagen asociada a una propiedad
 type PropiedadImagen = { id: number; imagen: string; descripcion?: string | null };
 
@@ -83,10 +83,10 @@ function badgeEstado(estado: Propiedad["estado"]) {
 
 // Define los estilos del badge de tipo de propiedad
 function badgeTipo(tipo: Propiedad["tipo_de_propiedad"]) {
-  const base = "inline-flex items-center rounded-md px-2 py-1 text-[10px] font-bold uppercase bg-black/50 text-white backdrop-blur-sm border border-white/10";
-  const label = tipo;
-  return { className: base, label };
+  return { className: "inline-flex items-center rounded-md px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide shadow-md transition-colors bg-zinc-900 text-white dark:bg-white dark:text-zinc-900", label: tipo };
 }
+
+
 
 function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }) {
   const valid = images.filter(Boolean) as string[];
@@ -108,11 +108,12 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
     <div className="flex flex-col gap-3 w-full h-full">
 
       {/* PARTE SUPERIOR: IMAGEN GRANDE */}
-      <div className="relative flex-1 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 group">
+      <div className="relative flex-1 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-black group">
         <img
           src={valid[i]}
           alt="Principal"
-          className="w-full h-full object-cover" // 'cover' llena todo el cuadro, 'contain' muestra la foto entera sin cortar
+          
+          className="w-full h-full object-contain" 
         />
 
         {/* Flechas superpuestas (aparecen al pasar el mouse) */}
@@ -393,83 +394,57 @@ export default function PropiedadesPage() {
     });
   }, [items, q]);
 
+  const cardStyles = `
+    .card_box { width: 100%; border-radius: 20px; background: linear-gradient(170deg, rgba(58, 56, 56, 0.623) 0%, rgb(31, 31, 31) 100%); position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.55); transition: all .3s; cursor: pointer; }
+    .card_box:hover { transform: scale(0.95); box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
+    .ribbon-wrapper { position: absolute; overflow: hidden; width: 120px; height: 120px; top: -10px; left: -10px; display: flex; align-items: center; justify-content: center; z-index: 20; pointer-events: none; }
+    .ribbon-content { position: absolute; width: 150%; height: 30px; background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%); transform: rotate(-45deg) translateY(-15px); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 0 5px 10px rgba(0,0,0,0.23); }
+  `;
+
+
   /*Principal (render)*/
   return (
+
     <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-      <style>{`
-        .card_box {
-          width: 100%;
-          border-radius: 20px;
-          background: linear-gradient(170deg, rgba(58, 56, 56, 0.623) 0%, rgb(31, 31, 31) 100%);
-          position: relative;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.55);
-          transition: all .3s;
-          cursor: pointer; /* Asegura que el cursor sea una manito en toda la card */
-        }
-        .card_box:hover {
-          transform: scale(0.95); 
-          box-shadow: 0 15px 30px rgba(0,0,0,0.7);
-        }
-        
-        .ribbon-wrapper {
-          position: absolute;
-          overflow: hidden;
-          width: 120px;
-          height: 120px;
-          top: -10px;
-          left: -10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 20;
-          pointer-events: none;
-        }
-        .ribbon-content {
-          position: absolute;
-          width: 150%;
-          height: 30px;
-          background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%);
-          transform: rotate(-45deg) translateY(-15px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 700;
-          font-size: 10px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          box-shadow: 0 5px 10px rgba(0,0,0,0.23);
-        }
-        .ribbon-wrapper::after {
-          content: '';
-          position: absolute;
-          width: 10px;
-          bottom: 0;
-          left: 0;
-          height: 10px;
-          z-index: -1;
-          box-shadow: 110px -110px #cc3f47; 
-          background-image: linear-gradient(45deg, #FF512F 0%, #F09819 51%, #FF512F 100%);
-        }
-      `}</style>
+        <div>
+            <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
+                Gestión de propiedades
+            </h2>
+            <div className="text-sm text-muted-clr">
+                Administra tu cartera de propiedades y su disponibilidad.
+            </div>
+        </div>
 
-      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar..."
-              className="rc-input h-10 w-64"
+            <input 
+              value={q} 
+              onChange={(e) => setQ(e.target.value)} 
+              placeholder="Buscar..." 
+              className="h-10 w-64 px-3 rounded-lg border text-sm outline-none transition-all 
+                bg-white border-gray-300 text-black 
+                dark:bg-zinc-900 dark:border-zinc-700 dark:text-white 
+                focus:ring-2 focus:ring-blue-500/50"
             />
-            {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs rc-muted" onClick={() => setQ("")}>Limpiar</button>}
+            {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => setQ("")}>Limpiar</button>}
           </div>
-          <button onClick={() => setOpenCreate(true)} className="inline-flex items-center rounded-md px-3 h-9 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
-            Registrar propiedad
+          <button 
+            onClick={() => setOpenCreate(true)} 
+            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
+          >
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
+            </svg>
+            
+            <span>Registrar propiedad</span>
           </button>
         </div>
       </div>
+      <style>{cardStyles}</style>
+      
 
       {loading ? (
         <div className="text-sm">Cargando…</div>
@@ -569,231 +544,106 @@ export default function PropiedadesPage() {
         </div>
       )}
 
-      <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={() => fetchProps()} />
+      {/* MODALES */}
 
-      {detail && (
-        <PropiedadDetailModal
-          propiedad={detail}
-          onClose={() => setDetail(null)}
-          onEdit={() => { setEditTarget(detail); setDetail(null); }}
-          onDelete={() => { setDeleteTarget(detail); setDetail(null); }}
-          onCopyTag={() => copyPropTag(detail)}
-        />
-      )}
-
-      {editTarget && (
-        <PropiedadEditModal
-          propiedad={editTarget}
-          onClose={() => setEditTarget(null)}
-          onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Propiedad actualizada." }); }}
-        />
-      )}
-
-      {deleteTarget && (
-        <ConfirmModal
-          title="Eliminar propiedad"
-          message={`¿Seguro que querés eliminar "${deleteTarget.titulo}"?`}
-          confirmLabel="Eliminar"
-          confirmType="danger"
-          onCancel={() => setDeleteTarget(null)}
-          onConfirm={async () => {
-            try {
-              await axios.delete(`/api/propiedades/${deleteTarget.id}/`);
-              setDeleteTarget(null);
-              await fetchProps();
-              setResult({ ok: true, msg: "Eliminada." });
-            } catch {
-              setResult({ ok: false, msg: "Error al eliminar." });
-            }
-          }}
-        />
-      )}
-
+      <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={fetchProps} />
+      {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} />}
+      {editTarget && <PropiedadEditModal propiedad={editTarget} onClose={() => setEditTarget(null)} onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Actualizada" }); }} />}
+      {deleteTarget && <ConfirmModal title="Eliminar" message={`¿Borrar "${deleteTarget.titulo}"?`} confirmLabel="Borrar" confirmType="danger" onCancel={() => setDeleteTarget(null)} onConfirm={async () => { await axios.delete(`/api/propiedades/${deleteTarget.id}/`); setDeleteTarget(null); fetchProps(); setResult({ ok: true, msg: "Eliminada" }); }} />}
       {result && <ResultModal ok={result.ok} message={result.msg} onClose={() => setResult(null)} />}
     </div>
   );
 }
 
 function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag }: any) {
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'disponible':
-        return 'bg-green-100 text-green-900 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800';
-      case 'reservado':
-        return 'bg-orange-100 text-orange-900 border-orange-200 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-800';
-      case 'vendido':
-        return 'bg-red-100 text-red-900 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800';
-      default:
-        return 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700';
-    }
-  };
-
   return (
-    <Modal open={true} onClose={onClose} title={propiedad.titulo} maxWidth="4xl">
+    <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="4xl">
+      <div className="flex flex-col gap-5 p-1">
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-4">
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                    {(() => {
+                      const coloresEstado: Record<string, string> = {
+                        disponible: "bg-emerald-600 border-emerald-700 dark:bg-emerald-500 dark:border-emerald-400",
+                        reservado: "bg-orange-500 border-orange-600 dark:bg-orange-500 dark:border-orange-400",
+                        vendido: "bg-red-600 border-red-700 dark:bg-red-500 dark:border-red-400",
+                      };
+                  
+                      const colorClass = coloresEstado[propiedad.estado] || "bg-gray-600 border-gray-700";
 
-      <div className="max-h-[75vh] overflow-y-auto px-1 pb-4 custom-scrollbar">
+                      return (
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm border text-white ${colorClass}`}>
+                          {propiedad.estado}
+                        </span>
+                      );
+                    })()}
 
-
-        {/* CABECERA */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-
-          {/* Ubicación*/}
-          <div className="flex items-center gap-2">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            <span className="font-bold text-xl" style={{ color: 'var(--text)' }}>
-              {propiedad.ubicacion}
-            </span>
-          </div>
-
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onCopyTag}
-              style={{ backgroundColor: 'var(--text)', color: 'var(--surface)' }}
-              className="px-3 py-1.5 rounded text-sm font-mono font-bold hover:opacity-80 transition-opacity shadow-sm"
-              title="Copiar ID"
-            >
-              #{propiedad.codigo}
-            </button>
-          </div>
+                    <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm
+                        bg-blue-600 text-white border border-blue-700
+                        dark:bg-blue-500 dark:text-white dark:border-blue-400">
+                        {propiedad.tipo_de_propiedad}
+                    </span>
+                </div>
+                {/* Título adaptable */}
+                <h2 className="text-2xl font-black text-[var(--text-main)] leading-tight">
+                  {propiedad.titulo}
+                </h2>
+                <p className="text-2xl font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
+            </div>
+            <div className="text-right">
+                <div className="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+                <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
+            </div>
         </div>
 
-        {/* GRID PRINCIPAL */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-          {/* FOTOS */}
+        {/* GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full h-[400px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
+            <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
+          </div>
           <div className="flex flex-col gap-4">
-            <div className="w-full h-[300px] rounded-xl overflow-hidden">
-              <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
-            </div>
-          </div>
-
-          {/*DATOS */}
-          <div className="flex flex-col h-full">
-
-            {/* PRECIO */}
-            <div className="mb-2">
-              <span className="text-5xl font-black tracking-tight text-blue-600 dark:text-blue-400">
-                {money(propiedad.precio, propiedad.moneda)}
-              </span>
-            </div>
-
-            {/*  VENTA  */}
-            <div className="flex items-center justify-between mb-5 border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                {propiedad.disponibilidad}
-              </span>
-              <div className="flex gap-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase border ${getEstadoColor(propiedad.estado)}`}>
-                  {propiedad.estado}
-                </span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800">
-                  {propiedad.tipo_de_propiedad}
-                </span>
-              </div>
-            </div>
-
-            {/*  LAS 4 CAJAS */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <InfoBoxDark
-                label="Ambientes"
-                value={propiedad.ambiente || "-"}
-                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>}
-              />
-              <InfoBoxDark
-                label="Baños"
-                value={propiedad.banos || "-"}
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 15h16c0 1.657-1.343 3-3 3H7c-1.657 0-3-1.343-3-3z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 15V13h16v2" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18l-1 2m14-2l1 2" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 13V6a3 3 0 013-3h4" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 3v2a2 2 0 01-2 2h-2" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 9v1m2 1v1m-4-1v1" />
-                  </svg>
-                }
-              />
-              <InfoBoxDark
-                label="Sup. Total"
-                value={`${propiedad.superficie} m²`}
-                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>}
-              />
-              <InfoBoxDark
-                label="Antigüedad"
-                value={propiedad.antiguedad ? `${propiedad.antiguedad} años` : "A estrenar"}
-                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-              />
-            </div>
-
-            {/* DESCRIPCIÓN */}
-            <div className="pl-3 border-l-4 border-gray-300 dark:border-gray-600">
-              <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text)' }}>
-                Descripción
-              </h4>
-              <p className="text-sm leading-relaxed font-medium whitespace-pre-line" style={{ color: 'var(--text)', opacity: 0.8 }}>
-                {propiedad.descripcion || "Sin descripción disponible."}
-              </p>
-            </div>
-
+             <div className="grid grid-cols-2 gap-3">
+                <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
+                <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
+                <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏"/>
+                <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
+             </div>
+             {/* Caja descripción */}
+             <div className="flex-1 rounded-xl p-4 overflow-y-auto max-h-[150px] custom-scrollbar border
+                bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
+             >
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
+                <p className="text-sm whitespace-pre-line leading-relaxed">{propiedad.descripcion || "Sin descripción."}</p>
+             </div>
           </div>
         </div>
       </div>
-
-      {/*  BOTONES */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-3">
-
-        {onDelete && (
-          <button
-            onClick={onDelete}
-            className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
-          >
-            Eliminar
-          </button>
-        )}
-
-        <button
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white"
-          onClick={onClose}
-        >
-          Cerrar
-        </button>
-
-        <button
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
-          onClick={onEdit}
-        >
-          Editar
-        </button>
-
+      
+      {/* Footer */}
+      <div className="mt-4 pt-4 border-t rc-border flex justify-end gap-2">
+        {onDelete && <button onClick={onDelete} className="px-4 py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all">Eliminar</button>}
+        <button className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
+        <button className="px-6 py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
       </div>
-
     </Modal>
   );
 }
 
-
-// Caja oscura para datos 
-function InfoBoxDark({ label, value, icon }: { label: string; value: any; icon?: React.ReactNode }) {
+function InfoBox({ label, value, icon }: { label: string; value: any; icon?: React.ReactNode }) {
   return (
-    <div className="flex flex-col justify-center px-4 py-3 rounded-lg shadow-sm
-      bg-[#2d3748] text-white border border-gray-600 relative overflow-hidden">
-
-      <div className="flex items-center gap-2 mb-1 z-10">
-        {icon && <span className="text-blue-400 opacity-90">{icon}</span>}
-        <span className="text-[10px] uppercase font-bold tracking-wider text-gray-300">
-          {label}
-        </span>
-      </div>
-
-      <span className="text-xl font-bold leading-none truncate text-white z-10 pl-1">
-        {String(value)}
-      </span>
-
-      <div className="absolute -right-2 -bottom-4 text-white opacity-5 transform rotate-12 scale-150 pointer-events-none">
+    <div className="flex flex-col items-center justify-center p-4 rounded-xl shadow-sm transition-all duration-300 group text-center h-full border
+      bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
+    >
+      <div className="mb-3 text-[var(--muted)] group-hover:text-blue-500 group-hover:scale-110 transition-all text-3xl">
         {icon}
       </div>
+      <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] truncate leading-none mb-1">
+        {label}
+      </span>
+      <span className="text-2xl font-bold text-[var(--text-main)] leading-none">
+        {String(value)}
+      </span>
     </div>
   );
 }
@@ -812,87 +662,49 @@ function Info({ label, value }: { label: string; value: any }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-sm">{label}</label>
-      <div className="mt-1">{children}</div>
+      <label className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5 block ml-1">{label}</label>
+      <div>{children}</div>
     </div>
   );
 }
-
-function SelectScroll<T extends string>({
-  value,
-  onChange,
-  options,
-  className = "",
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: T[];
-  className?: string;
-}) {
+function SelectScroll<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: T[] }) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function onDoc(ev: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(ev.target as Node)) {
-        setOpen(false);
-      }
-    }
+    const onDoc = (ev: MouseEvent) => { if (rootRef.current && !rootRef.current.contains(ev.target as Node)) setOpen(false); };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
   return (
-    <div ref={rootRef} className="relative">
-      {/* BOTÓN PRINCIPAL */}
-      <button
-        type="button"
-        className={`h-10 w-full px-3 py-2 text-sm leading-tight text-left flex items-center justify-between outline-none rounded-lg border transition-colors
-          bg-[var(--surface)] text-[var(--text)] border-[var(--border)]
-          focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-          ${className}`}
-        onClick={() => setOpen(!open)}
+    <div ref={rootRef} className="relative w-full">
+      <button type="button" onClick={() => setOpen(!open)}
+        className="rc-input text-left flex items-center justify-between"
       >
-        <span className="truncate block capitalize">
-          {value ? value : "Seleccionar..."}
-        </span>
-        <span className="text-gray-400 text-xs ml-2">▼</span>
+        <span className="truncate capitalize">{value || "Seleccionar..."}</span>
+        <span className="text-gray-400 text-xs">▼</span>
       </button>
-
-      {/* LISTA DESPLEGABLE */}
+      {/* Dropdown consistente con el tema */}
       {open && (
-        <ul
-          className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 border
-            bg-[var(--surface)] border-[var(--border)]"
-          style={{ maxHeight: "180px", overflowY: "auto" }}
-        >
-          {options.map((opt) => {
-            const isSelected = opt === value;
-            return (
-              <li key={opt}>
-                <button
-                  type="button"
-                  className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize
-                    ${isSelected
-                      ? "bg-blue-600 text-white font-bold"
-                      : "text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }
-                  `}
-                  onClick={() => {
-                    onChange(opt);
-                    setOpen(false);
-                  }}
-                >
-                  {opt}
-                </button>
-              </li>
-            );
-          })}
+        <ul className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border rc-border bg-[var(--surface)] text-[var(--text-main)] max-h-[200px] overflow-y-auto">
+          {options.map((opt) => (
+            <li key={opt}>
+              <button type="button" onClick={() => { onChange(opt); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${opt === value 
+                  ? "bg-blue-600 text-white font-bold" 
+                  : "hover:bg-gray-100 dark:hover:bg-zinc-800"}`}
+              >
+                {opt}
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
   );
 }
+
 
 function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   type FormState = Omit<Propiedad, "disponibilidad"> & { disponibilidad: "venta" | "alquiler" };
@@ -987,7 +799,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
     }
   }
 
-  const inputClass = "rc-input h-10 w-full px-3 py-2 text-sm leading-tight focus:outline-none bg-white border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+  const inputClass = "rc-input";
 
   return (
     <Modal open={true} onClose={onClose} title="Editar propiedad" maxWidth="4xl">
@@ -1060,7 +872,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
             <div className="col-span-6 sm:col-span-4">
               <Row label="Estado">
                 <select
-                  className={`${inputClass} font-medium`}
+                  className={inputClass}
                   value={form.estado}
                   onChange={(e) => set("estado", e.target.value as "disponible" | "vendido" | "reservado")}
                 >
@@ -1120,7 +932,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
             </div>
             <div className="col-span-12">
               <Row label="Descripción">
-                <textarea rows={4} className="rc-input w-full p-3 text-sm resize-none" value={form.descripcion || ""} onChange={(e) => set("descripcion", e.target.value)} />
+                <textarea rows={4} className={`${inputClass} h-auto resize-none`}  value={form.descripcion}  onChange={e => set("descripcion", e.target.value)} />
               </Row>
             </div>
           </div>
@@ -1211,13 +1023,13 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="pt-4 border-t rc-border bg-transparent flex items-center justify-end gap-2">
         <button
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white"
+          className="h-9 px-4 rounded-lg text-xs font-bold border border-zinc-400 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white transition-colors"
           onClick={onClose}
         >
           Cancelar
         </button>
         <button
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white"
+          className="px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
           onClick={handleSave}
           disabled={saving}
         >
@@ -1279,7 +1091,7 @@ function ConfirmModal({
           <h3 className="text-lg font-semibold text-base-clr mb-2">{title}</h3>
           <div className="text-sm rc-muted">{message}</div>
           <div className="mt-5 flex items-center justify-end gap-2">
-            <button className="h-9 px-3 rounded-lg border text-sm" onClick={onCancel} disabled={working}>
+            <button className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onCancel} disabled={working}>
               Cancelar
             </button>
             <button

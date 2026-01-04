@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, RefObject } from "react";
 
-// --- HOOKS Y TIPOS (Mantengo tu lógica corregida) ---
 
 type UseOnScreenReturn = [RefObject<HTMLDivElement | null>, boolean];
 
@@ -52,22 +51,22 @@ function StepCard({ number, title, description, color, delay }: StepCardProps) {
     blue: {
         blob: 'bg-blue-600/20',
         border: 'hover:border-blue-500/50',
-        text: 'group-hover:text-blue-500/20'
+        text: 'group-hover:text-blue-500'
     },
     indigo: {
         blob: 'bg-indigo-600/20',
         border: 'hover:border-indigo-500/50',
-        text: 'group-hover:text-indigo-500/20'
+        text: 'group-hover:text-indigo-500'
     },
     purple: {
         blob: 'bg-purple-600/20',
         border: 'hover:border-purple-500/50',
-        text: 'group-hover:text-purple-500/20'
+        text: 'group-hover:text-purple-500'
     },
     green: {
         blob: 'bg-green-600/20',
         border: 'hover:border-green-500/50',
-        text: 'group-hover:text-green-500/20'
+        text: 'group-hover:text-green-500'
     }
   };
   
@@ -82,10 +81,21 @@ function StepCard({ number, title, description, color, delay }: StepCardProps) {
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className={`absolute inset-0 ${colors.blob} blur-[60px] rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-500`}></div>
-      <div className={`relative bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl ${colors.border} transition-colors`}>
-        <div className={`text-5xl font-black text-white/10 absolute -top-6 -left-2 lg:-right-2 lg:left-auto ${colors.text} transition-colors`}>{number}</div>
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-400">{description}</p>
+      
+      {/* TARJETA ADAPTABLE */}
+      <div className={`relative p-8 rounded-2xl backdrop-blur-sm transition-colors border
+        bg-white border-slate-200 
+        dark:bg-white/5 dark:border-white/10
+        ${colors.border}`}>
+
+        <div className={`text-5xl font-black absolute -top-6 -left-2 lg:-right-2 lg:left-auto transition-colors
+           text-slate-100 dark:text-white/10 ${colors.text} dark:group-hover:text-white/20`}>
+           {number}
+        </div>
+
+        {/* TÍTULO Y TEXTO */}
+        <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">{title}</h3>
+        <p className="text-slate-600 dark:text-gray-400">{description}</p>
       </div>
     </div>
   );
@@ -104,8 +114,9 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen text-white selection:bg-blue-500/30 overflow-x-hidden font-sans">
+    <div className="relative w-full min-h-screen text-slate-900 dark:text-white selection:bg-blue-500/30 overflow-x-hidden font-sans">
       
+      {/* Estilos para animaciones */}
       <style>{`
         @keyframes shimmer {
           0% { background-position: 200% 0; }
@@ -124,7 +135,6 @@ export default function Landing() {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        /* Animación para el gradiente del texto principal */
         @keyframes gradient-x {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -134,7 +144,6 @@ export default function Landing() {
             background-size: 200% 200%;
             animation: gradient-x 15s ease infinite;
         }
-         /* Animación tilt para el video */
         @keyframes tilt {
             0%, 50%, 100% { transform: rotate(0deg); }
             25% { transform: rotate(1deg); }
@@ -153,52 +162,62 @@ export default function Landing() {
       `}</style>
 
       {/* --- FONDO FIJO LIMPIO --- */}
-      <div className="fixed inset-0 -z-10 bg-[#050505]">
-        <div className="absolute inset-0 opacity-[0.03]" 
-             style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+      <div className="fixed inset-0 -z-10 bg-white dark:bg-[#050505] transition-colors duration-300">
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03] opacity-[0.4]" 
+             style={{ 
+                 backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', 
+                 backgroundSize: '50px 50px',
+                 color: 'inherit' 
+             }}>
         </div>
       </div>
 
       {/* --- CONTENIDO --- */}
       <div className="relative container mx-auto px-4">
         
-        {/* --- HERO SECTION --- */}
+        
         <div className="min-h-screen flex flex-col items-center justify-center text-center pb-20 relative">
             
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-            <div className="mb-8 relative group cursor-default">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-              <div className="relative px-4 py-1.5 bg-black rounded-full border border-white/10 flex items-center gap-2">
-                 <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                 </span>
-                 <span className="text-xs font-semibold tracking-wider text-gray-300">V2.0 LIVE</span>
-              </div>
-            </div>
+            
 
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 relative z-10">
-              <span className="block text-white mb-2 drop-shadow-2xl">Dominá</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 animate-gradient-x">
-                tu mercado.
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 relative z-10 flex flex-col items-center">
+              <span className="block text-slate-900 dark:text-white mb-2 drop-shadow-2xl opacity-0 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+                Bienvenido a
+              </span>
+
+              <span className="relative inline-block opacity-0 animate-fade-in-up" style={{animationDelay: '0.5s'}}>
+                
+                <span className="absolute -inset-2 blur-3xl opacity-40 bg-blue-600 animate-pulse"></span>
+
+                
+                <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 animate-gradient-x">
+                  Real Connect
+                </span>
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed mb-12 opacity-80">
-              El primer CRM que <span className="text-shimmer font-semibold">realmente trabaja por vos</span>. 
-              Sin perder tiempo. Sin perder leads.
+            <p className="text-xl md:text-2xl max-w-3xl mx-auto font-semibold leading-relaxed mb-12 text-shimmer">
+              El primer CRM que realmente trabaja por vos. Sin perder tiempo. Sin perder leads.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 relative z-10 items-center justify-center">
-              <Link to="/register" className="relative inline-flex h-14 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+              
+              {/* BOTÓN REGISTRARSE  */}
+              <Link to="/register" className="relative inline-flex h-14 overflow-hidden rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-50 transition-transform hover:scale-105">
                 <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-                <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-8 py-1 text-base font-medium text-white backdrop-blur-3xl transition-colors hover:bg-slate-900">
-                  Empezar ahora (Gratis)
+                <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full px-10 py-1 text-base font-bold backdrop-blur-3xl transition-colors 
+                  bg-white text-slate-900 hover:bg-slate-50 
+                  dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900">
+                  Registrarse
                 </span>
               </Link>
               
-              <Link to="/login" className="group inline-flex h-14 items-center justify-center rounded-full px-8 py-1 text-base font-medium text-slate-400 transition-colors hover:text-white hover:bg-white/5 gap-2">
+              {/* BOTÓN INICIAR SESIÓN */}
+              <Link to="/login" className="group inline-flex h-14 items-center justify-center rounded-full px-8 py-1 text-base font-medium transition-colors gap-2
+                text-slate-600 hover:text-blue-600 hover:bg-slate-100
+                dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5">
                 <span>Iniciar sesión</span>
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -206,11 +225,9 @@ export default function Landing() {
               </Link>
             </div>
 
-             {/* CORRECCIÓN: LÍNEA VERTICAL QUE "BAJA" CON EL SCROLL */}
+             {/* LÍNEA VERTICAL QUE "BAJA" CON EL SCROLL */}
              <div 
                 className="absolute bottom-0 left-1/2 w-px bg-gradient-to-b from-transparent via-blue-500/50 to-blue-500 transition-all duration-300 ease-out"
-                // Usamos scrollY para controlar la altura dinámicamente. 
-                // El 'Math.min' y 'Math.max' son para limitar el efecto entre 0 y 150px de altura.
                 style={{ height: `${Math.min(150, Math.max(0, scrollY - 50))}px` }} 
              ></div>
         </div>
@@ -299,8 +316,10 @@ export default function Landing() {
 
         {/* --- FINAL CTA --- */}
         <div className="py-20 text-center relative z-10">
-             <h2 className="text-3xl font-bold mb-6">¿Listo para modernizarte?</h2>
-             <Link to="/register" className="inline-block px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-transform hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+             <h2 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">¿Listo para modernizarte?</h2>
+             <Link to="/register" className="inline-block px-10 py-4 font-bold rounded-full transition-transform hover:scale-105 shadow-xl
+               bg-slate-900 text-white hover:bg-slate-800
+               dark:bg-white dark:text-black dark:hover:bg-gray-200 dark:shadow-[0_0_40px_rgba(255,255,255,0.3)]">
                Crear cuenta gratis
              </Link>
         </div>
