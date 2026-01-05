@@ -126,14 +126,14 @@ export default function NextContactModal({ contacto, onClose }: Props) {
           type="button"
           onClick={onClose}
           disabled={saving}
-          className="h-10 px-4 rounded-lg border text-sm border-soft dark:border-gray-700 disabled:opacity-60"
+          className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
         >
           Cancelar
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving || !fechaHora}
-          className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm disabled:opacity-60"
+          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>
