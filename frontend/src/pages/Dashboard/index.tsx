@@ -582,7 +582,7 @@ export default function DashboardPage() {
   );
 }
 
-/* ============================ Modals Components ============================ */
+/*  Modals Components*/
 
 function ModalShell({
   title,
@@ -610,9 +610,9 @@ function ModalShell({
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full ${maxWidth} bg-surface border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}>
+      <div className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}>
         {title && (
-          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-surface-2">
+          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-[var(--bg-body)]">
             <h3 className="text-lg font-bold text-base-clr tracking-wide">{title}</h3>
             <button onClick={onClose} className="text-muted-clr hover:text-base-clr">✕</button>
           </div>
