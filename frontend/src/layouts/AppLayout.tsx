@@ -1,4 +1,4 @@
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useNavigate  } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { useMemo, useState, useEffect, ReactNode } from "react";
@@ -9,13 +9,24 @@ import { api } from "@/lib/api";
 import PropiedadCreateModal from "@/pages/Propiedades/PropiedadCreateModal";
 import EventCreateModal from "@/pages/Leads/EventCreateModal";
 
-// --- Tipos copiados ---
 type EstadoLead = { id: number; fase: string; descripcion?: string };
 const norm = (s?: string | null) =>
   (s || "").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
 
 export default function AppLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    
+    const token = localStorage.getItem("rc_token");
+    
+    if (!token) {
+      // Si no hay token, redirigimos a la landing/login inmediatamente
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
+  
+
 
   const sectionTitle = useMemo(() => {
     if (pathname.startsWith("/app/leads")) return "Leads";
@@ -49,6 +60,7 @@ export default function AppLayout() {
 
   useEffect(() => {
     fetchEstados();
+
   }, []);
 
   useEffect(() => {

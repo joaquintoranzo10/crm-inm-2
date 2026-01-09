@@ -51,7 +51,7 @@ export default function Sidebar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access");
+    localStorage.removeItem("rc_token");
     localStorage.removeItem("refresh");
     localStorage.removeItem("rc_user_id");
     localStorage.removeItem("rc_user_name");
