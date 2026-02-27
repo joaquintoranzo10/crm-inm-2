@@ -23,7 +23,7 @@ export default function Login() {
 
   // Al cargar, limpiamos datos viejos
   useEffect(() => {
-    localStorage.removeItem("access");
+    localStorage.removeItem("rc_token");
     localStorage.removeItem("refresh");
     localStorage.removeItem("rc_user_id");
   }, []);
