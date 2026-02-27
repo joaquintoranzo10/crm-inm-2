@@ -557,10 +557,10 @@ export default function PropiedadesPage() {
 
 function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag }: any) {
   return (
-    <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="4xl">
+    <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="2xl">
       <div className="flex flex-col gap-5 p-1">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-4">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-2">
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                     {(() => {
@@ -586,31 +586,31 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
                     </span>
                 </div>
                 {/* Título adaptable */}
-                <h2 className="text-2xl font-black text-[var(--text-main)] leading-tight">
+                <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
                   {propiedad.titulo}
                 </h2>
-                <p className="text-2xl font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
+                <p className="text-sm font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
             </div>
             <div className="text-right">
-                <div className="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
                 <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
             </div>
         </div>
 
         {/* GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="w-full h-[400px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="w-full h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
           </div>
-          <div className="flex flex-col gap-4">
-             <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-2">
+             <div className="grid grid-cols-2 gap-2">
                 <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
                 <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
                 <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏"/>
                 <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
              </div>
              {/* Caja descripción */}
-             <div className="flex-1 rounded-xl p-4 overflow-y-auto max-h-[150px] custom-scrollbar border
+             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
                 bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
              >
                 <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
@@ -632,7 +632,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
 
 function InfoBox({ label, value, icon }: { label: string; value: any; icon?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center p-4 rounded-xl shadow-sm transition-all duration-300 group text-center h-full border
+    <div className="flex flex-col items-center justify-center p-2 rounded-lg shadow-sm transition-all duration-300 group text-center h-full border
       bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
     >
       <div className="mb-3 text-[var(--muted)] group-hover:text-blue-500 group-hover:scale-110 transition-all text-3xl">
@@ -662,7 +662,7 @@ function Info({ label, value }: { label: string; value: any }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5 block ml-1">{label}</label>
+      <label className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 block ml-1">{label}</label>
       <div>{children}</div>
     </div>
   );
@@ -680,7 +680,7 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
   return (
     <div ref={rootRef} className="relative w-full">
       <button type="button" onClick={() => setOpen(!open)}
-        className="rc-input text-left flex items-center justify-between"
+        className="rc-input h-8 text-sm text-left flex items-center justify-between"
       >
         <span className="truncate capitalize">{value || "Seleccionar..."}</span>
         <span className="text-gray-400 text-xs">▼</span>
@@ -802,18 +802,18 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   const inputClass = "rc-input";
 
   return (
-    <Modal open={true} onClose={onClose} title="Editar propiedad" maxWidth="4xl">
+    <Modal open={true} onClose={onClose} title="Editar propiedad" maxWidth="xl">
       {error && (
         <div className="mb-3 rounded-md border px-3 py-2 text-sm border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
           {error}
         </div>
       )}
 
-      <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="max-h-none overflow-visible pr-2 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
 
           {/* Formulario */}
-          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-12 gap-5 content-start">
+          <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
               <Row label="Código">
                 <input className={`${inputClass} font-mono`} value={form.codigo} onChange={(e) => set("codigo", e.target.value)} />
@@ -844,14 +844,11 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
             </div>
             <div className="col-span-12 sm:col-span-6">
               <Row label="Disponibilidad">
-                <select
-                  className={inputClass}
+                <SelectScroll
                   value={form.disponibilidad}
-                  onChange={(e) => set("disponibilidad", asDisponibilidad(e.target.value))}
-                >
-                  <option value="venta">Venta</option>
-                  <option value="alquiler">Alquiler</option>
-                </select>
+                  onChange={(v) => set("disponibilidad", v as any)}
+                  options={["venta", "alquiler"]}
+                />
               </Row>
             </div>
             <div className="col-span-12 sm:col-span-5">
@@ -938,8 +935,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
           </div>
 
           {/*  Imágenes */}
-          <div className="md:col-span-4 space-y-6 border-l border-gray-100 dark:border-gray-800 pl-8 md:block hidden">
-
+          <div className="md:col-span-3 space-y-4 border-l border-gray-100 dark:border-gray-800 pl-3 md:block hidden">
             {/* Subir Nuevas */}
             <div>
               <h3 className="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500">Agregar Imágenes</h3>
