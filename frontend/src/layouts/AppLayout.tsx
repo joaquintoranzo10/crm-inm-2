@@ -375,9 +375,9 @@ function LeadModal({
 
       {error && <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-500">{error}</div>}
 
-      <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-soft">
+      <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-soft">
         <button 
-            className="px-4 py-2 rounded-xl text-sm font-medium text-muted-clr border border-soft hover:bg-surface-2 hover:text-base-clr transition-colors" 
+            className="w-full sm:w-auto px-4 py-2 h-10 rounded-xl text-sm font-medium text-muted-clr border border-soft hover:bg-surface-2 hover:text-base-clr transition-colors" 
             onClick={onClose} 
             disabled={saving}
         >
@@ -385,7 +385,7 @@ function LeadModal({
         </button>
         
         <button
-          className="px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-2 h-10 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50 flex items-center justify-center"
           onClick={handleSubmit}
           disabled={saving}
         >
@@ -450,13 +450,13 @@ function ModalShell({
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
-        className={`relative w-full ${maxWidth} bg-surface border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}
+        className={`relative w-full ${maxWidth} bg-surface border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr max-h-[90vh] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
         {/* Glow */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shrink-0"></div>
 
         {title && (
           <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-surface-2">
@@ -464,7 +464,7 @@ function ModalShell({
             <button onClick={onClose} className="text-muted-clr hover:text-base-clr transition-colors">✕</button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
       </div>
     </div>
   );
