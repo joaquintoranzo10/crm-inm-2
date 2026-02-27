@@ -11,7 +11,7 @@
     --border-card: #e5e7eb;
 
     /* Superficies SÓLIDAS (Ventanas, Inputs, Paneles) */
-    /* Definimos ambas variables para compatibilidad con código viejo y nuevo */
+    
     --surface: #ffffff; 
     --bg-surface: #ffffff;       
     
@@ -56,14 +56,14 @@
 
   /* --- CLASES COMPARTIDAS (Leads + Propiedades + Legacy) --- */
   
-  /* 1. CLASE PERDIDA RESTAURADA: Esto devuelve el fondo a tus pantallas viejas */
+  
   .bg-surface {
     background-color: var(--surface) !important;
     border-color: var(--border) !important;
     color: var(--text-main) !important;
   }
 
-  /* 2. Contenedor Modal (CSS Puro para evitar error de compilación) */
+
   .rc-modal-panel {
     border-radius: 1rem;       
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -71,13 +71,11 @@
     transition-duration: 150ms;
     border-width: 1px;
     
-    /* Fondo Sólido Obligatorio */
-    background-color: var(--surface) !important;
+    background-color: var(--bg-body) !important; 
     border-color: var(--border) !important;
     color: var(--text-main) !important;
   }
 
-  /* 3. Inputs (CSS Puro) */
   .rc-input {
     height: 2.5rem;            
     width: 100%;               
