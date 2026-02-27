@@ -73,9 +73,9 @@ export default function TopFilters({ onChange }: Props) {
         Esta semana
       </button>
 
-      <div className="ml-auto relative group">
+      <div className="w-full sm:w-auto sm:ml-auto relative group">
         <select
-            className="appearance-none h-9 pl-4 pr-8 rounded-xl border border-white/10 bg-white/5 text-sm text-gray-300 focus:ring-2 focus:ring-blue-500/50 focus:bg-black outline-none cursor-pointer hover:bg-white/10 transition-colors"
+            className="appearance-none w-full sm:w-auto h-9 pl-4 pr-8 rounded-xl border border-white/10 bg-white/5 text-sm text-gray-300 focus:ring-2 focus:ring-blue-500/50 focus:bg-black outline-none cursor-pointer hover:bg-white/10 transition-colors"
             value={tipo}
             onChange={handleTipoChange}
         >

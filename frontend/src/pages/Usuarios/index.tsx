@@ -26,10 +26,11 @@ export default function UsuariosPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       <h2 className="text-lg font-semibold">Usuarios</h2>
-      <div className="rounded-xl border rc-border rc-border overflow-hidden">
-        <table className="w-full text-sm">
+      
+      <div className="rounded-xl border rc-border overflow-x-auto">
+        <table className="w-full text-sm min-w-[500px] whitespace-nowrap">
           <thead className="bg-gray-100/70 dark:bg-gray-800/50">
             <tr>
               <th className="text-left px-3 py-2">ID</th>
@@ -44,13 +45,13 @@ export default function UsuariosPage() {
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td className="px-3 py-6 text-center rc-muted rc-muted" colSpan={3}>
+                <td className="px-3 py-6 text-center rc-muted" colSpan={3}>
                   No hay usuarios aún.
                 </td>
               </tr>
             ) : (
               users.map((u) => (
-                <tr key={u.id} className="border-b rc-border rc-border">
+                <tr key={u.id} className="border-b rc-border">
                   <td className="px-3 py-2">{u.id}</td>
                   <td className="px-3 py-2">{u.username ?? "-"}</td>
                   <td className="px-3 py-2">{u.email ?? "-"}</td>

@@ -441,15 +441,15 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       </div>
 
       {/* Footer */}
-      <div className="pt-4 border-t border-gray-200 dark:border-gray-700 bg-transparent flex items-center justify-end gap-2">
+      <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 bg-transparent flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-2">
         <button
-          className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-400 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+          className="w-full sm:w-auto px-4 py-2 h-10 rounded-xl text-sm font-bold border border-zinc-400 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
           onClick={onClose}
         >
           Cancelar
         </button>
         <button
-          className="h-10 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60 transition-colors shadow-sm"
+          className="w-full sm:w-auto h-10 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60 transition-colors shadow-sm"
           onClick={() => onSubmit()}
           disabled={submitting || !codigo || !titulo || !ubicacion || precio === "" || !disponibilidad}
         >

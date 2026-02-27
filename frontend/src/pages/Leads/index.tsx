@@ -546,7 +546,7 @@ export default function LeadsPage() {
             </div>
             
             <form onSubmit={handleSaveEdit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <label className="text-xs uppercase text-muted-clr font-semibold tracking-wider">Nombre</label>
                         <input 
@@ -601,19 +601,19 @@ export default function LeadsPage() {
                     </select>
                 </div>
 
-                <div className="flex gap-3 justify-end pt-4 mt-4 border-t border-soft">
+                <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-4 mt-4 border-t border-soft">
                     <button 
                         type="button"
                         onClick={() => setEditTarget(null)}
                         disabled={isProcessing}
-                        className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
                     >
                         Cancelar
                     </button>
                     <button 
                         type="submit"
                         disabled={isProcessing}
-                        className="px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
+                        className="w-full sm:w-auto px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
                     >
                         {isProcessing ? "Guardando..." : "Guardar Cambios"}
                     </button>
