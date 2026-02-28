@@ -111,13 +111,13 @@ export default function NextContactModal({ contacto, onClose }: Props) {
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-end gap-2">
+      <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 sm:gap-2">
         {contacto.next_contact_at && (
           <button
             type="button"
             onClick={handleClear}
             disabled={saving}
-            className="h-10 px-4 rounded-lg border text-sm text-gray-700 dark:text-gray-300 border-soft dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-60"
+            className="w-full sm:w-auto h-10 px-4 rounded-lg border text-sm text-gray-700 dark:text-gray-300 border-soft dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-60"
           >
             Limpiar
           </button>
@@ -126,14 +126,14 @@ export default function NextContactModal({ contacto, onClose }: Props) {
           type="button"
           onClick={onClose}
           disabled={saving}
-          className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+          className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
         >
           Cancelar
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving || !fechaHora}
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm"
+          className="w-full sm:w-auto h-10 px-6 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>

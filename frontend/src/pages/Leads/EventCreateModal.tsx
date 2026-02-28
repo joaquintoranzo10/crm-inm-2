@@ -8,7 +8,7 @@ import { api, fetchLeads, type Contacto } from "@/lib/api";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated?: () => void; // callback para refrescar listas si querés
+  onCreated?: () => void;
 };
 
 type PropiedadOption = { id: number; titulo?: string };
@@ -222,16 +222,16 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
           </select>
         </Field>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-2 pt-4">
           <button 
             type="button" 
             onClick={onClose}
-            className="h-10 px-6 rounded-lg text-sm font-bold transition-all duration-200 border border-gray-400 text-gray-600 dark:text-gray-300 dark:border-gray-500 hover:bg-gray-600 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white shadow-sm transform hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto h-10 px-6 rounded-lg text-sm font-bold transition-all duration-200 border border-gray-400 text-gray-600 dark:text-gray-300 dark:border-gray-500 hover:bg-gray-600 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white shadow-sm transform hover:scale-105 active:scale-95"
           > 
             Cancelar
           </button>
           <button disabled={submitting || !propiedadId || !fechaHora || !tipo}
-            className="rounded-md px-4 py-2 text-sm rc-text bg-blue-600 hover:bg-blue-700 disabled:opacity-60"> 
+            className="w-full sm:w-auto rounded-md px-4 py-2 text-sm rc-text bg-blue-600 hover:bg-blue-700 disabled:opacity-60"> 
             {submitting ? "Guardando..." : "Registrar"}
           </button>
         </div>
@@ -284,7 +284,7 @@ function ContactAutocomplete({
     () => (valueId ? (initialList.find((i) => i.id === valueId) || items.find((i) => i.id === valueId)) : null),
     [valueId, items, initialList]
   );
-  // Buscar cuando cambia el query debounced
+  
   useEffect(() => {
     let done = false;
     (async () => {
@@ -301,7 +301,7 @@ function ContactAutocomplete({
         const res = await fetchLeads({ q, limit: 10 });
         if (!done) setItems(Array.isArray(res) ? res : res?.results ?? []);
       } catch (e) {
-        // no romper el input
+        
       }
     })();
     return () => { done = true; };

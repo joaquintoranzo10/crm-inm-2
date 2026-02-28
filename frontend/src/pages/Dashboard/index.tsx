@@ -389,11 +389,11 @@ export default function DashboardPage() {
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-3xl font-black tracking-tighter text-base-clr">
+          <h2 className="text-3xl font-black tracking-tighter text-base-clr text-center md:text-left">
             Bienvenido a Real Connect
           </h2>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
             <button
               className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
@@ -454,13 +454,15 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* CALENDAR (Glassmorphism) */}
-        <div className="rounded-2xl border border-soft bg-surface shadow-lg overflow-hidden">
-          <div className="grid grid-cols-7 border-b border-soft text-xs font-semibold text-muted-clr uppercase tracking-wider bg-surface-2">
-            {WEEKDAYS.map((w) => (
-              <div key={w} className="px-4 py-3 text-center">{w}</div>
-            ))}
-          </div>
+        {/* CALENDARIO */}
+        <div className="rounded-2xl border border-soft bg-surface shadow-lg overflow-x-auto custom-scrollbar">
+          
+          <div className="min-w-[800px]">
+            <div className="grid grid-cols-7 border-b border-soft text-xs font-semibold text-muted-clr uppercase tracking-wider bg-surface-2">
+              {WEEKDAYS.map((w) => (
+                <div key={w} className="px-4 py-3 text-center">{w}</div>
+              ))}
+            </div>
 
           <div className="grid grid-cols-7 auto-rows-[minmax(8rem,auto)]">
             {monthGrid.days.map((d, i) => {
@@ -578,23 +580,26 @@ export default function DashboardPage() {
           </div>
       )}
 
-    </div>
-  );
+        </div>
+      </div>
+    );
 }
 
 /*  Modals Components*/
+
+type ModalShellProps = {
+  title?: string;
+  children: ReactNode;
+  maxWidth?: "max-w-sm" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
+  onClose: () => void;
+};
 
 function ModalShell({
   title,
   children,
   maxWidth = "max-w-3xl",
   onClose,
-}: {
-  title?: string;
-  children: ReactNode;
-  maxWidth?: "max-w-sm" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
-  onClose: () => void;
-}) {
+}: ModalShellProps) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", onKey);
@@ -610,14 +615,14 @@ function ModalShell({
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr`}>
+      <div className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr max-h-[90vh] flex flex-col`}>
         {title && (
-          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-[var(--bg-body)]">
+          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-[var(--bg-body)] shrink-0">
             <h3 className="text-lg font-bold text-base-clr tracking-wide">{title}</h3>
             <button onClick={onClose} className="text-muted-clr hover:text-base-clr">✕</button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
       </div>
     </div>
   );
@@ -694,9 +699,9 @@ function DayEventsModal({
         </ul>
       )}
 
-      <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-white/10">
-        <button className="h-9 px-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm" onClick={onClose}>Cerrar</button>
-        <button className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20" onClick={onCreate}>+ Agregar Evento</button>
+      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-white/10">
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm transition-colors" onClick={onClose}>Cerrar</button>
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20 transition-all" onClick={onCreate}>+ Agregar Evento</button>
       </div>
     </ModalShell>
   );
@@ -1081,15 +1086,15 @@ function ConfirmModal({
   return (
     <ModalShell title={title} onClose={onCancel} maxWidth="max-w-lg">
       <div className="text-gray-300">{message}</div>
-      <div className="mt-6 flex justify-end gap-3">
-        <button className="h-9 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10" onClick={onCancel} disabled={working}>
+      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3">
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors" onClick={onCancel} disabled={working}>
           Cancelar
         </button>
         <button
           className={
             confirmType === "danger"
-              ? "h-9 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium shadow-lg shadow-rose-900/20"
-              : "h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20"
+              ? "w-full sm:w-auto h-10 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium shadow-lg shadow-rose-900/20 transition-all"
+              : "w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20 transition-all"
           }
           onClick={go}
           disabled={working}

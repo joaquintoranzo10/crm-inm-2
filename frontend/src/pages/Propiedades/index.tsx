@@ -417,13 +417,13 @@ export default function PropiedadesPage() {
             </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 md:mt-0">
+          <div className="relative w-full sm:w-auto">
             <input 
               value={q} 
               onChange={(e) => setQ(e.target.value)} 
               placeholder="Buscar..." 
-              className="h-10 w-64 px-3 rounded-lg border text-sm outline-none transition-all 
+              className="h-10 w-full sm:w-64 px-3 rounded-lg border text-sm outline-none transition-all 
                 bg-white border-gray-300 text-black 
                 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white 
                 focus:ring-2 focus:ring-blue-500/50"
@@ -432,13 +432,11 @@ export default function PropiedadesPage() {
           </div>
           <button 
             onClick={() => setOpenCreate(true)} 
-            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
+            className="w-full sm:w-auto h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
           >
-            
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
               <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
             </svg>
-            
             <span>Registrar propiedad</span>
           </button>
         </div>
@@ -451,7 +449,7 @@ export default function PropiedadesPage() {
       ) : filtered.length === 0 ? (
         <div className="text-sm rc-muted">No hay propiedades que coincidan con tu búsqueda.</div>
       ) : (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 [grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((p) => {
             const tipo = badgeTipo(p.tipo_de_propiedad);
 
@@ -1017,15 +1015,15 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
         </div>
       </div>
 
-      <div className="pt-4 border-t rc-border bg-transparent flex items-center justify-end gap-2">
+      <div className="pt-4 mt-4 border-t rc-border bg-transparent flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-2">
         <button
-          className="h-9 px-4 rounded-lg text-xs font-bold border border-zinc-400 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white transition-colors"
+          className="w-full sm:w-auto h-10 px-4 rounded-lg text-xs font-bold border border-zinc-400 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white transition-colors"
           onClick={onClose}
         >
           Cancelar
         </button>
         <button
-          className="px-6 py-2 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-2 h-10 rounded-xl text-sm font-bold border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all disabled:opacity-50"
           onClick={handleSave}
           disabled={saving}
         >
