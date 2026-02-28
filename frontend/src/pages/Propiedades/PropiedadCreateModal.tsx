@@ -9,7 +9,7 @@ import SmartLocationCombo from "@/components/SmartLocationCombo";
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5 block ml-1">{label}</label>
+      <label className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 block ml-1">{label}</label>
       <div>{children}</div>
     </div>
   );
@@ -34,16 +34,17 @@ function SelectScroll<T extends string>({
         setOpen(false);
       }
     }
+    if (open) {
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
+  }
+  return () => document.removeEventListener("mousedown", onDoc);
+}, [open]);
 
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        // Uso de rc-input para consistencia
-        className="rc-input text-left flex items-center justify-between"
+        className="rc-input h-8 text-sm text-left flex items-center justify-between"
         onClick={() => setOpen(!open)}
       >
         <span className="truncate block capitalize">
@@ -219,30 +220,30 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Registrar propiedad" maxWidth="4xl">
+    <Modal open={open} onClose={onClose} title="Registrar propiedad" maxWidth="xl">
       {serverError && (
         <div className="mb-3 rounded-md border px-3 py-2 text-sm border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
           {serverError}
         </div>
       )}
 
-      <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="max-h-none overflow-visible pr-2 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
 
           {/* Formulario */}
-          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-12 gap-5 content-start">
+          <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
 
             {/* Código y Título */}
-            <div className="col-span-12 sm:col-span-3">
+            <div className="col-span-12 sm:col-span-4">
               <Row label="Código *">
                 <input
-                  className={`${inputClass} font-mono`}
+                  className={`${inputClass} font-mono h-8 text-sm`}
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value)}
                 />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-9">
+            <div className="col-span-12 sm:col-span-8">
               <Row label="Título *">
                 <input className={inputClass} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
               </Row>
@@ -278,15 +279,11 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
             <div className="col-span-12 sm:col-span-6">
               <Row label="Disponibilidad *">
-                <select
-                  className={inputClass}
+                <SelectScroll
                   value={disponibilidad}
-                  onChange={(e) => setDisponibilidad(e.target.value as Disponibilidad)}
-                >
-                  <option value="">— Seleccionar —</option>
-                  <option value="venta">Venta</option>
-                  <option value="alquiler">Alquiler</option>
-                </select>
+                  onChange={(v) => setDisponibilidad(v as Disponibilidad)}
+                  options={["venta", "alquiler"]}
+                />
               </Row>
             </div>
 
@@ -299,73 +296,63 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
             <div className="col-span-6 sm:col-span-3">
               <Row label="Moneda *">
-                <select className={inputClass}
-                  value={moneda} onChange={(e) => setMoneda(e.target.value as Moneda)}>
-                  <option value="USD">USD</option>
-                  <option value="ARS">ARS</option>
-                </select>
+                <SelectScroll
+                  value={moneda}
+                  onChange={(v) => setMoneda(v as Moneda)}
+                  options={["USD", "ARS"]}
+                />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-4">
               <Row label="Estado *">
-                <select
-                  className={`${inputClass} font-medium`}
+                <SelectScroll
                   value={estado}
-                  onChange={(e) => setEstado(e.target.value as Estado)}
-                >
-                  <option value="disponible">Disponible</option>
-                  <option value="reservado">Reservado</option>
-                  <option value="vendido">Vendido</option>
-                </select>
+                  onChange={(v) => setEstado(v as Estado)}
+                  options={["disponible", "reservado", "vendido"]}
+                />
               </Row>
             </div>
-
             {/* Características */}
             <div className="col-span-6 sm:col-span-3">
               <Row label="Ambientes">
-                <select
-                  className={inputClass}
-                  value={ambiente}
-                  onChange={(e) => setAmbiente(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">0</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num === 5 ? "5+" : num}
-                    </option>
-                  ))}
-                </select>
-              </Row>
-            </div>
-            <div className="col-span-6 sm:col-span-3">
-              <Row label="Baños">
-                <select
-                  className={inputClass}
-                  value={banos}
-                  onChange={(e) => setBanos(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">0</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num === 5 ? "5+" : num}
-                    </option>
-                  ))}
-                </select>
-              </Row>
-            </div>
-            <div className="col-span-6 sm:col-span-3">
-              <Row label="Antigüedad">
-                <input
-                  type="number" min={0} className={inputClass}
-                  value={antiguedad} onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
+                <SelectScroll
+                  value={ambiente === "" ? "0" : String(ambiente)}
+                  onChange={(v) => setAmbiente(v === "0" ? "" : Number(v))}
+                  options={["0", "1", "2", "3", "4", "5"]}
                 />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-3">
+              <Row label="Baños">
+                <SelectScroll
+                  value={banos === "" ? "0" : String(banos)}
+                  onChange={(v) => setBanos(v === "0" ? "" : Number(v))}
+                  options={["0", "1", "2", "3", "4", "5"]}
+                />
+              </Row>
+            </div>
+            <div className="col-span-6 sm:col-span-3">
+                <Row label="Antigüedad">
+                  <input
+                    type="number" 
+                    min={0} 
+                    className={inputClass}
+                    value={antiguedad} 
+                    onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="0"
+                  />
+                </Row>
+              </div>
+            <div className="col-span-6 sm:col-span-3">
               <Row label="Superficie (m²)">
                 <input
-                  type="number" min={0} step="0.01" className={inputClass}
-                  value={superficie} onChange={(e) => setSuperficie(e.target.value === "" ? "" : Number(e.target.value))}
+                  type="number" 
+                  min={0} 
+                  step="0.01" 
+                  className={inputClass} 
+                  value={superficie} 
+                  onChange={(e) => setSuperficie(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="0.00"
                 />
               </Row>
             </div>
@@ -379,7 +366,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
           </div>
 
           {/* Imágenes*/}
-          <div className="md:col-span-4 space-y-5 border-l border-gray-200 dark:border-gray-700 pl-8 md:block hidden">
+          <div className="md:col-span-3 space-y-4 border-l border-gray-200 dark:border-gray-700 pl-2 md:block hidden">
 
             <div>
               <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-3">Imágenes (Opcional)</h3>
