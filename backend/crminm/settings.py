@@ -78,17 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'crminm.wsgi.application'
 
-<<<<<<< HEAD
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crm_inm1',
-        'USER': 'crm_inm24',
-        'PASSWORD': 'Juani240803?',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {'charset': 'utf8mb4'},
-=======
 if os.environ.get("DATABASE_URL"):
     # seteás DATABASE_URL y se usa Postgres.
     DATABASES = {
@@ -103,14 +92,13 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'crm_inm',
-            'USER': 'crm_inm1',
-            'PASSWORD': '1234',
+            'NAME': 'crm_inm1',
+            'USER': 'crm_inm24',
+            'PASSWORD': 'Juani240803?',
             'HOST': 'localhost',
             'PORT': '3306',
             'OPTIONS': {'charset': 'utf8mb4'},
         }
->>>>>>> 273b852db8f174b66dec07cc53532cc9c681c3cd
     }
 
 
