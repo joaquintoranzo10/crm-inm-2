@@ -92,9 +92,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'crm_inm24',
-            'USER': 'crm_inm2408',
-            'PASSWORD': 'Caceres240803?',
+            'NAME': 'realconnect2',
+            'USER': 'realconnect24',
+            'PASSWORD': 'realconnect24?',
             'HOST': 'localhost',
             'PORT': '3306',
             'OPTIONS': {'charset': 'utf8mb4'},
