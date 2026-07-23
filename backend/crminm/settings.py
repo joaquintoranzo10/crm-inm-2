@@ -92,9 +92,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'crm_inm1',
-            'USER': 'crm_inm24',
-            'PASSWORD': 'Juani240803?',
+            'NAME': 'crm_inm24',
+            'USER': 'crm_inm2408',
+            'PASSWORD': 'Caceres240803?',
             'HOST': 'localhost',
             'PORT': '3306',
             'OPTIONS': {'charset': 'utf8mb4'},
