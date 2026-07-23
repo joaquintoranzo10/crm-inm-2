@@ -4,9 +4,64 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q # Importamos Q
-
+from django.utils import timezone
 from .models import Aviso
 from .serializers import AvisoSerializer
+
+try:
+    from usuarios.email_utils import send_aviso_email
+    from usuarios.models import Usuario
+    EMAIL_ENABLED = True
+except ImportError:
+    EMAIL_ENABLED = False
+
+
+def _enviar_notificacion_aviso(aviso: Aviso, auth_user) -> None:
+
+    if not EMAIL_ENABLED:
+        return
+
+    try:
+        email = getattr(auth_user, "email", None) or getattr(auth_user, "username", None)
+        if not email:
+            return
+
+        # Obtener nombre desde tabla usuarios_usuario
+        nombre = auth_user.first_name or "Usuario"
+        try:
+            usuario_obj = Usuario.objects.get(email__iexact=email)
+            nombre = usuario_obj.nombre or nombre
+        except Usuario.DoesNotExist:
+            pass
+
+        # Fecha formateada
+        fecha_str = ""
+        if aviso.fecha:
+            fecha_local = timezone.localtime(aviso.fecha)
+            fecha_str = fecha_local.strftime("%d/%m/%Y %H:%M")
+
+        # Nombre del lead asociado (si existe)
+        lead_nombre = ""
+        if aviso.lead:
+            lead_nombre = str(aviso.lead)
+
+        send_aviso_email(
+            user_email=email,
+            nombre=nombre,
+            aviso_data={
+                "titulo": aviso.titulo,
+                "descripcion": aviso.descripcion or "",
+                "fecha": fecha_str,
+                "lead_nombre": lead_nombre,
+            },
+        )
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).error(
+            f"[AVISOS] Error al enviar notificación de aviso #{aviso.pk}: {exc}",
+            exc_info=True,
+        )
+
 
 class AvisoViewSet(viewsets.ModelViewSet):
     
@@ -14,11 +69,10 @@ class AvisoViewSet(viewsets.ModelViewSet):
     queryset = Aviso.objects.all().order_by("-fecha")
     
     serializer_class = AvisoSerializer
-    permission_classes = [IsAuthenticated] # Exigir autenticación
+    permission_classes = [IsAuthenticated] #  autenticación
 
     def get_queryset(self):
         """
-        Esta función sobreescribe el 'queryset' de arriba para los usuarios.
         Filtra para mostrar solo los avisos PENDIENTES del usuario logueado.
         """
         user = self.request.user
@@ -26,19 +80,24 @@ class AvisoViewSet(viewsets.ModelViewSet):
         # Empezamos con el queryset base
         qs = super().get_queryset() 
 
-        # Filtramos por 'owner' (dueño)
+        # Filtramos por  (dueño)
         if not (user.is_staff or user.is_superuser):
             # Asumimos que filtramos por el 'owner' del Lead asociado
-            # O avisos que no tienen lead (ej. globales)
-            # NOTA: Si tu modelo Aviso tuviera un campo 'owner',
-            # la línea sería simplemente: qs = qs.filter(owner=user)
+            # O avisos que no tienen lead 
+            
             qs = qs.filter(Q(lead__owner=user) | Q(lead__isnull=True))
 
         # Filtramos solo los pendientes y ordenamos
         return qs.filter(estado="pendiente").order_by("-fecha")
+    
+    def perform_create(self, serializer):
+        """
+        Al crear un aviso, lo guarda y luego envía la notificación por correo.
+        """
+        aviso = serializer.save()
+        # Enviar notificación al usuario autenticado
+        _enviar_notificacion_aviso(aviso, self.request.user)
 
-    # --- NUEVA ACCIÓN ---
-    # Esto crea la URL: /api/avisos/{id}/marcar-leido/
     @action(detail=True, methods=["post"], url_path="marcar-leido")
     def marcar_leido(self, request, pk=None):
         """
@@ -48,10 +107,10 @@ class AvisoViewSet(viewsets.ModelViewSet):
             # get_object() usa get_queryset(), así que ya filtra por 'owner' y 'pendiente'
             aviso = self.get_object()
         except Aviso.DoesNotExist:
-            # Si no lo encuentra, es porque no existe, no es nuestro, o ya está completado
+            
             return Response({"detail": "No encontrado o ya completado."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Si lo encontramos (lo que significa que está 'pendiente')...
+        
         aviso.estado = "completado"
         aviso.save(update_fields=["estado", "actualizado_en"])
         
@@ -60,5 +119,3 @@ class AvisoViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    # (No necesitamos el OwnedQuerysetMixin si filtramos en get_queryset)
-    # (No necesitamos perform_create si los signals se encargan de crear avisos)

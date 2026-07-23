@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuevo aviso - CRM INM</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 36px 40px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .header p { color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 14px; }
+    .body { padding: 40px; }
+    .body p { color: #374151; font-size: 15px; line-height: 1.7; margin: 0 0 16px; }
+    .body p.greeting { font-size: 17px; font-weight: 600; color: #111827; }
+    .aviso-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px 24px; margin: 24px 0; }
+    .aviso-card .titulo { font-size: 17px; font-weight: 700; color: #065f46; margin: 0 0 8px; }
+    .aviso-card .descripcion { font-size: 14px; color: #374151; margin: 0 0 14px; }
+    .aviso-card .meta { display: flex; flex-wrap: wrap; gap: 12px; }
+    .aviso-card .badge { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .aviso-card .badge.fecha { background: #e0e7ff; color: #3730a3; }
+    .aviso-card .badge.lead { background: #fef3c7; color: #92400e; }
+    .btn-wrap { text-align: center; margin: 32px 0; }
+    .btn { display: inline-block; background: #059669; color: #ffffff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+    .footer { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 24px 40px; text-align: center; }
+    .footer p { color: #9ca3af; font-size: 12px; margin: 4px 0; }
+    .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1> REAL CONNECT</h1>
+      <p>Tenés un nuevo aviso pendiente</p>
+    </div>
+    <div class="body">
+      <p class="greeting">Hola, {{ nombre }}!</p>
+      <p>Se generó un nuevo aviso en tu CRM :</p>
+
+      <div class="aviso-card">
+        <div class="titulo">📋 {{ titulo }}</div>
+        {% if descripcion %}
+        <div class="descripcion">{{ descripcion }}</div>
+        {% endif %}
+        <div class="meta">
+          <span class="badge fecha">📅 {{ fecha }}</span>
+          <span class="badge">⏳ Pendiente</span>
+          {% if lead_nombre %}
+          <span class="badge lead">👤 {{ lead_nombre }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <p>Ingresá al sistema para ver todos tus avisos y gestionarlos.</p>
+
+      <div class="btn-wrap">
+        <a href="{{ crm_url }}" class="btn">Ver mis avisos</a>
+      </div>
+
+      <hr class="divider"/>
+      
+    </div>
+    <div class="footer">
+      <p>Real Connect — Domina tu mercado</p>
+      <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+    </div>
+  </div>
+</body>
+</html>

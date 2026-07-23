@@ -70,17 +70,16 @@ class ContactoSerializer(serializers.ModelSerializer):
             "creado_en",
         ]
 
-    # ---- Validaciones suaves de coherencia ----
     def validate(self, attrs):
         note = attrs.get("next_contact_note", getattr(self.instance, "next_contact_note", ""))
         if note and len(note) > 255:
             raise serializers.ValidationError({"next_contact_note": "Máximo 255 caracteres."})
         return attrs
 
-    # ---- Create / Update (el historial lo maneja la signal) ----
+   
     def create(self, validated_data):
         contacto = Contacto.objects.create(**validated_data)
-        # ⛔️ No crear historial acá: lo hace la signal post_save(Contacto).
+        
         return contacto
 
     def update(self, instance, validated_data):
@@ -89,11 +88,7 @@ class ContactoSerializer(serializers.ModelSerializer):
             setattr(instance, attr, val)
         instance.save() # Guarda Contacto y dispara signal para EstadoLeadHistorial
 
-        # ----------------------------------------------------
-        # Lógica de sincronización de Aviso (para Quick-Contact)
-        # ----------------------------------------------------
         
-        # 1. Chequeamos si el próximo contacto fue modificado
         if "next_contact_at" in validated_data or "next_contact_note" in validated_data:
             
             # Buscamos un Aviso existente ligado a este Lead y que NO provenga de un Evento
@@ -104,13 +99,10 @@ class ContactoSerializer(serializers.ModelSerializer):
             next_contact_note = validated_data.get("next_contact_note")
             
             if next_contact_at is not None:
-                # Caso A: Se programa un próximo contacto (Future Date)
                 
-                # El título y la descripción son esenciales para el aviso
                 titulo = f"Seguimiento programado con {instance.nombre} {instance.apellido}"
                 descripcion = next_contact_note or "Próximo contacto registrado manualmente."
                 
-                # Creamos o actualizamos el Aviso (no ligado a Evento ni Propiedad en este contexto rápido)
                 Aviso.objects.update_or_create(
                     lead=instance,
                     evento=None, 
@@ -124,8 +116,6 @@ class ContactoSerializer(serializers.ModelSerializer):
                 )
                 
             else:
-                # Caso B: next_contact_at es None (Se limpia el próximo contacto)
-                # Eliminamos cualquier Aviso de quick-contact existente
                 quick_aviso_qs.delete()
         
         return instance # Devuelve la instancia actualizada
@@ -172,7 +162,7 @@ class EventoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "creado_en"]
 
-    # ----- Filtro de queryset por usuario autenticado (anti cross-tenant) -----
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get("request")
@@ -182,7 +172,7 @@ class EventoSerializer(serializers.ModelSerializer):
             self.fields["contacto"].queryset = Contacto.objects.filter(owner=user)
             self.fields["propiedad"].queryset = Propiedad.objects.filter(owner=user)
 
-    # ----- Validaciones anti cross-tenant (por si cambian el ID a mano) -----
+    
     def validate_contacto(self, value):
         if value is None:
             return value
@@ -201,7 +191,7 @@ class EventoSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Propiedad no pertenece al usuario autenticado.")
         return value
 
-    # ----- Validación anti-solapamiento, duplicado y fecha pasada (por propiedad) -----
+    
     def validate(self, attrs):
         """
         - Previene eventos en el pasado (fecha_hora < ahora).

@@ -15,7 +15,6 @@ from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
-    # ChangePasswordView, DeleteAccountView,  # se importan en el try más abajo
 )
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -61,9 +60,7 @@ urlpatterns = [
     path("api/", include("dashboard.urls")),
 ]
 
-# ===== Extensiones que se activan si existen =====
-
-# 1) Cambio de contraseña y eliminación de cuenta
+#Cambio de contraseña y eliminación de cuenta
 try:
     from usuarios.views import ChangePasswordView, DeleteAccountView
     urlpatterns += [
@@ -71,15 +68,25 @@ try:
         path("api/usuarios/me/delete/", DeleteAccountView.as_view(), name="usuarios-delete-account"),
     ]
 except Exception:
-    # Si aún no existen esas vistas, ignoramos.
+    
     pass
 
-# 2) Exportación y métricas (app: exportacion)
+#reseteo de contraseña
+try:
+    from usuarios.password_reset_views import PasswordResetRequestView, PasswordResetConfirmView
+    urlpatterns += [
+        path("api/auth/password-reset/request/", PasswordResetRequestView.as_view(), name="password-reset-request"),
+        path("api/auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
+    ]
+except Exception:
+    pass
+
+#exportación y metricas
 try:
     urlpatterns += [path("api/exportacion/", include("exportacion.urls"))]
 except Exception:
-    # Si la app 'exportacion' aún no existe, ignoramos.
     pass
+
 
 # Media en dev
 if settings.DEBUG:
