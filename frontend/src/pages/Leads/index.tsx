@@ -79,6 +79,7 @@ export default function LeadsPage() {
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [vencimiento, setVencimiento] = useState<"" | "pendiente" | "vencido" | "hoy" | "proximo">("");
+  const [estadoFiltro, setEstadoFiltro] = useState<string>("");
 
   const PAGE_SIZE = 10;
 
@@ -99,6 +100,7 @@ export default function LeadsPage() {
       const params: Record<string, any> = {};
       if (q.trim()) params.q = q.trim();
       if (vencimiento) params.vencimiento = vencimiento;
+      if (estadoFiltro) params.estado = estadoFiltro;
 
       const res = await api.get("contactos/", { params });
       const toArr = (d: any) => (Array.isArray(d) ? d : Array.isArray(d?.results) ? d.results : []);
@@ -118,7 +120,7 @@ export default function LeadsPage() {
   useEffect(() => {
     fetchContactos();
     setPage(1);
-  }, [q, vencimiento]);
+  }, [q, vencimiento, estadoFiltro]);
 
   useEffect(() => {
     window.addEventListener("refrescar-leads", fetchContactos);
@@ -319,7 +321,7 @@ export default function LeadsPage() {
         {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-3">
     
-          {/* 1. BUSCADOR: Ocupa todo el espacio disponible (flex-1) */}
+          
           <div className="relative flex-1">
               <input
                   value={q}
@@ -337,8 +339,8 @@ export default function LeadsPage() {
               )}
           </div>
 
-          {/* 2. FILTRO VENCIMIENTO: Ancho fijo controlado */}
-          {/* Puedes cambiar w-56 por w-48 o w-64 según prefieras */}
+        
+          
           <div className="w-full md:w-56 shrink-0">
               <select
                   className="rc-input w-full h-11 cursor-pointer"
@@ -350,6 +352,20 @@ export default function LeadsPage() {
                   <option value="vencido" style={optionStyle}>Vencido</option>
                   <option value="hoy" style={optionStyle}>Vence hoy</option>
                   <option value="proximo" style={optionStyle}>Próximo</option>
+              </select>
+          </div>
+
+        
+          <div className="w-full md:w-56 shrink-0">
+              <select
+                  className="rc-input w-full h-11 cursor-pointer"
+                  value={estadoFiltro}
+                  onChange={(e) => setEstadoFiltro(e.target.value)}
+              >
+                  <option value="" style={optionStyle}>Todos los estados</option>
+                  {estados.map((e) => (
+                      <option key={e.id} value={e.id} style={optionStyle}>{e.fase}</option>
+                  ))}
               </select>
           </div>
       </div>

@@ -6,6 +6,9 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
+
 import DashboardPage from "./pages/Dashboard";
 import LeadsPage from "./pages/Leads";
 import PropiedadesPage from "./pages/Propiedades";
@@ -28,6 +31,8 @@ export default function App() {
           <Route index element={<Landing />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
         </Route>
 
         {/* App autenticada */}

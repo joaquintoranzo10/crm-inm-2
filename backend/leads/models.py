@@ -1,4 +1,3 @@
-# leads/models.py
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -19,7 +18,6 @@ class EstadoLead(models.Model):
 
 
 class Contacto(models.Model):
-    # === Multi-tenant ===
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -112,7 +110,6 @@ class Evento(models.Model):
         return f"{self.tipo} {self.fecha_hora:%Y-%m-%d %H:%M}"
 
 
-# ✅ historial de cambios de estado
 class EstadoLeadHistorial(models.Model):
     contacto = models.ForeignKey(Contacto, on_delete=models.CASCADE, related_name="historial_estados")
     estado = models.ForeignKey(EstadoLead, null=True, blank=True, on_delete=models.SET_NULL)
@@ -125,16 +122,9 @@ class EstadoLeadHistorial(models.Model):
         return f"{self.contacto} -> {self.estado or '—'} @ {self.changed_at:%Y-%m-%d %H:%M}"
 
 
-# =========================
-# Señales de sincronización
-# =========================
-
 @receiver(post_save, sender=Contacto)
 def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **kwargs):
-    """
-    Al crear un Contacto (Lead) nuevo, si no tiene un próximo contacto
-    programado, se le asigna uno automáticamente a 3 días.
-    """
+   
     if created and not instance.next_contact_at:
         Contacto.objects.filter(pk=instance.pk).update(
             next_contact_at=timezone.now() + timezone.timedelta(days=3),
@@ -144,12 +134,7 @@ def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **k
 
 @receiver(post_save, sender=Evento)
 def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool, **kwargs):
-    """
-    Gestiona la sincronización del Contacto y el Aviso a partir de un Evento.
-    - Si el Evento es pasado o de hoy: actualiza el last_contact_at Y
-      PROGRAMA EL SIGUIENTE SEGUIMIENTO para 3 días.
-    - Si el Evento es futuro: crea o actualiza el next_contact_at del Contacto y el Aviso asociado.
-    """
+    
     contacto = instance.contacto
     if not contacto:
         return
@@ -162,12 +147,12 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         
         update_fields_list = []
         
-        # 1. Actualiza el último contacto si este evento es más reciente
+        # Actualiza el último contacto si este evento es más reciente
         if not contacto.last_contact_at or evento_dt > contacto.last_contact_at:
             contacto.last_contact_at = evento_dt
             update_fields_list.append("last_contact_at")
 
-        # 2. Programa el *siguiente* seguimiento para 3 días desde ahora
+        
         is_relevant_event = (
             not contacto.next_contact_at 
             or evento_dt.date() >= timezone.localtime(contacto.next_contact_at).date()
@@ -193,8 +178,13 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         return
 
     # Evento futuro
+    next_contact_actual = (
+        timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
+    )
     should_update_next = (
-        not contacto.next_contact_at or evento_dt < timezone.localtime(contacto.next_contact_at)
+        not next_contact_actual
+        or next_contact_actual <= now  
+        or evento_dt < next_contact_actual
     )
     if should_update_next:
         contacto.next_contact_at = evento_dt
@@ -221,7 +211,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
             'lead': contacto,
             'propiedad': instance.propiedad,
             'estado': 'pendiente',
-            # --- CAMBIO: Ahora esto funcionará ---
             'owner': contacto.owner 
         }
     )

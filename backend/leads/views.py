@@ -18,10 +18,9 @@ from .serializers import (
     EstadoLeadHistorialSerializer,
 )
 
-# Duración por defecto de un evento en minutos (ajustable)
+# Duración por defecto de un evento en minutos 
 DEFAULT_EVENT_DURATION_MIN = 60
 
-# ---------- Helpers de fecha/hora (sin dependencias externas) ----------
 def _to_local_aware(dt: datetime) -> datetime:
     """Asegura datetimes conscientes en la tz local."""
     if dt.tzinfo is None:
@@ -59,13 +58,8 @@ def _parse_date_or_datetime(s: str, end_of_day: bool = False) -> datetime | None
             return None
 
 
-# ---------- Mixin multi-tenant ----------
 class OwnedQuerysetMixin:
-    """
-    - Exige autenticación
-    - Filtra el queryset por owner=request.user (salvo staff/súperuser)
-    - Setea owner automáticamente en create
-    """
+    
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -76,28 +70,26 @@ class OwnedQuerysetMixin:
         return qs.filter(owner=user)
 
     def perform_create(self, serializer):
-        # Solo seteamos el owner; el historial lo crean las signals
+        
         serializer.save(owner=self.request.user)
 
 
-# === Estados ===
 class EstadoLeadViewSet(viewsets.ModelViewSet):
     queryset = EstadoLead.objects.all().order_by("fase")
     serializer_class = EstadoLeadSerializer
 
 
-# === Contactos ===
 class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     queryset = Contacto.objects.all().order_by("-id")
     serializer_class = ContactoSerializer
 
-    # --------- Búsqueda / Filtros / Orden ----------
+    
     def get_queryset(self):
         qs = super().get_queryset()
         request = self.request
         params = request.query_params
 
-        # Búsqueda simple
+        
         q = params.get("q")
         if q:
             qs = qs.filter(
@@ -126,7 +118,8 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         limite_proximo = hoy + timedelta(days=proximo_en_dias)
 
         if vencimiento == "pendiente":
-            qs = qs.filter(next_contact_at__isnull=True)
+           
+            qs = qs.exclude(eventos__fecha_hora__gte=now).distinct()
         elif vencimiento == "vencido":
             qs = qs.filter(
                 next_contact_at__lt=timezone.make_aware(
@@ -171,7 +164,6 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         return qs
 
-    # GET /api/contactos/{id}/estado-historial/
     @action(detail=True, methods=["get"], url_path="estado-historial")
     def estado_historial(self, request, pk=None):
         try:
@@ -187,7 +179,6 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         ser = EstadoLeadHistorialSerializer(qs, many=True)
         return Response(ser.data)
 
-    # GET /api/contactos/avisos/
     @action(detail=False, methods=["get"], url_path="avisos")
     def avisos(self, request):
         recordame_param = request.query_params.get("recordame_cada", None)
@@ -257,7 +248,7 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 for it in data
             ]
 
-        pendientes_qs = base_qs.filter(next_contact_at__isnull=True).order_by("-id")[:limit]
+        pendientes_qs = base_qs.exclude(eventos__fecha_hora__gte=now).distinct().order_by("-id")[:limit]
         vencidos_qs = base_qs.filter(next_contact_at__lt=inicio_hoy).order_by("next_contact_at")[:limit]
         hoy_qs = base_qs.filter(next_contact_at__gte=inicio_hoy, next_contact_at__lt=fin_hoy).order_by("next_contact_at")[:limit]
         proximos_qs = base_qs.filter(next_contact_at__gte=inicio_manana, next_contact_at__lt=fin_proximos).order_by("next_contact_at")[:limit]
@@ -278,19 +269,16 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         return Response(payload)
 
 
-# === Eventos ===
 class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     queryset = Evento.objects.all().select_related("contacto", "propiedad").order_by("-fecha_hora", "-id")
     serializer_class = EventoSerializer
 
-    # --------- Filtros / Orden para listar agenda (Paso 1) ----------
+    
     def get_queryset(self):
         qs = super().get_queryset()
         p = self.request.query_params
 
-        # Rango de fechas:
-        # - from=... (inclusive)   - to=... (exclusivo si es fecha + 1 día, inclusivo si datetime)
-        # - date=YYYY-MM-DD (atajo para todo ese día)
+        
         date_only = p.get("date")
         if date_only and not p.get("from") and not p.get("to"):
             start = _parse_date_or_datetime(date_only, end_of_day=False)
@@ -345,7 +333,6 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         return qs
 
-    # ---------- Helpers de validación server-side (re-check en DB) ----------
     def _events_overlapping(self, propiedad, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
         """
         Retorna queryset de eventos que solapan con el rango [new_start, new_start + duration).
@@ -369,16 +356,9 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         )
         return qs
 
-    # --- CAMBIO: Lógica de 'get_or_create' añadida ---
     def perform_create(self, serializer):
-        """
-        MODIFICADO:
-        - Si se crea un evento con datos de "visitante" (email) pero sin un Contacto
-          (lead) asociado, busca o crea un Contacto con ese email y lo asocia.
-        - Mantiene la revalidación en transacción para evitar duplicados/solapamientos.
-        """
-        
-        # --- NUEVA LÓGICA: GET OR CREATE LEAD ---
+       
+       
         validated_data = serializer.validated_data
         contacto = validated_data.get("contacto")
         email = validated_data.get("email")
@@ -389,8 +369,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             apellido = validated_data.get("apellido", "")
             owner = self.request.user # El 'owner' es el usuario que crea el evento
             
-            # Usamos get_or_create para evitar duplicados (case-insensitive)
-            # Y filtramos por 'owner' para no tomar el lead de otro usuario
+           
             lead, created = Contacto.objects.get_or_create(
                 owner=owner,
                 email__iexact=email.strip(), # iexact = ignora mayúsculas/minúsculas
@@ -399,18 +378,13 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                     'apellido': apellido,
                     'email': email.strip(),
                     'owner': owner,
-                    # El signal 'programar_seguimiento_inicial' (de models.py)
-                    # se encargará automáticamente del 'next_contact_at' si 'created' es True.
+                    
                 }
             )
             
-            # Inyectamos el lead (nuevo o encontrado) de vuelta en los datos validados
-            # para que se guarde con el Evento.
             serializer.validated_data['contacto'] = lead
         
-        # --- FIN NUEVA LÓGICA ---
-
-        # Lógica original de validación de duplicados/solapamientos
+        
         fecha_hora = serializer.validated_data.get("fecha_hora")
         propiedad = serializer.validated_data.get("propiedad")
         
@@ -432,24 +406,17 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                     raise ValidationError(
                         f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
-                # si todo ok, guardamos con owner (OwnedQuerysetMixin.perform_create)
-                # Ahora serializer.validated_data['contacto'] tiene el ID del lead
+                
                 super().perform_create(serializer)
         else:
-            # si faltan campos, fallback al comportamiento normal (dejar que serializer valide)
+            
             super().perform_create(serializer)
 
-    # --- CAMBIO: Lógica de 'get_or_create' añadida a UPDATE ---
     def perform_update(self, serializer):
-        """
-        Mismo re-check para updates: ignoramos el propio id en la búsqueda.
-        Además valida que no se mueva la fecha a pasado.
-        Añadida lógica 'get_or_create' para visitantes.
-        """
         
-        # --- NUEVA LÓGICA (para UPDATE) ---
+        
         validated_data = serializer.validated_data
-        # Comprobar el 'contacto' existente Y el que viene en los datos
+      
         contacto = validated_data.get("contacto", getattr(serializer.instance, "contacto", None))
         email = validated_data.get("email", getattr(serializer.instance, "email", None))
 
@@ -469,9 +436,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 }
             )
             serializer.validated_data['contacto'] = lead
-        # --- FIN LÓGICA UPDATE ---
-
-        # Lógica original de validación
+       
         fecha_hora = serializer.validated_data.get("fecha_hora", getattr(serializer.instance, "fecha_hora", None))
         propiedad = serializer.validated_data.get("propiedad", getattr(serializer.instance, "propiedad", None))
         ignore_id = getattr(serializer.instance, "id", None)
