@@ -42,6 +42,7 @@ urlpatterns = [
     # Asistente IA
     path("api/asistente/", include("asistente.urls")),
     
+    path('api/', include('propiedades.urls')),
 
     # Usuarios CRUD + perfil
     path("api/usuarios/", ListaYCreaUsuario.as_view(), name="usuarios-lista"),
