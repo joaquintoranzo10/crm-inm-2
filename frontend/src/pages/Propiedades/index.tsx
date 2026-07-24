@@ -112,8 +112,8 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
         <img
           src={valid[i]}
           alt="Principal"
-          
-          className="w-full h-full object-contain" 
+
+          className="w-full h-full object-contain"
         />
 
         {/* Flechas superpuestas (aparecen al pasar el mouse) */}
@@ -409,20 +409,20 @@ export default function PropiedadesPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
         <div>
-            <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
-                Gestión de propiedades
-            </h2>
-            <div className="text-sm text-muted-clr">
-                Administra tu cartera de propiedades y su disponibilidad.
-            </div>
+          <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
+            Gestión de propiedades
+          </h2>
+          <div className="text-sm text-muted-clr">
+            Administra tu cartera de propiedades y su disponibilidad.
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 md:mt-0">
           <div className="relative w-full sm:w-auto">
-            <input 
-              value={q} 
-              onChange={(e) => setQ(e.target.value)} 
-              placeholder="Buscar..." 
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar..."
               className="h-10 w-full sm:w-64 px-3 rounded-lg border text-sm outline-none transition-all 
                 bg-white border-gray-300 text-black 
                 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white 
@@ -430,8 +430,8 @@ export default function PropiedadesPage() {
             />
             {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => setQ("")}>Limpiar</button>}
           </div>
-          <button 
-            onClick={() => setOpenCreate(true)} 
+          <button
+            onClick={() => setOpenCreate(true)}
             className="w-full sm:w-auto h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -442,7 +442,7 @@ export default function PropiedadesPage() {
         </div>
       </div>
       <style>{cardStyles}</style>
-      
+
 
       {loading ? (
         <div className="text-sm">Cargando…</div>
@@ -559,40 +559,40 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
       <div className="flex flex-col gap-5 p-1">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-2">
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                    {(() => {
-                      const coloresEstado: Record<string, string> = {
-                        disponible: "bg-emerald-600 border-emerald-700 dark:bg-emerald-500 dark:border-emerald-400",
-                        reservado: "bg-orange-500 border-orange-600 dark:bg-orange-500 dark:border-orange-400",
-                        vendido: "bg-red-600 border-red-700 dark:bg-red-500 dark:border-red-400",
-                      };
-                  
-                      const colorClass = coloresEstado[propiedad.estado] || "bg-gray-600 border-gray-700";
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              {(() => {
+                const coloresEstado: Record<string, string> = {
+                  disponible: "bg-emerald-600 border-emerald-700 dark:bg-emerald-500 dark:border-emerald-400",
+                  reservado: "bg-orange-500 border-orange-600 dark:bg-orange-500 dark:border-orange-400",
+                  vendido: "bg-red-600 border-red-700 dark:bg-red-500 dark:border-red-400",
+                };
 
-                      return (
-                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm border text-white ${colorClass}`}>
-                          {propiedad.estado}
-                        </span>
-                      );
-                    })()}
+                const colorClass = coloresEstado[propiedad.estado] || "bg-gray-600 border-gray-700";
 
-                    <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm
+                return (
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm border text-white ${colorClass}`}>
+                    {propiedad.estado}
+                  </span>
+                );
+              })()}
+
+              <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm
                         bg-blue-600 text-white border border-blue-700
                         dark:bg-blue-500 dark:text-white dark:border-blue-400">
-                        {propiedad.tipo_de_propiedad}
-                    </span>
-                </div>
-                {/* Título adaptable */}
-                <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
-                  {propiedad.titulo}
-                </h2>
-                <p className="text-sm font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
+                {propiedad.tipo_de_propiedad}
+              </span>
             </div>
-            <div className="text-right">
-                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
-                <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
-            </div>
+            {/* Título adaptable */}
+            <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
+              {propiedad.titulo}
+            </h2>
+            <p className="text-sm font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+            <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
+          </div>
         </div>
 
         {/* GRID */}
@@ -601,23 +601,23 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
           </div>
           <div className="flex flex-col gap-2">
-             <div className="grid grid-cols-2 gap-2">
-                <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
-                <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
-                <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏"/>
-                <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
-             </div>
-             {/* Caja descripción */}
-             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
+            <div className="grid grid-cols-2 gap-2">
+              <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
+              <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
+              <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏" />
+              <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
+            </div>
+            {/* Caja descripción */}
+            <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
                 bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
-             >
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
-                <p className="text-sm whitespace-pre-line leading-relaxed">{propiedad.descripcion || "Sin descripción."}</p>
-             </div>
+            >
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
+              <p className="text-sm whitespace-pre-line leading-relaxed">{propiedad.descripcion || "Sin descripción."}</p>
+            </div>
           </div>
         </div>
       </div>
-      
+
       {/* Footer */}
       <div className="mt-4 pt-4 border-t rc-border flex justify-end gap-2">
         {onDelete && <button onClick={onDelete} className="px-4 py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all">Eliminar</button>}
@@ -689,8 +689,8 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
           {options.map((opt) => (
             <li key={opt}>
               <button type="button" onClick={() => { onChange(opt); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${opt === value 
-                  ? "bg-blue-600 text-white font-bold" 
+                className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${opt === value
+                  ? "bg-blue-600 text-white font-bold"
                   : "hover:bg-gray-100 dark:hover:bg-zinc-800"}`}
               >
                 {opt}
@@ -758,12 +758,20 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
     }
   }
 
-  async function subirNuevasImagenes(propId: number) {
-    if (filesToUpload.length === 0) return;
-    const fd = new FormData();
-    filesToUpload.forEach((f) => fd.append("imagenes", f));
-    await axios.post(`/api/propiedades/${propId}/subir-imagenes/`, fd, {
-      headers: { "Content-Type": "multipart/form-data" },
+  async function subirNuevasImagenes(id: number, imagenes: File[]) {
+    if (imagenes.length === 0) return;
+
+    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+    const formData = new FormData();
+    imagenes.forEach((file) => {
+      formData.append("imagenes", file);
+    });
+
+    await axios.post(`http://127.0.0.1:8000/api/propiedades/${id}/subir-imagenes/`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 
@@ -788,7 +796,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
       };
 
       await axios.patch(`/api/propiedades/${form.id}/`, payload);
-      await subirNuevasImagenes(form.id);
+      await subirNuevasImagenes(form.id, filesToUpload);
       onSaved();
     } catch (e) {
       setError("No se pudo actualizar la propiedad. Verificá los datos.");
@@ -927,7 +935,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
             </div>
             <div className="col-span-12">
               <Row label="Descripción">
-                <textarea rows={4} className={`${inputClass} h-auto resize-none`}  value={form.descripcion}  onChange={e => set("descripcion", e.target.value)} />
+                <textarea rows={4} className={`${inputClass} h-auto resize-none`} value={form.descripcion} onChange={e => set("descripcion", e.target.value)} />
               </Row>
             </div>
           </div>

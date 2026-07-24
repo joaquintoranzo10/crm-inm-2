@@ -5,17 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 
 from .models import Propiedad, PropiedadImagen
-from .serializers import (
-    PropiedadSerializer,
-    SubirImagenesSerializer,
-    PropiedadImagenSerializer,
-)
+from .serializers import (PropiedadSerializer,SubirImagenesSerializer,PropiedadImagenSerializer,)
 
 class OwnedQuerysetMixin:
     """
     - Exige autenticación
-    - Filtra el queryset por owner=request.user (salvo staff/súperuser)
-    - Setea owner automáticamente en create
+    - Filtra el queryset por owner=request.user (salvo staff/superuser)
     """
     permission_classes = [IsAuthenticated]
 
@@ -31,94 +26,86 @@ class OwnedQuerysetMixin:
 
 
 class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
-    queryset = Propiedad.objects.all().order_by("-id")
+    queryset = Propiedad.objects.all().order_by('-id')
     serializer_class = PropiedadSerializer
     permission_classes = [IsAuthenticated]
 
-    #Create para subida de imágenes 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         """
-        Crea la Propiedad y luego las PropiedadImagen asociadas
-        usando los archivos enviados en 'imagenes'.
+        Crea la propiedad y guarda las imágenes enviadas en una sola petición multipart/form-data.
         """
-        # Crear propiedad
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
+        
         try:
-            propiedad = serializer.save(owner=request.user)
+            propiedad = serializer.save(owner=self.request.user)
         except Exception as e:
             return Response(
-                {"detail": f"Error al guardar la propiedad: {str(e)}"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": f"Error al guardar la propiedad: {str(e)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Crear imágenes
-        imagenes_data = request.FILES.getlist("imagenes")
+        # Obtener imágenes adjuntas al crear
+        imagenes_data = request.FILES.getlist('imagenes')
+        if not imagenes_data and 'imagen' in request.FILES:
+            imagenes_data = [request.FILES['imagen']]
+
         for imagen_file in imagenes_data:
             PropiedadImagen.objects.create(
                 propiedad=propiedad,
-                imagen=imagen_file,
+                imagen=imagen_file
             )
 
-        # Respuesta
         response_serializer = self.get_serializer(propiedad)
         headers = self.get_success_headers(response_serializer.data)
         return Response(
-            response_serializer.data,
+            response_serializer.data, 
             status=status.HTTP_201_CREATED,
-            headers=headers,
+            headers=headers
         )
 
-    #Subir imágenes extra a una propiedad existente 
     @action(detail=True, methods=["post"], url_path="subir-imagenes")
     def subir_imagenes(self, request, pk=None):
         """
         Permite subir una o varias imágenes para la propiedad {pk}.
-        Acepta:
-          - 'imagen' (una sola)  o
-          - 'imagenes' (lista de archivos)
-          - 'descripcion' (opcional, misma para todas)
+        Acepta tanto la clave 'imagenes' (múltiples) como 'imagen' (individual).
         """
         try:
-            propiedad = self.get_queryset().get(pk=pk)  # respeta filtro de owner
+            propiedad = self.get_queryset().get(pk=pk)  # Respeta el filtro de owner
         except Propiedad.DoesNotExist:
             return Response(
-                {"detail": "Propiedad no encontrada"},
-                status=status.HTTP_404_NOT_FOUND,
+                {"detail": "Propiedad no encontrada"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = SubirImagenesSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        # 1. Extraer archivos de request.FILES soportando plural ('imagenes') y singular ('imagen')
+        files = request.FILES.getlist('imagenes')
+        if not files and 'imagen' in request.FILES:
+            files = [request.FILES['imagen']]
 
+        if not files:
+            return Response(
+                {"detail": "No se adjuntó ningún archivo de imagen. Usa la clave 'imagenes' o 'imagen'."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        descripcion = request.data.get("descripcion", "")
+
+        # 2. Guardar cada imagen en la base de datos asociada a la propiedad
         imagenes_subidas = []
-        descripcion = serializer.validated_data.get("descripcion", "")
-
-        # caso 1: una sola
-        imagen = serializer.validated_data.get("imagen")
-        if imagen:
-            obj = PropiedadImagen.objects.create(
-                propiedad=propiedad,
-                imagen=imagen,
-                descripcion=descripcion,
-            )
-            imagenes_subidas.append(obj)
-
-        # caso 2: lista
-        imagenes = serializer.validated_data.get("imagenes", [])
-        for img in imagenes:
+        for img in files:
             obj = PropiedadImagen.objects.create(
                 propiedad=propiedad,
                 imagen=img,
-                descripcion=descripcion,
+                descripcion=descripcion
             )
             imagenes_subidas.append(obj)
 
         data = PropiedadImagenSerializer(imagenes_subidas, many=True).data
         return Response(
-            {"subidas": len(imagenes_subidas), "imagenes": data},
-            status=status.HTTP_201_CREATED,
+            {"subidas": len(imagenes_subidas), "imagenes": data}, 
+            status=status.HTTP_201_CREATED
         )
 
 
