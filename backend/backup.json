@@ -411,7 +411,7 @@
   "model": "leads.estadolead",
   "pk": 1,
   "fields": {
-    "fase": "En negociaciÛn",
+    "fase": "En negociaci√≥n",
     "descripcion": ""
   }
 },
@@ -467,7 +467,7 @@
     "estado": 1,
     "last_contact_at": null,
     "next_contact_at": "2026-07-26T01:02:00Z",
-    "next_contact_note": "Programado r·pido: +3d 10:00",
+    "next_contact_note": "Programado r√°pido: +3d 10:00",
     "creado_en": "2025-10-16T01:25:56.799Z"
   }
 },
@@ -499,7 +499,7 @@
     "estado": 2,
     "last_contact_at": null,
     "next_contact_at": "2025-11-06T13:00:00Z",
-    "next_contact_note": "Programado r·pido: +3d 10:00",
+    "next_contact_note": "Programado r√°pido: +3d 10:00",
     "creado_en": "2025-10-28T22:21:46.815Z"
   }
 },
@@ -531,7 +531,7 @@
     "estado": 3,
     "last_contact_at": "2025-11-12T23:31:52.626Z",
     "next_contact_at": "2025-11-15T23:31:52.830Z",
-    "next_contact_note": "Primer seguimiento (autom·tico)",
+    "next_contact_note": "Primer seguimiento (autom√°tico)",
     "creado_en": "2025-11-12T23:31:52.674Z"
   }
 },
@@ -547,7 +547,7 @@
     "estado": 4,
     "last_contact_at": null,
     "next_contact_at": "2026-07-03T20:52:56.355Z",
-    "next_contact_note": "Primer seguimiento (autom·tico)",
+    "next_contact_note": "Primer seguimiento (autom√°tico)",
     "creado_en": "2026-06-30T20:52:56.346Z"
   }
 },
@@ -956,7 +956,7 @@
     "codigo": "Casa-0002",
     "titulo": "Casa moderna con pileta",
     "descripcion": "Propiedad ubicada en zona residencial, con patio y cochera.",
-    "ubicacion": "San MartÌn 456, Rosario, Santa Fe",
+    "ubicacion": "San Mart√≠n 456, Rosario, Santa Fe",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "venta",
     "precio": "125000.00",
@@ -976,9 +976,9 @@
   "fields": {
     "owner": null,
     "codigo": "CASA-104",
-    "titulo": "Casa cÈntrica con patio",
-    "descripcion": "3 dormitorios, 2 baÒos, cochera",
-    "ubicacion": "Marcos Ju·rez, CÛrdoba",
+    "titulo": "Casa c√©ntrica con patio",
+    "descripcion": "3 dormitorios, 2 ba√±os, cochera",
+    "ubicacion": "Marcos Ju√°rez, C√≥rdoba",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "venta",
     "precio": "85000.00",
@@ -998,8 +998,8 @@
   "fields": {
     "owner": null,
     "codigo": "08221",
-    "titulo": "Casa en Las CaÒitas",
-    "descripcion": "Las CaÒitas es un barrio, cerca de todo, con un polo comercial en la entrada del barrio que facilita la vida cotidiana.\nEl barrio cuenta con Seguridad 24hs, Club House grande para fiestas, todos los servicios subterr·neos, grandes espacios verdes, cancha de futbol, tenis, paddle y quincho como amenities.",
+    "titulo": "Casa en Las Ca√±itas",
+    "descripcion": "Las Ca√±itas es un barrio, cerca de todo, con un polo comercial en la entrada del barrio que facilita la vida cotidiana.\nEl barrio cuenta con Seguridad 24hs, Club House grande para fiestas, todos los servicios subterr√°neos, grandes espacios verdes, cancha de futbol, tenis, paddle y quincho como amenities.",
     "ubicacion": "Villa Carlos Paz",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "alquiler",
@@ -1022,7 +1022,7 @@
     "codigo": "18798",
     "titulo": "Casa Juani",
     "descripcion": "",
-    "ubicacion": "Corrientes, Curuz˙ Cuati·",
+    "ubicacion": "Corrientes, Curuz√∫ Cuati√°",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "alquiler",
     "precio": "46846.00",
@@ -1044,7 +1044,7 @@
     "codigo": "543",
     "titulo": "Venta Casa 4 amb a estrenar c/pileta Open Door",
     "descripcion": "",
-    "ubicacion": "Buenos Aires, Luj·n",
+    "ubicacion": "Buenos Aires, Luj√°n",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "venta",
     "precio": "238000.00",
@@ -1066,7 +1066,7 @@
     "codigo": "454365",
     "titulo": "casa en las afueras..",
     "descripcion": "",
-    "ubicacion": "Entre RÌos, Villaguay",
+    "ubicacion": "Entre R√≠os, Villaguay",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "alquiler",
     "precio": "5445.00",
@@ -1088,7 +1088,7 @@
     "codigo": "565567",
     "titulo": "Casa Urra",
     "descripcion": "",
-    "ubicacion": "CÛrdoba, Marcos Ju·rez",
+    "ubicacion": "C√≥rdoba, Marcos Ju√°rez",
     "tipo_de_propiedad": "ph",
     "disponibilidad": "venta",
     "precio": "3344.00",
@@ -1132,7 +1132,7 @@
     "codigo": "45643",
     "titulo": "Casa del toro",
     "descripcion": "",
-    "ubicacion": "CÛrdoba, Marcos Ju·rez",
+    "ubicacion": "C√≥rdoba, Marcos Ju√°rez",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "venta",
     "precio": "34.00",
@@ -1154,7 +1154,7 @@
     "codigo": "2132",
     "titulo": "asd",
     "descripcion": "",
-    "ubicacion": "Ciudad AutÛnoma de Buenos Aires, Comuna 12",
+    "ubicacion": "Ciudad Aut√≥noma de Buenos Aires, Comuna 12",
     "tipo_de_propiedad": "casa",
     "disponibilidad": "venta",
     "precio": "112.00",
@@ -1198,7 +1198,7 @@
     "codigo": "tf321",
     "titulo": "Quinta en Tafi del Valle",
     "descripcion": "",
-    "ubicacion": "Tucum·n, TafÌ del Valle",
+    "ubicacion": "Tucum√°n, Taf√≠ del Valle",
     "tipo_de_propiedad": "quinta",
     "disponibilidad": "venta",
     "precio": "269.00",
@@ -1218,9 +1218,9 @@
   "fields": {
     "owner": 1,
     "codigo": "BR1",
-    "titulo": "CabaÒa Mirador de luz",
+    "titulo": "Caba√±a Mirador de luz",
     "descripcion": "",
-    "ubicacion": "RÌo Negro, Bariloche",
+    "ubicacion": "R√≠o Negro, Bariloche",
     "tipo_de_propiedad": "chacra",
     "disponibilidad": "alquiler",
     "precio": "581.00",
@@ -1242,7 +1242,7 @@
     "codigo": "GAL1",
     "titulo": "GALPON RUTA 9",
     "descripcion": "NADA",
-    "ubicacion": "CÛrdoba, Marcos Ju·rez",
+    "ubicacion": "C√≥rdoba, Marcos Ju√°rez",
     "tipo_de_propiedad": "galpon",
     "disponibilidad": "venta",
     "precio": "1200.00",
@@ -1567,7 +1567,7 @@
   "pk": 2,
   "fields": {
     "owner": null,
-    "titulo": "PrÛximo contacto con sebastian Varella",
+    "titulo": "Pr√≥ximo contacto con sebastian Varella",
     "descripcion": "Reunion sobre la propiedad Casa Urra",
     "fecha": "2025-10-30T03:00:00Z",
     "estado": "completado",
@@ -1584,7 +1584,7 @@
   "fields": {
     "owner": null,
     "titulo": "Seguimiento programado con sebastian Varella",
-    "descripcion": "Programado r·pido: +3d 10:00",
+    "descripcion": "Programado r√°pido: +3d 10:00",
     "fecha": "2025-10-31T13:00:00Z",
     "estado": "completado",
     "evento": null,
@@ -1600,7 +1600,7 @@
   "fields": {
     "owner": null,
     "titulo": "Seguimiento programado con Javier Puerro",
-    "descripcion": "Programado r·pido: +3d 10:00",
+    "descripcion": "Programado r√°pido: +3d 10:00",
     "fecha": "2025-11-06T13:00:00Z",
     "estado": "completado",
     "evento": null,
@@ -1616,7 +1616,7 @@
   "fields": {
     "owner": null,
     "titulo": "Seguimiento programado con Martin Palermo",
-    "descripcion": "PrÛximo contacto registrado manualmente.",
+    "descripcion": "Pr√≥ximo contacto registrado manualmente.",
     "fecha": "2025-12-14T22:22:00Z",
     "estado": "completado",
     "evento": null,
@@ -1631,7 +1631,7 @@
   "pk": 6,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con sebastian Varella",
+    "titulo": "Pr√≥ximo contacto con sebastian Varella",
     "descripcion": "Reunion sobre la propiedad Chami",
     "fecha": "2026-03-20T22:39:00Z",
     "estado": "completado",
@@ -1647,7 +1647,7 @@
   "pk": 7,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con Martin Palermo",
+    "titulo": "Pr√≥ximo contacto con Martin Palermo",
     "descripcion": "Reunion sobre la propiedad GALPON RUTA 9",
     "fecha": "2025-12-22T20:25:00Z",
     "estado": "completado",
@@ -1663,7 +1663,7 @@
   "pk": 8,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con sebastian Varella",
+    "titulo": "Pr√≥ximo contacto con sebastian Varella",
     "descripcion": "Reunion sobre la propiedad Chami",
     "fecha": "2025-12-28T15:26:00Z",
     "estado": "completado",
@@ -1679,7 +1679,7 @@
   "pk": 9,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con Martin Palermo",
+    "titulo": "Pr√≥ximo contacto con Martin Palermo",
     "descripcion": "Reunion sobre la propiedad Quinta en Tafi del Valle",
     "fecha": "2026-05-06T02:46:00Z",
     "estado": "completado",
@@ -1695,7 +1695,7 @@
   "pk": 10,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con Martin Palermo",
+    "titulo": "Pr√≥ximo contacto con Martin Palermo",
     "descripcion": "Reunion sobre la propiedad Chami",
     "fecha": "2026-08-26T01:26:00Z",
     "estado": "pendiente",
@@ -1711,8 +1711,8 @@
   "pk": 11,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con sebastian Varella",
-    "descripcion": "Visita sobre la propiedad CabaÒa Mirador de luz",
+    "titulo": "Pr√≥ximo contacto con sebastian Varella",
+    "descripcion": "Visita sobre la propiedad Caba√±a Mirador de luz",
     "fecha": "2026-07-26T01:02:00Z",
     "estado": "pendiente",
     "evento": 22,
@@ -1727,7 +1727,7 @@
   "pk": 12,
   "fields": {
     "owner": 1,
-    "titulo": "PrÛximo contacto con Javier Puerro",
+    "titulo": "Pr√≥ximo contacto con Javier Puerro",
     "descripcion": "Llamada sobre la propiedad Chami",
     "fecha": "2026-11-26T14:30:00Z",
     "estado": "pendiente",
