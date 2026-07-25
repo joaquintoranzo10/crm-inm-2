@@ -195,3 +195,5 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False") == "True"
