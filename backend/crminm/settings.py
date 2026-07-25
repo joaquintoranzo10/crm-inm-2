@@ -166,6 +166,7 @@ EMAIL_BACKEND = os.environ.get(
     "django.core.mail.backends.console.EmailBackend"
 )
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 DEFAULT_FROM_EMAIL = os.environ.get(
     "DEFAULT_FROM_EMAIL",
     "CRM Real Connect <noreply@crminm.local>"
