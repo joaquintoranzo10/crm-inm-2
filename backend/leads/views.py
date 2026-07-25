@@ -1,4 +1,5 @@
 # leads/views.py
+import logging
 from datetime import datetime, timedelta, time as dt_time
 from django.db.models import Q, F, ExpressionWrapper, DateTimeField, Value
 from django.utils import timezone
@@ -18,22 +19,83 @@ from .serializers import (
     EstadoLeadHistorialSerializer,
 )
 
-# Duración por defecto de un evento en minutos 
+# Notificaciones por email (importación defensiva)
+try:
+    from usuarios.email_utils import send_evento_email
+    from usuarios.models import Usuario as UsuarioModel
+    EMAIL_EVENTOS_ENABLED = True
+except ImportError:
+    EMAIL_EVENTOS_ENABLED = False
+
+logger = logging.getLogger(__name__)
+
+
+def _notificar_evento_por_email(evento, auth_user) -> None:
+    """
+    Envía correo al dueño del evento al crear o modificar un evento.
+    Nunca lanza excepciones: si falla, solo loguea.
+    """
+    if not EMAIL_EVENTOS_ENABLED:
+        return
+    try:
+        email = getattr(auth_user, "email", None) or getattr(auth_user, "username", None)
+        if not email:
+            return
+
+        nombre = auth_user.first_name or "Usuario"
+        try:
+            u = UsuarioModel.objects.get(email__iexact=email)
+            nombre = u.nombre or nombre
+        except Exception:
+            pass
+
+        DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        fecha_local = timezone.localtime(evento.fecha_hora)
+        dia_semana = DIAS[fecha_local.weekday()]
+        fecha_str = f"{dia_semana} {fecha_local.strftime('%d/%m/%Y')} a las {fecha_local.strftime('%H:%M')}"
+
+        contacto_nombre = ""
+        contacto_email_str = ""
+        if evento.contacto:
+            contacto_nombre = str(evento.contacto).strip()
+        elif evento.nombre or evento.apellido:
+            contacto_nombre = f"{evento.nombre} {evento.apellido}".strip()
+        if evento.email:
+            contacto_email_str = evento.email
+
+        propiedad_str = ""
+        if evento.propiedad:
+            propiedad_str = getattr(evento.propiedad, "titulo", str(evento.propiedad))
+
+        send_evento_email(
+            user_email=email,
+            nombre=nombre,
+            evento_data={
+                "tipo": evento.tipo,
+                "fecha_hora": fecha_str,
+                "propiedad": propiedad_str,
+                "contacto_nombre": contacto_nombre,
+                "contacto_email": contacto_email_str,
+                "notas": evento.notas or "",
+            },
+        )
+    except Exception as exc:
+        logger.error(
+            f"[EVENTOS] Error al enviar notificación de evento #{evento.pk}: {exc}",
+            exc_info=True,
+        )
+
+
 DEFAULT_EVENT_DURATION_MIN = 60
 
 def _to_local_aware(dt: datetime) -> datetime:
-    """Asegura datetimes conscientes en la tz local."""
+    
     if dt.tzinfo is None:
         return timezone.make_aware(dt)
     return timezone.localtime(dt)
 
 def _parse_date_or_datetime(s: str, end_of_day: bool = False) -> datetime | None:
-    """
-    Admite:
-      - 'YYYY-MM-DD'  -> 00:00 (o fin de día si end_of_day=True)
-      - ISO parcial/total 'YYYY-MM-DDTHH:MM[:SS]' (sin tz): se asume local tz
-      - ISO con tz: se normaliza a tz local
-    """
+    
     if not s:
         return None
     s = s.strip()
@@ -45,12 +107,12 @@ def _parse_date_or_datetime(s: str, end_of_day: bool = False) -> datetime | None
             return _to_local_aware(base)
         except Exception:
             return None
-    # ISO con hora (permite sin segundos)
+    
     try:
         dt = datetime.fromisoformat(s)
         return _to_local_aware(dt)
     except Exception:
-        # Intento sin tz HH:MM
+        
         try:
             dt = datetime.strptime(s, "%Y-%m-%d %H:%M")
             return _to_local_aware(dt)
@@ -408,9 +470,14 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                     )
                 
                 super().perform_create(serializer)
+                # — Notificación por email —
+                _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
             
             super().perform_create(serializer)
+            # — Notificación por email (fallback) —
+            if serializer.instance:
+                _notificar_evento_por_email(serializer.instance, self.request.user)
 
     def perform_update(self, serializer):
         
@@ -460,5 +527,10 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                         f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
                 super().perform_update(serializer)
+                # — Notificación por email —
+                _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
             super().perform_update(serializer)
+            # — Notificación por email (fallback) —
+            if serializer.instance:
+                _notificar_evento_por_email(serializer.instance, self.request.user)

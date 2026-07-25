@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def send_reset_password_email(user_email: str, reset_url: str, nombre: str) -> bool:
    
-    subject = "Restablecer contraseña — CRM Inmobiliaria"
+    subject = "Restablecer contraseña — Real Connect"
     context = {
         "nombre": nombre or "Usuario",
         "email": user_email,
@@ -38,7 +38,7 @@ def send_reset_password_email(user_email: str, reset_url: str, nombre: str) -> b
 
 def send_aviso_email(user_email: str, nombre: str, aviso_data: dict) -> bool:
     
-    subject = f"📋 Nuevo aviso: {aviso_data.get('titulo', 'Aviso pendiente')} — CRM Inmobiliaria"
+    subject = f" Nuevo aviso: {aviso_data.get('titulo', 'Aviso pendiente')} — Real Connect"
     context = {
         "nombre": nombre or "Usuario",
         "titulo": aviso_data.get("titulo", "Sin título"),
@@ -64,4 +64,71 @@ def send_aviso_email(user_email: str, nombre: str, aviso_data: dict) -> bool:
 
     except Exception as exc:
         logger.error(f"[EMAIL] Error al enviar notificación a {user_email}: {exc}", exc_info=True)
+        return False
+
+
+# Mapeo tipo → emoji y clase CSS para el template de eventos
+_TIPO_META = {
+    "reunion":  {"emoji": "🤝", "css": "reunion"},
+    "visita":   {"emoji": "🏠", "css": "visita"},
+    "llamada":  {"emoji": "📞", "css": "llamada"},
+}
+
+
+def send_evento_email(user_email: str, nombre: str, evento_data: dict) -> bool:
+    """
+    Envía la notificación de un evento (nuevo o modificado) por correo.
+
+    Args:
+        user_email:   Dirección de destino.
+        nombre:       Nombre del usuario dueño del evento.
+        evento_data:  Dict con:
+                        - tipo            (str) "Reunion" | "Visita" | "Llamada"
+                        - fecha_hora      (str formateada)
+                        - propiedad       (str) título de la propiedad
+                        - contacto_nombre (str, opcional)
+                        - contacto_email  (str, opcional)
+                        - notas           (str, opcional)
+    """
+    tipo_raw = evento_data.get("tipo", "")
+    tipo_key = tipo_raw.lower()
+    meta = _TIPO_META.get(tipo_key, {"emoji": "📅", "css": "default"})
+
+    subject = (
+        f"{meta['emoji']} Nuevo evento: {tipo_raw} — "
+        f"{evento_data.get('fecha_hora', '')} — Real Connect"
+    )
+    context = {
+        "nombre": nombre or "Usuario",
+        "tipo": tipo_raw,
+        "tipo_css": meta["css"],
+        "emoji_tipo": meta["emoji"],
+        "fecha_hora": evento_data.get("fecha_hora", ""),
+        "propiedad": evento_data.get("propiedad", "Sin especificar"),
+        "contacto_nombre": evento_data.get("contacto_nombre", ""),
+        "contacto_email": evento_data.get("contacto_email", ""),
+        "notas": evento_data.get("notas", ""),
+        "crm_url": getattr(settings, "FRONTEND_URL", "http://localhost:5173") + "/app",
+    }
+    try:
+        html_message = render_to_string("emails/notificacion_evento.html", context)
+        plain_message = strip_tags(html_message)
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        logger.info(
+            f"[EMAIL] Notificación de evento enviada a: {user_email} "
+            f"— {tipo_raw} el {evento_data.get('fecha_hora')}"
+        )
+        return True
+    except Exception as exc:
+        logger.error(
+            f"[EMAIL] Error al enviar notificación de evento a {user_email}: {exc}",
+            exc_info=True,
+        )
         return False
