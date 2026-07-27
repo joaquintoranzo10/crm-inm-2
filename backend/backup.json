@@ -1,0 +1,1741 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$HkulCaUoiNRF6fTlqfASB0$yeWP9iEqGMohg8Cs3Gp10F1RPZ6zimkgJsyn0vyEr+o=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "smartinez2009@hotmail.com",
+    "first_name": "Sebastian",
+    "last_name": "Martinez",
+    "email": "smartinez2009@hotmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-01T22:52:44.737Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$r4HbdIBzgOGNyDcHjwHUyp$cxFsuJsX/8snuepXZSoWgN/7ajdGVaVIswlaPra50+U=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "juanmarcone@gmail.com",
+    "first_name": "juan",
+    "last_name": "marcone",
+    "email": "juanmarcone@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-06T21:31:37.522Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$sZ1Y2P5cP4NPL7QFTLlGeq$MOtClBNsSsHOKZ8s19r8rPMU/nMV9UhunSGwVcIuwPY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "charlyalcaraz@gmail.com",
+    "first_name": "Carlos",
+    "last_name": "Alcaraz",
+    "email": "charlyalcaraz@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-06T22:38:04.903Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$pkJZa7IujjFSiByaH8qMxr$g6bggC2JoS85dJ5I/elMFyRXI0t4EBV5Ma6Tvtf4Kow=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "vickygarabal@gmail.com",
+    "first_name": "Victoria",
+    "last_name": "Garabal",
+    "email": "vickygarabal@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-07T02:18:11.503Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$ZgL7uTlqa30i9pM98brdVS$qGTtNj/VOJP5aAS/nA7FV8qVeQCObtTRfAKr29a9DgI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "carlosb@gmail.com",
+    "first_name": "Carlos",
+    "last_name": "Bianchi",
+    "email": "carlosb@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-17T19:19:21.241Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$IjpGaQfEv1lB3joqi7HQ16$QcCphJpgbVE2zdENGX6ZWQRtcELnxFb+FrSxqSOoEbY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "neymar@gmail.com",
+    "first_name": "Neymar",
+    "last_name": "JR",
+    "email": "neymar@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T22:23:05.284Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$YgufwgpagTOsDyiFNzTKVv$/8Syj9bB4qyqrXyg+JB5vxdPPpYjNB3cWcun/3l1uQM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "igbianchi@gmail.com",
+    "first_name": "Ignacio",
+    "last_name": "Bianchi",
+    "email": "igbianchi@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-10T22:06:18.127Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$HDf42jK8MBINtaqN0sL91n$1wQ9270vjMRUm1L03oq+2n7nbM1F2i2SBHSPU8MAv3w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tom@gmail.com",
+    "first_name": "Tomas",
+    "last_name": "Mirinda",
+    "email": "tom@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-10T22:21:20.767Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$5Id9cF8W0k64mzHLFYUhMC$vXVgHUBP6e0Gnp0RdZAEgCUT05MWRuiY4UWytxhz+C8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "paulamar@gmail.com",
+    "first_name": "Paula",
+    "last_name": "Marchisio",
+    "email": "paulamar@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-10T23:03:55.872Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 11,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$wIGDLpC7a4hjXAEH67Nrtu$5Q7jDnPVkqUhECYlOYxatNTxy2SbeRMvfSCS/l1ygqE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "wpalermo@gmail.com",
+    "first_name": "Walter",
+    "last_name": "Palermo",
+    "email": "wpalermo@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-12T23:36:29.053Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 12,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$02Rmb8sYMVirmbM6CZ3iZp$gWo1DYElzHshux+7KjCTOtRAekrSTabmK2nRLGom/Kg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "santimarquez@gmail.com",
+    "first_name": "Santino",
+    "last_name": "Marquez",
+    "email": "santimarquez@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-22T15:30:01.280Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 13,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$RUdqCxE0tIXFKR8MMfqZP6$3DZE3I+vw8SeG1Z6xceOcx1TGWcOXWsGLssOaevbRbI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jmartinez@hotmail.com",
+    "first_name": "Jorge",
+    "last_name": "Martinez",
+    "email": "jmartinez@hotmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-05T19:28:58.491Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 1,
+  "fields": {
+    "nombre": "Sebastian",
+    "apellido": "Martinez",
+    "email": "smartinez2009@hotmail.com",
+    "password_hash": "pbkdf2_sha256$870000$xSUJ5Iw9CXb6U3EanC4g6H$7mEaEbTxu0K0HAtpWiuX3dU7bbeN2gakJhWjxtZLgzg=",
+    "token": "b4cf8814fdc0a94c47a3ef3b8a27ff4b20fd0c9e",
+    "creado": "2025-10-01T22:52:44.642Z",
+    "actualizado": "2025-12-29T12:56:20.261Z",
+    "telefono": "3472438055",
+    "dni": "40973728",
+    "reminder_every_days": 4
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 3,
+  "fields": {
+    "nombre": "juan",
+    "apellido": "marcone",
+    "email": "juanmarcone@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$YT2C7X8fx1NqaPgFeyU3vG$QVTUTfXkm7UFHvFJereZqX2AL5e9iLykX6hoF9dEb3A=",
+    "token": "c62f8b610cb0b3e23b2883d1f242942534009f9c",
+    "creado": "2025-10-06T21:31:37.353Z",
+    "actualizado": "2025-10-06T21:31:37.355Z",
+    "telefono": "4587613",
+    "dni": "41579264",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 4,
+  "fields": {
+    "nombre": "Carlos",
+    "apellido": "Alcaraz",
+    "email": "charlyalcaraz@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$dkEFGEQRJKJa55qqPqBiEU$sTOG1lp4AiwZQTPRnBppqtFP1haw6ymp5aQieAMcwPc=",
+    "token": "2a686163b07c8f3d2c8a31f7a6631aef58c3928d",
+    "creado": "2025-10-06T22:38:04.793Z",
+    "actualizado": "2025-10-06T22:38:04.793Z",
+    "telefono": "34897",
+    "dni": "86546156",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 5,
+  "fields": {
+    "nombre": "Victoria",
+    "apellido": "Garabal",
+    "email": "vickygarabal@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$8j2VJ59YtQ09Vzb0LtBXnD$yYoMDAStonBCoidVJQ8gTLowe5fKYZ61dQa2MXmtjZI=",
+    "token": "512fe74fde0688fc095d6b22cedc530a9c3b6ba2",
+    "creado": "2025-10-07T02:18:11.276Z",
+    "actualizado": "2025-10-13T02:22:19.893Z",
+    "telefono": "2478642077",
+    "dni": "24764521",
+    "reminder_every_days": 5
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 6,
+  "fields": {
+    "nombre": "Carlos",
+    "apellido": "Bianchi",
+    "email": "carlosb@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$YD7uOjkkV9dAKorFHEbU9P$r33uvyuEsn/Fm9Ql+yCWZrKmaaJgJDrjN8KwMn7cLW4=",
+    "token": "cb2fef82e16ea580c9fb8527794e63e762d97a41",
+    "creado": "2025-10-17T19:19:21.144Z",
+    "actualizado": "2025-10-17T19:19:21.144Z",
+    "telefono": "3473551087",
+    "dni": "21598710",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 7,
+  "fields": {
+    "nombre": "Neymar",
+    "apellido": "JR",
+    "email": "neymar@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$UbHhUTAEMdOYPZIf1hPf61$w5jreVi13ZKJ+BhjwNPGInP2S0kCXMYiWKwB79efJIw=",
+    "token": "9b407a0614a27eebd835a397e7ab5e5f8b00b8e8",
+    "creado": "2025-10-27T22:23:05.154Z",
+    "actualizado": "2025-10-27T22:23:05.154Z",
+    "telefono": "675665443",
+    "dni": "23512457",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 8,
+  "fields": {
+    "nombre": "Ignacio",
+    "apellido": "Bianchi",
+    "email": "igbianchi@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$gin7v9uDEWWKPm7ChA4wle$EEea9id1i/NnuzgmSWn08GK1bRm8r+KySns001ycnz0=",
+    "token": "332fab44659a7e9a299283e42acdda7c6bde4609",
+    "creado": "2025-11-10T22:06:17.390Z",
+    "actualizado": "2025-11-10T22:06:17.485Z",
+    "telefono": "3472557772",
+    "dni": "41978245",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 9,
+  "fields": {
+    "nombre": "Tomas",
+    "apellido": "Mirinda",
+    "email": "tom@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$KGGqTOOSe4m7Ulopc47CxJ$M66ScFNmDec+kGX+/7bV3Yujgo1Wul9TvmaivQBHGc0=",
+    "token": "b833a1b8f4bbeb6f6b7a3058645aaa4bfa753e4c",
+    "creado": "2025-11-10T22:21:20.670Z",
+    "actualizado": "2025-11-10T22:21:20.670Z",
+    "telefono": "34785498",
+    "dni": "42548978",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 10,
+  "fields": {
+    "nombre": "Paula",
+    "apellido": "Marchisio",
+    "email": "paulamar@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$UwFA1UC2KrTJvL76NIvSJb$YtgT/pZARrvTj5qb/uiJYgJOpN/XoHA/eB37FH2euqc=",
+    "token": "532e3d88d9334430a8028e3d431af671fd44a511",
+    "creado": "2025-11-10T23:03:55.845Z",
+    "actualizado": "2025-11-10T23:03:55.845Z",
+    "telefono": "34652853",
+    "dni": "39258761",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 11,
+  "fields": {
+    "nombre": "Walter",
+    "apellido": "Palermo",
+    "email": "wpalermo@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$yyrEP9wa0PN8eK2aiKvZXO$RF3ownDiWE1KHBNanDUzPM2mJE+U+EDgNaJtpn86PlY=",
+    "token": "b78530c54efb13ac5b311bacd1638a173cd7f6f0",
+    "creado": "2025-11-12T23:36:28.966Z",
+    "actualizado": "2025-11-12T23:36:28.966Z",
+    "telefono": "3472477157",
+    "dni": "25574897",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 12,
+  "fields": {
+    "nombre": "Santino",
+    "apellido": "Marquez",
+    "email": "santimarquez@gmail.com",
+    "password_hash": "pbkdf2_sha256$870000$h8xyWhBbLHwumxRSITh3vz$Vop7lHr3N7+d3XZUSClqT3WrGdyntfWwA44xfMSA+94=",
+    "token": "77a557bff09b6848e196dd2e1ce324c28d5a23fa",
+    "creado": "2025-12-22T15:30:01.257Z",
+    "actualizado": "2025-12-22T15:30:01.257Z",
+    "telefono": null,
+    "dni": null,
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "pk": 13,
+  "fields": {
+    "nombre": "Jorge",
+    "apellido": "Martinez",
+    "email": "jmartinez@hotmail.com",
+    "password_hash": "pbkdf2_sha256$870000$IjDbgkRyQCGVE9rOc5Yxeo$ECrKdwI2c2AIJ98znyyT2+Zq1aOR9XykeZcTTxyM/SI=",
+    "token": "d0fe6b1be0183e1f05ba3d92bb73c0bf9098c66d",
+    "creado": "2026-05-05T19:28:58.423Z",
+    "actualizado": "2026-05-05T19:28:58.424Z",
+    "telefono": "3472435511",
+    "dni": "25508563",
+    "reminder_every_days": 3
+  }
+},
+{
+  "model": "leads.estadolead",
+  "pk": 1,
+  "fields": {
+    "fase": "En negociación",
+    "descripcion": ""
+  }
+},
+{
+  "model": "leads.estadolead",
+  "pk": 2,
+  "fields": {
+    "fase": "Rechazado",
+    "descripcion": ""
+  }
+},
+{
+  "model": "leads.estadolead",
+  "pk": 3,
+  "fields": {
+    "fase": "Vendido",
+    "descripcion": ""
+  }
+},
+{
+  "model": "leads.estadolead",
+  "pk": 4,
+  "fields": {
+    "fase": "Nuevo",
+    "descripcion": ""
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 2,
+  "fields": {
+    "owner": null,
+    "nombre": "juan",
+    "apellido": "o",
+    "email": "ju@gmail.com",
+    "telefono": "348231586",
+    "estado": 2,
+    "last_contact_at": null,
+    "next_contact_at": null,
+    "next_contact_note": "",
+    "creado_en": "2025-10-01T22:33:11.189Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 5,
+  "fields": {
+    "owner": 1,
+    "nombre": "sebastian",
+    "apellido": "Varella",
+    "email": "sebavarella@gmail.com",
+    "telefono": "347254588",
+    "estado": 1,
+    "last_contact_at": null,
+    "next_contact_at": "2026-07-26T01:02:00Z",
+    "next_contact_note": "Programado rápido: +3d 10:00",
+    "creado_en": "2025-10-16T01:25:56.799Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 6,
+  "fields": {
+    "owner": 5,
+    "nombre": "Agostina",
+    "apellido": "Palazollo",
+    "email": "agospala@gmail.com",
+    "telefono": "347881132",
+    "estado": 1,
+    "last_contact_at": null,
+    "next_contact_at": "2025-11-06T11:00:00Z",
+    "next_contact_note": "",
+    "creado_en": "2025-10-16T01:44:25.299Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 7,
+  "fields": {
+    "owner": 1,
+    "nombre": "Javier",
+    "apellido": "Puerro",
+    "email": "jpuerro@gmail.com",
+    "telefono": "4541252",
+    "estado": 2,
+    "last_contact_at": null,
+    "next_contact_at": "2025-11-06T13:00:00Z",
+    "next_contact_note": "Programado rápido: +3d 10:00",
+    "creado_en": "2025-10-28T22:21:46.815Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 8,
+  "fields": {
+    "owner": 1,
+    "nombre": "Martin",
+    "apellido": "Palermo",
+    "email": "martinp9@gmail.com",
+    "telefono": "3472887711",
+    "estado": 3,
+    "last_contact_at": null,
+    "next_contact_at": "2026-08-26T01:26:00Z",
+    "next_contact_note": "Reunion",
+    "creado_en": "2025-11-10T21:39:13.245Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 9,
+  "fields": {
+    "owner": 1,
+    "nombre": "Nico",
+    "apellido": "Suarez",
+    "email": "nsuarez@gmail.com",
+    "telefono": "3472438055",
+    "estado": 3,
+    "last_contact_at": "2025-11-12T23:31:52.626Z",
+    "next_contact_at": "2025-11-15T23:31:52.830Z",
+    "next_contact_note": "Primer seguimiento (automático)",
+    "creado_en": "2025-11-12T23:31:52.674Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 10,
+  "fields": {
+    "owner": 1,
+    "nombre": "Luciano",
+    "apellido": "Bosio",
+    "email": "lbosio@hotmail.com",
+    "telefono": "3472438053",
+    "estado": 4,
+    "last_contact_at": null,
+    "next_contact_at": "2026-07-03T20:52:56.355Z",
+    "next_contact_note": "Primer seguimiento (automático)",
+    "creado_en": "2026-06-30T20:52:56.346Z"
+  }
+},
+{
+  "model": "leads.contacto",
+  "pk": 11,
+  "fields": {
+    "owner": 1,
+    "nombre": "Angela",
+    "apellido": "Martinez",
+    "email": "amar@gmail.com",
+    "telefono": "3472556677",
+    "estado": 4,
+    "last_contact_at": null,
+    "next_contact_at": "2027-06-02T14:00:00Z",
+    "next_contact_note": "",
+    "creado_en": "2026-06-30T20:56:18.664Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 2,
+  "fields": {
+    "owner": 3,
+    "nombre": "",
+    "apellido": "",
+    "email": null,
+    "contacto": null,
+    "propiedad": 7,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-10-06T20:15:00Z",
+    "notas": "",
+    "creado_en": "2025-10-06T21:35:51.025Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 3,
+  "fields": {
+    "owner": 5,
+    "nombre": "",
+    "apellido": "",
+    "email": null,
+    "contacto": null,
+    "propiedad": 8,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-10-22T03:00:00Z",
+    "notas": "",
+    "creado_en": "2025-10-13T02:21:10.390Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 4,
+  "fields": {
+    "owner": 5,
+    "nombre": "juliana",
+    "apellido": "Vini",
+    "email": "jvini@gmail.com",
+    "contacto": null,
+    "propiedad": 8,
+    "tipo": "Visita",
+    "fecha_hora": "2025-10-30T03:00:00Z",
+    "notas": "",
+    "creado_en": "2025-10-15T22:55:05.126Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 8,
+  "fields": {
+    "owner": 5,
+    "nombre": "sadasd",
+    "apellido": "",
+    "email": null,
+    "contacto": null,
+    "propiedad": 9,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-10-21T23:50:00Z",
+    "notas": "",
+    "creado_en": "2025-10-15T23:50:13.296Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 15,
+  "fields": {
+    "owner": 1,
+    "nombre": "",
+    "apellido": "",
+    "email": null,
+    "contacto": 5,
+    "propiedad": 11,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-10-30T03:00:00Z",
+    "notas": "",
+    "creado_en": "2025-10-28T22:04:37.243Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 17,
+  "fields": {
+    "owner": 1,
+    "nombre": "sebastian",
+    "apellido": "Varella",
+    "email": "sebavarella@gmail.com",
+    "contacto": 5,
+    "propiedad": 12,
+    "tipo": "Reunion",
+    "fecha_hora": "2026-03-20T22:39:00Z",
+    "notas": "",
+    "creado_en": "2025-11-20T22:40:50.336Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 18,
+  "fields": {
+    "owner": 1,
+    "nombre": "Martin",
+    "apellido": "Palermo",
+    "email": "martinp9@gmail.com",
+    "contacto": 8,
+    "propiedad": 24,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-12-22T20:25:00Z",
+    "notas": "",
+    "creado_en": "2025-12-22T15:25:46.797Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 19,
+  "fields": {
+    "owner": 1,
+    "nombre": "sebastian",
+    "apellido": "Varella",
+    "email": "sebavarella@gmail.com",
+    "contacto": 5,
+    "propiedad": 12,
+    "tipo": "Reunion",
+    "fecha_hora": "2025-12-28T15:26:00Z",
+    "notas": "",
+    "creado_en": "2025-12-22T15:27:05.886Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 20,
+  "fields": {
+    "owner": 1,
+    "nombre": "Martin",
+    "apellido": "Palermo",
+    "email": "martinp9@gmail.com",
+    "contacto": 8,
+    "propiedad": 21,
+    "tipo": "Reunion",
+    "fecha_hora": "2026-05-06T02:46:00Z",
+    "notas": "",
+    "creado_en": "2026-05-05T19:47:24.157Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 21,
+  "fields": {
+    "owner": 1,
+    "nombre": "Martin",
+    "apellido": "Palermo",
+    "email": "martinp9@gmail.com",
+    "contacto": 8,
+    "propiedad": 12,
+    "tipo": "Reunion",
+    "fecha_hora": "2026-08-26T01:26:00Z",
+    "notas": "",
+    "creado_en": "2026-06-26T01:27:16.098Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 22,
+  "fields": {
+    "owner": 1,
+    "nombre": "sebastian",
+    "apellido": "Varella",
+    "email": "sebavarella@gmail.com",
+    "contacto": 5,
+    "propiedad": 23,
+    "tipo": "Visita",
+    "fecha_hora": "2026-07-26T01:02:00Z",
+    "notas": "",
+    "creado_en": "2026-06-26T01:28:56.753Z"
+  }
+},
+{
+  "model": "leads.evento",
+  "pk": 23,
+  "fields": {
+    "owner": 1,
+    "nombre": "Javier",
+    "apellido": "Puerro",
+    "email": "jpuerro@gmail.com",
+    "contacto": 7,
+    "propiedad": 12,
+    "tipo": "Llamada",
+    "fecha_hora": "2026-11-26T14:30:00Z",
+    "notas": "",
+    "creado_en": "2026-06-26T14:30:43.068Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 1,
+  "fields": {
+    "contacto": 2,
+    "estado": 3,
+    "changed_at": "2025-09-24T22:04:19.083Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 2,
+  "fields": {
+    "contacto": 2,
+    "estado": 2,
+    "changed_at": "2025-09-25T23:31:36.134Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 5,
+  "fields": {
+    "contacto": 5,
+    "estado": 4,
+    "changed_at": "2025-10-16T01:25:57.155Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 6,
+  "fields": {
+    "contacto": 6,
+    "estado": 4,
+    "changed_at": "2025-10-16T01:44:25.364Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 7,
+  "fields": {
+    "contacto": 6,
+    "estado": 1,
+    "changed_at": "2025-10-16T01:45:45.236Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 8,
+  "fields": {
+    "contacto": 5,
+    "estado": 1,
+    "changed_at": "2025-10-16T02:43:45.496Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 9,
+  "fields": {
+    "contacto": 7,
+    "estado": 4,
+    "changed_at": "2025-10-28T22:21:46.968Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 10,
+  "fields": {
+    "contacto": 8,
+    "estado": 1,
+    "changed_at": "2025-11-10T21:39:13.414Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 11,
+  "fields": {
+    "contacto": 8,
+    "estado": 4,
+    "changed_at": "2025-11-10T23:01:26.028Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 12,
+  "fields": {
+    "contacto": 9,
+    "estado": 4,
+    "changed_at": "2025-11-12T23:31:52.903Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 13,
+  "fields": {
+    "contacto": 9,
+    "estado": 1,
+    "changed_at": "2026-06-26T01:29:14.888Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 14,
+  "fields": {
+    "contacto": 8,
+    "estado": 3,
+    "changed_at": "2026-06-26T01:29:26.205Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 15,
+  "fields": {
+    "contacto": 8,
+    "estado": 4,
+    "changed_at": "2026-06-30T20:51:20.620Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 16,
+  "fields": {
+    "contacto": 8,
+    "estado": 3,
+    "changed_at": "2026-06-30T20:51:26.749Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 17,
+  "fields": {
+    "contacto": 7,
+    "estado": 2,
+    "changed_at": "2026-06-30T20:51:32.082Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 18,
+  "fields": {
+    "contacto": 7,
+    "estado": 1,
+    "changed_at": "2026-06-30T20:51:42.213Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 19,
+  "fields": {
+    "contacto": 9,
+    "estado": 4,
+    "changed_at": "2026-06-30T20:51:46.274Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 20,
+  "fields": {
+    "contacto": 9,
+    "estado": 3,
+    "changed_at": "2026-06-30T20:51:55.915Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 21,
+  "fields": {
+    "contacto": 10,
+    "estado": 4,
+    "changed_at": "2026-06-30T20:52:56.367Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 22,
+  "fields": {
+    "contacto": 7,
+    "estado": 2,
+    "changed_at": "2026-06-30T20:53:29.346Z"
+  }
+},
+{
+  "model": "leads.estadoleadhistorial",
+  "pk": 23,
+  "fields": {
+    "contacto": 11,
+    "estado": 4,
+    "changed_at": "2026-06-30T20:56:18.677Z"
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 1,
+  "fields": {
+    "owner": null,
+    "codigo": "Casa-0002",
+    "titulo": "Casa moderna con pileta",
+    "descripcion": "Propiedad ubicada en zona residencial, con patio y cochera.",
+    "ubicacion": "San Martín 456, Rosario, Santa Fe",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "125000.00",
+    "moneda": "USD",
+    "ambiente": 5,
+    "antiguedad": 8,
+    "banos": 2,
+    "superficie": "220.50",
+    "fecha_alta": "2025-09-12T22:13:21.373Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 3,
+  "fields": {
+    "owner": null,
+    "codigo": "CASA-104",
+    "titulo": "Casa céntrica con patio",
+    "descripcion": "3 dormitorios, 2 baños, cochera",
+    "ubicacion": "Marcos Juárez, Córdoba",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "85000.00",
+    "moneda": "USD",
+    "ambiente": 5,
+    "antiguedad": 12,
+    "banos": 2,
+    "superficie": "120.50",
+    "fecha_alta": "2025-09-16T23:57:25.605Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 5,
+  "fields": {
+    "owner": null,
+    "codigo": "08221",
+    "titulo": "Casa en Las Cañitas",
+    "descripcion": "Las Cañitas es un barrio, cerca de todo, con un polo comercial en la entrada del barrio que facilita la vida cotidiana.\nEl barrio cuenta con Seguridad 24hs, Club House grande para fiestas, todos los servicios subterráneos, grandes espacios verdes, cancha de futbol, tenis, paddle y quincho como amenities.",
+    "ubicacion": "Villa Carlos Paz",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "alquiler",
+    "precio": "58000.00",
+    "moneda": "USD",
+    "ambiente": 4,
+    "antiguedad": 7,
+    "banos": 2,
+    "superficie": "572.00",
+    "fecha_alta": "2025-09-24T21:41:49.848Z",
+    "estado": "reservado",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 7,
+  "fields": {
+    "owner": 3,
+    "codigo": "18798",
+    "titulo": "Casa Juani",
+    "descripcion": "",
+    "ubicacion": "Corrientes, Curuzú Cuatiá",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "alquiler",
+    "precio": "46846.00",
+    "moneda": "USD",
+    "ambiente": 2,
+    "antiguedad": 4,
+    "banos": 3,
+    "superficie": "2214.00",
+    "fecha_alta": "2025-10-06T21:33:56.451Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 8,
+  "fields": {
+    "owner": 5,
+    "codigo": "543",
+    "titulo": "Venta Casa 4 amb a estrenar c/pileta Open Door",
+    "descripcion": "",
+    "ubicacion": "Buenos Aires, Luján",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "238000.00",
+    "moneda": "USD",
+    "ambiente": 4,
+    "antiguedad": 5,
+    "banos": 2,
+    "superficie": "126.00",
+    "fecha_alta": "2025-10-11T02:18:11.905Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 9,
+  "fields": {
+    "owner": 5,
+    "codigo": "454365",
+    "titulo": "casa en las afueras..",
+    "descripcion": "",
+    "ubicacion": "Entre Ríos, Villaguay",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "alquiler",
+    "precio": "5445.00",
+    "moneda": "USD",
+    "ambiente": 4,
+    "antiguedad": 12,
+    "banos": 2,
+    "superficie": "2134.00",
+    "fecha_alta": "2025-10-11T05:08:48.956Z",
+    "estado": "reservado",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 11,
+  "fields": {
+    "owner": 1,
+    "codigo": "565567",
+    "titulo": "Casa Urra",
+    "descripcion": "",
+    "ubicacion": "Córdoba, Marcos Juárez",
+    "tipo_de_propiedad": "ph",
+    "disponibilidad": "venta",
+    "precio": "3344.00",
+    "moneda": "USD",
+    "ambiente": 6,
+    "antiguedad": 7,
+    "banos": 2,
+    "superficie": "2125.00",
+    "fecha_alta": "2025-10-28T22:03:28.377Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 12,
+  "fields": {
+    "owner": 1,
+    "codigo": "1222",
+    "titulo": "Chami",
+    "descripcion": "",
+    "ubicacion": "La Rioja, Chamical",
+    "tipo_de_propiedad": "quinta",
+    "disponibilidad": "alquiler",
+    "precio": "500000.00",
+    "moneda": "ARS",
+    "ambiente": 3,
+    "antiguedad": 3,
+    "banos": 1,
+    "superficie": "221.00",
+    "fecha_alta": "2025-10-28T22:51:42.923Z",
+    "estado": "reservado",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 16,
+  "fields": {
+    "owner": 9,
+    "codigo": "45643",
+    "titulo": "Casa del toro",
+    "descripcion": "",
+    "ubicacion": "Córdoba, Marcos Juárez",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "34.00",
+    "moneda": "USD",
+    "ambiente": 5,
+    "antiguedad": 1,
+    "banos": 2,
+    "superficie": "214.00",
+    "fecha_alta": "2025-11-10T22:24:53.656Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 17,
+  "fields": {
+    "owner": 5,
+    "codigo": "2132",
+    "titulo": "asd",
+    "descripcion": "",
+    "ubicacion": "Ciudad Autónoma de Buenos Aires, Comuna 12",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "112.00",
+    "moneda": "USD",
+    "ambiente": 2,
+    "antiguedad": 2,
+    "banos": 1,
+    "superficie": "213.00",
+    "fecha_alta": "2025-11-10T23:38:29.105Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 18,
+  "fields": {
+    "owner": 11,
+    "codigo": "312",
+    "titulo": "2132",
+    "descripcion": "",
+    "ubicacion": "Santa Fe, Belgrano",
+    "tipo_de_propiedad": "casa",
+    "disponibilidad": "venta",
+    "precio": "343.00",
+    "moneda": "USD",
+    "ambiente": 0,
+    "antiguedad": 0,
+    "banos": 0,
+    "superficie": "0.00",
+    "fecha_alta": "2025-11-12T23:37:50.322Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 21,
+  "fields": {
+    "owner": 1,
+    "codigo": "tf321",
+    "titulo": "Quinta en Tafi del Valle",
+    "descripcion": "",
+    "ubicacion": "Tucumán, Tafí del Valle",
+    "tipo_de_propiedad": "quinta",
+    "disponibilidad": "venta",
+    "precio": "269.00",
+    "moneda": "USD",
+    "ambiente": 5,
+    "antiguedad": 2,
+    "banos": 0,
+    "superficie": "214.00",
+    "fecha_alta": "2025-11-16T19:50:45.649Z",
+    "estado": "reservado",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 23,
+  "fields": {
+    "owner": 1,
+    "codigo": "BR1",
+    "titulo": "Cabaña Mirador de luz",
+    "descripcion": "",
+    "ubicacion": "Río Negro, Bariloche",
+    "tipo_de_propiedad": "chacra",
+    "disponibilidad": "alquiler",
+    "precio": "581.00",
+    "moneda": "USD",
+    "ambiente": 5,
+    "antiguedad": 1,
+    "banos": 2,
+    "superficie": "500.00",
+    "fecha_alta": "2025-11-23T04:04:03.670Z",
+    "estado": "disponible",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedad",
+  "pk": 24,
+  "fields": {
+    "owner": 1,
+    "codigo": "GAL1",
+    "titulo": "GALPON RUTA 9",
+    "descripcion": "NADA",
+    "ubicacion": "Córdoba, Marcos Juárez",
+    "tipo_de_propiedad": "galpon",
+    "disponibilidad": "venta",
+    "precio": "1200.00",
+    "moneda": "USD",
+    "ambiente": 1,
+    "antiguedad": 3,
+    "banos": 1,
+    "superficie": "562.00",
+    "fecha_alta": "2025-11-24T18:10:20.264Z",
+    "estado": "vendido",
+    "vendida_en": null
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 1,
+  "fields": {
+    "propiedad": 1,
+    "imagen": "propiedades/descarga_1.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 2,
+  "fields": {
+    "propiedad": 1,
+    "imagen": "propiedades/descarga_1_je59KHu.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 3,
+  "fields": {
+    "propiedad": 3,
+    "imagen": "propiedades/images.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 4,
+  "fields": {
+    "propiedad": 5,
+    "imagen": "propiedades/1950846258.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 5,
+  "fields": {
+    "propiedad": 5,
+    "imagen": "propiedades/1950846250.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 6,
+  "fields": {
+    "propiedad": 1,
+    "imagen": "propiedades/1950846239.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 7,
+  "fields": {
+    "propiedad": 7,
+    "imagen": "propiedades/images.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 8,
+  "fields": {
+    "propiedad": 8,
+    "imagen": "propiedades/bafea6f0-dd27-4964-b7d0-13d599ded17e.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 9,
+  "fields": {
+    "propiedad": 8,
+    "imagen": "propiedades/ed2e4203-a1a2-4515-90b7-a24bc96f0019.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 10,
+  "fields": {
+    "propiedad": 8,
+    "imagen": "propiedades/0aced7c1-720b-4c63-befc-abc9dbedfa4d.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 11,
+  "fields": {
+    "propiedad": 9,
+    "imagen": "propiedades/1950846239.webp",
+    "descripcion": "Fotos principales"
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 12,
+  "fields": {
+    "propiedad": 9,
+    "imagen": "propiedades/1950846250.webp",
+    "descripcion": "Fotos principales"
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 13,
+  "fields": {
+    "propiedad": 9,
+    "imagen": "propiedades/1950846258.jpg",
+    "descripcion": "Fotos principales"
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 14,
+  "fields": {
+    "propiedad": 8,
+    "imagen": "propiedades/ed2e4203-a1a2-4515-90b7-a24bc96f0019.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 21,
+  "fields": {
+    "propiedad": 12,
+    "imagen": "propiedades_multiples/depan.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 34,
+  "fields": {
+    "propiedad": 16,
+    "imagen": "propiedades_multiples/0aced7c1-720b-4c63-befc-abc9dbedfa4d_6ATIpuX.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 35,
+  "fields": {
+    "propiedad": 16,
+    "imagen": "propiedades_multiples/bafea6f0-dd27-4964-b7d0-13d599ded17e_XtG0C3M.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 36,
+  "fields": {
+    "propiedad": 16,
+    "imagen": "propiedades_multiples/ed2e4203-a1a2-4515-90b7-a24bc96f0019_jS5SIto.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 37,
+  "fields": {
+    "propiedad": 16,
+    "imagen": "propiedades_multiples/descarga_1.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 38,
+  "fields": {
+    "propiedad": 18,
+    "imagen": "propiedades_multiples/4f45d67f-b8bd-47f5-88d3-56d44e8405ac.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 39,
+  "fields": {
+    "propiedad": 18,
+    "imagen": "propiedades_multiples/a565dd8c-0aab-421e-aec4-07890ca9248c.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 42,
+  "fields": {
+    "propiedad": 12,
+    "imagen": "propiedades_multiples/4f45d67f-b8bd-47f5-88d3-56d44e8405ac_jyq1h5s.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 48,
+  "fields": {
+    "propiedad": 21,
+    "imagen": "propiedades_multiples/cabana-el-churqui_1v_7MfVFMk.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 50,
+  "fields": {
+    "propiedad": 21,
+    "imagen": "propiedades_multiples/cabana-el-churqui_S2X9Zsg.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 51,
+  "fields": {
+    "propiedad": 21,
+    "imagen": "propiedades_multiples/cabana-el-churqui_1w_u2az3Ym.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 54,
+  "fields": {
+    "propiedad": 11,
+    "imagen": "propiedades_multiples/1950846239.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 57,
+  "fields": {
+    "propiedad": 23,
+    "imagen": "propiedades_multiples/o_xa06_Cabana_H7PUC7A9.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 59,
+  "fields": {
+    "propiedad": 23,
+    "imagen": "propiedades_multiples/o_xa06_Cabana_Y1XJ6WYK.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 60,
+  "fields": {
+    "propiedad": 11,
+    "imagen": "propiedades_multiples/images_YXly1vF.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 61,
+  "fields": {
+    "propiedad": 23,
+    "imagen": "propiedades_multiples/beb5ef0c-0171-4b47-adbd-b32ba497f2e2_cH54FE9.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 63,
+  "fields": {
+    "propiedad": 11,
+    "imagen": "propiedades_multiples/1950846250_I8W0Ctm.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 64,
+  "fields": {
+    "propiedad": 23,
+    "imagen": "propiedades_multiples/o_xa06_Cabana_XE8ZUKRR_i0E3JL4.webp",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 65,
+  "fields": {
+    "propiedad": 24,
+    "imagen": "propiedades_multiples/descarga_1_7VjpDuw.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "propiedades.propiedadimagen",
+  "pk": 66,
+  "fields": {
+    "propiedad": 24,
+    "imagen": "propiedades_multiples/descarga_7sgMs2D.jpg",
+    "descripcion": ""
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 2,
+  "fields": {
+    "owner": null,
+    "titulo": "Próximo contacto con sebastian Varella",
+    "descripcion": "Reunion sobre la propiedad Casa Urra",
+    "fecha": "2025-10-30T03:00:00Z",
+    "estado": "completado",
+    "evento": 15,
+    "lead": 5,
+    "propiedad": 11,
+    "creado_en": "2025-10-28T22:04:37.284Z",
+    "actualizado_en": "2025-11-18T23:54:22.162Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 3,
+  "fields": {
+    "owner": null,
+    "titulo": "Seguimiento programado con sebastian Varella",
+    "descripcion": "Programado rápido: +3d 10:00",
+    "fecha": "2025-10-31T13:00:00Z",
+    "estado": "completado",
+    "evento": null,
+    "lead": 5,
+    "propiedad": null,
+    "creado_en": "2025-10-28T22:05:05.503Z",
+    "actualizado_en": "2025-11-18T23:54:21.116Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 4,
+  "fields": {
+    "owner": null,
+    "titulo": "Seguimiento programado con Javier Puerro",
+    "descripcion": "Programado rápido: +3d 10:00",
+    "fecha": "2025-11-06T13:00:00Z",
+    "estado": "completado",
+    "evento": null,
+    "lead": 7,
+    "propiedad": null,
+    "creado_en": "2025-10-29T21:58:25.068Z",
+    "actualizado_en": "2025-11-18T23:54:20.212Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 5,
+  "fields": {
+    "owner": null,
+    "titulo": "Seguimiento programado con Martin Palermo",
+    "descripcion": "Próximo contacto registrado manualmente.",
+    "fecha": "2025-12-14T22:22:00Z",
+    "estado": "completado",
+    "evento": null,
+    "lead": 8,
+    "propiedad": null,
+    "creado_en": "2025-11-10T23:00:56.247Z",
+    "actualizado_en": "2026-06-26T14:28:22.750Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 6,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con sebastian Varella",
+    "descripcion": "Reunion sobre la propiedad Chami",
+    "fecha": "2026-03-20T22:39:00Z",
+    "estado": "completado",
+    "evento": 17,
+    "lead": 5,
+    "propiedad": 12,
+    "creado_en": "2025-11-20T22:40:50.480Z",
+    "actualizado_en": "2026-06-26T14:28:29.952Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 7,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con Martin Palermo",
+    "descripcion": "Reunion sobre la propiedad GALPON RUTA 9",
+    "fecha": "2025-12-22T20:25:00Z",
+    "estado": "completado",
+    "evento": 18,
+    "lead": 8,
+    "propiedad": 24,
+    "creado_en": "2025-12-22T15:25:46.810Z",
+    "actualizado_en": "2026-06-26T14:28:24.651Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 8,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con sebastian Varella",
+    "descripcion": "Reunion sobre la propiedad Chami",
+    "fecha": "2025-12-28T15:26:00Z",
+    "estado": "completado",
+    "evento": 19,
+    "lead": 5,
+    "propiedad": 12,
+    "creado_en": "2025-12-22T15:27:05.908Z",
+    "actualizado_en": "2026-06-26T14:28:27.363Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 9,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con Martin Palermo",
+    "descripcion": "Reunion sobre la propiedad Quinta en Tafi del Valle",
+    "fecha": "2026-05-06T02:46:00Z",
+    "estado": "completado",
+    "evento": 20,
+    "lead": 8,
+    "propiedad": 21,
+    "creado_en": "2026-05-05T19:47:24.175Z",
+    "actualizado_en": "2026-06-26T14:28:35.795Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 10,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con Martin Palermo",
+    "descripcion": "Reunion sobre la propiedad Chami",
+    "fecha": "2026-08-26T01:26:00Z",
+    "estado": "pendiente",
+    "evento": 21,
+    "lead": 8,
+    "propiedad": 12,
+    "creado_en": "2026-06-26T01:27:16.120Z",
+    "actualizado_en": "2026-06-30T21:34:15.798Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 11,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con sebastian Varella",
+    "descripcion": "Visita sobre la propiedad Cabaña Mirador de luz",
+    "fecha": "2026-07-26T01:02:00Z",
+    "estado": "pendiente",
+    "evento": 22,
+    "lead": 5,
+    "propiedad": 23,
+    "creado_en": "2026-06-26T01:28:56.764Z",
+    "actualizado_en": "2026-06-30T21:33:20.401Z"
+  }
+},
+{
+  "model": "avisos.aviso",
+  "pk": 12,
+  "fields": {
+    "owner": 1,
+    "titulo": "Próximo contacto con Javier Puerro",
+    "descripcion": "Llamada sobre la propiedad Chami",
+    "fecha": "2026-11-26T14:30:00Z",
+    "estado": "pendiente",
+    "evento": 23,
+    "lead": 7,
+    "propiedad": 12,
+    "creado_en": "2026-06-26T14:30:43.095Z",
+    "actualizado_en": "2026-06-26T14:30:43.095Z"
+  }
+}
+]

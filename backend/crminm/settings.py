@@ -1,11 +1,28 @@
 from pathlib import Path
 import os
+import dj_database_url
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-c45orq2z2o^*ogbjw_tb$fdd1d7lh(9nl7q&%u6s+jrapg23!m'
-DEBUG = True
+
+
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-c45orq2z2o^*ogbjw_tb$fdd1d7lh(9nl7q&%u6s+jrapg23!m",
+)
+
+# DEBUG=False en producción. En tu PC, si no seteás la variable, sigue en True.
+DEBUG = os.environ.get("DEBUG", "True") == "True"
+
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "DESKTOP-0LTCLJK", "desktop-0ltcljk"]
+
+render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if render_host:
+    ALLOWED_HOSTS.append(render_host)
+
+extra_hosts = os.environ.get("ALLOWED_HOSTS", "")
+if extra_hosts:
+    ALLOWED_HOSTS += [h.strip() for h in extra_hosts.split(",") if h.strip()]
 
 APPEND_SLASH = True
 
@@ -27,10 +44,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,17 +80,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'crminm.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crm_inm',
-        'USER': 'crm_inm1',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {'charset': 'utf8mb4'},
+if os.environ.get("DATABASE_URL"):
+    # seteás DATABASE_URL y se usa Postgres.
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.environ.get("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    # En tu PC, sigue usando tu MySQL local de siempre.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'crm_inm',
+            'USER': 'crm_inm1',
+            'PASSWORD': '1234',
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'OPTIONS': {'charset': 'utf8mb4'},
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -88,6 +119,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -119,3 +151,45 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+
+extra_origins = os.environ.get("CORS_EXTRA_ORIGINS", "")
+if extra_origins:
+    CORS_ALLOWED_ORIGINS += [o.strip() for o in extra_origins.split(",") if o.strip()]
+
+CSRF_TRUSTED_ORIGINS = list(CORS_ALLOWED_ORIGINS)
+
+#EMAIL
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend"
+)
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL",
+    "CRM Real Connect <noreply@crminm.local>"
+)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "crminm-cache",
+    }
+}
+
+CLOUDINARY_STORAGE = {
+    # Usamos os.environ para que tome la clave segura en Render
+    'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL', 'cloudinary://<your_api_key>:<your_api_secret>@xcv9k9v9')
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
