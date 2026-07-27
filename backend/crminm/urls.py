@@ -10,7 +10,8 @@ from django.conf.urls.static import static
 from avisos.views import AvisoViewSet
 from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
 from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 # Usuarios
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
@@ -21,9 +22,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def health(_request):
     return Response({"status": "ok"})
-
 
 router = DefaultRouter()
 router.register(r"estados-lead", EstadoLeadViewSet)
