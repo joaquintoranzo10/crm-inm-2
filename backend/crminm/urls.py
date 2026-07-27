@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.http import JsonResponse
 # ViewSets existentes
 from avisos.views import AvisoViewSet
 from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
@@ -25,6 +25,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 @permission_classes([AllowAny])
 def health(_request):
     return Response({"status": "ok"})
+
+
+
+def health_check(request):
+    return JsonResponse({"status": "ok", "mensaje": "¡El servidor está vivo!"})
 
 router = DefaultRouter()
 router.register(r"estados-lead", EstadoLeadViewSet)
@@ -59,6 +64,9 @@ urlpatterns = [
     
     #  INCLUSIÓN DE DASHBOARD (SOLUCIÓN DEL 404)
     path("api/", include("dashboard.urls")),
+
+    #para que uptime lo encuentre y de ok en el servidor
+    path('api/health/', health_check),
 ]
 
 #Cambio de contraseña y eliminación de cuenta
