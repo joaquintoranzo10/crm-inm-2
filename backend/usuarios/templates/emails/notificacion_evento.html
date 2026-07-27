@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuevo evento — Real Connect</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+    /* Header color cambia según tipo */
+    .header-reunion  { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); }
+    .header-visita   { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); }
+    .header-llamada  { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+    .header-default  { background: linear-gradient(135deg, #1a56db 0%, #1e429f 100%); }
+
+    .header { padding: 36px 40px; text-align: center; }
+    .header .tipo-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; }
+    .header p { color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 14px; }
+
+    .body { padding: 40px; }
+    .body p { color: #374151; font-size: 15px; line-height: 1.7; margin: 0 0 16px; }
+    .body p.greeting { font-size: 17px; font-weight: 600; color: #111827; }
+
+    /* Tarjeta del evento */
+    .evento-card { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin: 24px 0; }
+    .evento-card-header { padding: 14px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .tipo-reunion  .evento-card-header { background: #f5f3ff; color: #6d28d9; border-bottom: 1px solid #ede9fe; }
+    .tipo-visita   .evento-card-header { background: #ecfeff; color: #0e7490; border-bottom: 1px solid #cffafe; }
+    .tipo-llamada  .evento-card-header { background: #fffbeb; color: #b45309; border-bottom: 1px solid #fde68a; }
+    .tipo-default  .evento-card-header { background: #eff6ff; color: #1d4ed8; border-bottom: 1px solid #bfdbfe; }
+
+    .evento-card-body { padding: 20px; }
+    .evento-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .evento-row:last-child { margin-bottom: 0; }
+    .evento-icon { font-size: 18px; min-width: 24px; text-align: center; margin-top: 1px; }
+    .evento-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+    .evento-value { font-size: 15px; color: #111827; font-weight: 500; }
+    .evento-value.fecha { font-size: 17px; font-weight: 700; color: #1f2937; }
+
+    .notas-box { background: #f9fafb; border-radius: 6px; padding: 12px 16px; margin-top: 16px; border-left: 3px solid #d1d5db; }
+    .notas-box p { font-size: 13px; color: #6b7280; margin: 0; font-style: italic; }
+
+    .btn-wrap { text-align: center; margin: 32px 0; }
+    .btn-reunion  { display: inline-block; background: #7c3aed; color: #fff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+    .btn-visita   { display: inline-block; background: #0891b2; color: #fff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+    .btn-llamada  { display: inline-block; background: #d97706; color: #fff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+    .btn-default  { display: inline-block; background: #1a56db; color: #fff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+
+    .footer { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 24px 40px; text-align: center; }
+    .footer p { color: #9ca3af; font-size: 12px; margin: 4px 0; }
+    .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+   
+    <div class="header header-{{ tipo_css }}">
+      <div class="tipo-badge">{{ tipo }}</div>
+      <h1>{{ emoji_tipo }} Evento programado</h1>
+      <p>Tenés un nuevo evento en tu agenda del CRM</p>
+    </div>
+
+    <div class="body tipo-{{ tipo_css }}">
+      <p class="greeting">Hola, {{ nombre }}!</p>
+      <p>Se registró un nuevo evento en tu CRM. Aquí tenés todos los detalles:</p>
+
+      <div class="evento-card">
+        <div class="evento-card-header">{{ emoji_tipo }} {{ tipo }}</div>
+        <div class="evento-card-body">
+
+          <div class="evento-row">
+            <div class="evento-icon">📅</div>
+            <div>
+              <div class="evento-label">Fecha y hora</div>
+              <div class="evento-value fecha">{{ fecha_hora }}</div>
+            </div>
+          </div>
+
+          <div class="evento-row">
+            <div class="evento-icon">🏠</div>
+            <div>
+              <div class="evento-label">Propiedad</div>
+              <div class="evento-value">{{ propiedad }}</div>
+            </div>
+          </div>
+
+          {% if contacto_nombre %}
+          <div class="evento-row">
+            <div class="evento-icon">👤</div>
+            <div>
+              <div class="evento-label">Contacto / Lead</div>
+              <div class="evento-value">{{ contacto_nombre }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if contacto_email %}
+          <div class="evento-row">
+            <div class="evento-icon">✉️</div>
+            <div>
+              <div class="evento-label">Email del contacto</div>
+              <div class="evento-value">{{ contacto_email }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if notas %}
+          <div class="notas-box">
+            <div class="evento-label" style="margin-bottom:6px;">📝 Notas</div>
+            <p>{{ notas }}</p>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <div class="btn-wrap">
+        <a href="{{ crm_url }}" class="btn-{{ tipo_css }}">Ver mis eventos en el CRM</a>
+      </div>
+
+      <hr class="divider"/>
+      <p style="font-size: 13px; color: #9ca3af;">Recibís este correo porque tenés notificaciones de eventos activas. Podés gestionarlas desde Configuración en el CRM.</p>
+    </div>
+
+    <div class="footer">
+      <p>Real Connect — Sistema de gestión</p>
+      <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+    </div>
+  </div>
+</body>
+</html>

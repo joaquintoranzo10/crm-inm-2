@@ -4,27 +4,26 @@ import axios, { AxiosError } from "axios";
 import Modal from "@/components/Modal";
 import SmartLocationCombo from "@/components/SmartLocationCombo";
 
-//  Componentes Auxiliares 
+// --- Componentes Auxiliares ---
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-sm">{label}</label>
-      <div className="mt-1">{children}</div>
+      <label className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 block ml-1">{label}</label>
+      <div>{children}</div>
     </div>
   );
 }
+
 
 function SelectScroll<T extends string>({
   value,
   onChange,
   options,
-  className = "",
 }: {
   value: T;
   onChange: (v: T) => void;
   options: T[];
-  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -35,19 +34,17 @@ function SelectScroll<T extends string>({
         setOpen(false);
       }
     }
+    if (open) {
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
+  }
+  return () => document.removeEventListener("mousedown", onDoc);
+}, [open]);
 
   return (
     <div ref={rootRef} className="relative">
-      {/* BOTÓN PRINCIPAL */}
       <button
         type="button"
-        className={`h-10 w-full px-3 py-2 text-sm leading-tight text-left flex items-center justify-between outline-none rounded-lg border transition-colors
-          bg-[var(--surface)] text-[var(--text)] border-[var(--border)]
-          focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-          ${className}`}
+        className="rc-input h-8 text-sm text-left flex items-center justify-between"
         onClick={() => setOpen(!open)}
       >
         <span className="truncate block capitalize">
@@ -56,12 +53,10 @@ function SelectScroll<T extends string>({
         <span className="text-gray-400 text-xs ml-2">▼</span>
       </button>
 
-      {/* LISTA DESPLEGABLE */}
       {open && (
         <ul
-          className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 border
-            bg-[var(--surface)] border-[var(--border)]"
-          style={{ maxHeight: "180px", overflowY: "auto" }}
+          className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border rc-border bg-[var(--surface)] text-[var(--text-main)]"
+          style={{ maxHeight: "200px", overflowY: "auto" }}
         >
           {options.map((opt) => {
             const isSelected = opt === value;
@@ -72,7 +67,7 @@ function SelectScroll<T extends string>({
                   className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize
                     ${isSelected
                       ? "bg-blue-600 text-white font-bold"
-                      : "text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-700"
+                      : "hover:bg-gray-100 dark:hover:bg-zinc-800"
                     }
                   `}
                   onClick={() => {
@@ -91,7 +86,7 @@ function SelectScroll<T extends string>({
   );
 }
 
-// Tipos
+// --- Tipos ---
 
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void };
 
@@ -100,7 +95,7 @@ type TipoProp = "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local"
 type Moneda = "USD" | "ARS";
 type Disponibilidad = "venta" | "alquiler";
 
-// Componente Principal
+// --- Componente Principal ---
 
 export default function PropiedadCreateModal({ open, onClose, onCreated }: Props) {
   const [submitting, setSubmitting] = useState(false);
@@ -120,47 +115,31 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
   const [superficie, setSuperficie] = useState<number | "">("");
   const [estado, setEstado] = useState<Estado>("disponible");
 
-  //Array normal (File[]) para poder acumular imágenes
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  // Referencia para limpiar el input html
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const inputClass = "rc-input h-10 w-full px-3 py-2 text-sm leading-tight focus:outline-none";
+  // 2. Uso simple de rc-input
+  const inputClass = "rc-input";
 
-  useEffect(() => {
-    if (open) {
-      setServerError(null);
-
-    }
-  }, [open]);
-
-  // Lógica de Archivos 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = e.target.files;
-
     if (selectedFiles && selectedFiles.length > 0) {
       const newFilesArray = Array.from(selectedFiles);
-
       setFilesToUpload((prev) => [...prev, ...newFilesArray]);
-
-
       const newUrls = newFilesArray.map((f) => URL.createObjectURL(f));
       setPreviews((prev) => [...prev, ...newUrls]);
     }
-
     if (e.target) e.target.value = "";
   }
 
-  // Función para eliminar una imagen de la lista antes de subir
   function removeImage(index: number) {
     setFilesToUpload((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function uploadImagen(propId: number) {
-    // Usamos el array acumulado
     if (filesToUpload.length === 0) return;
 
     const fd = new FormData();
@@ -172,7 +151,6 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       headers: { "Content-Type": "multipart/form-data" },
     });
 
-    // Limpieza total post-subida
     setPreviews([]);
     setFilesToUpload([]);
   }
@@ -242,30 +220,30 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Registrar propiedad" maxWidth="4xl">
+    <Modal open={open} onClose={onClose} title="Registrar propiedad" maxWidth="xl">
       {serverError && (
         <div className="mb-3 rounded-md border px-3 py-2 text-sm border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
           {serverError}
         </div>
       )}
 
-      <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="max-h-none overflow-visible pr-2 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
 
           {/* Formulario */}
-          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-12 gap-5 content-start">
+          <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
 
             {/* Código y Título */}
-            <div className="col-span-12 sm:col-span-3">
+            <div className="col-span-12 sm:col-span-4">
               <Row label="Código *">
                 <input
-                  className={`${inputClass} font-mono`}
+                  className={`${inputClass} font-mono h-8 text-sm`}
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value)}
                 />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-9">
+            <div className="col-span-12 sm:col-span-8">
               <Row label="Título *">
                 <input className={inputClass} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
               </Row>
@@ -301,15 +279,11 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
             <div className="col-span-12 sm:col-span-6">
               <Row label="Disponibilidad *">
-                <select
-                  className={inputClass}
+                <SelectScroll
                   value={disponibilidad}
-                  onChange={(e) => setDisponibilidad(e.target.value as Disponibilidad)}
-                >
-                  <option value="">— Seleccionar —</option>
-                  <option value="venta">Venta</option>
-                  <option value="alquiler">Alquiler</option>
-                </select>
+                  onChange={(v) => setDisponibilidad(v as Disponibilidad)}
+                  options={["venta", "alquiler"]}
+                />
               </Row>
             </div>
 
@@ -322,73 +296,63 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
             <div className="col-span-6 sm:col-span-3">
               <Row label="Moneda *">
-                <select className={inputClass}
-                  value={moneda} onChange={(e) => setMoneda(e.target.value as Moneda)}>
-                  <option value="USD">USD</option>
-                  <option value="ARS">ARS</option>
-                </select>
+                <SelectScroll
+                  value={moneda}
+                  onChange={(v) => setMoneda(v as Moneda)}
+                  options={["USD", "ARS"]}
+                />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-4">
               <Row label="Estado *">
-                <select
-                  className={`${inputClass} font-medium`}
+                <SelectScroll
                   value={estado}
-                  onChange={(e) => setEstado(e.target.value as Estado)}
-                >
-                  <option value="disponible">Disponible</option>
-                  <option value="reservado">Reservado</option>
-                  <option value="vendido">Vendido</option>
-                </select>
+                  onChange={(v) => setEstado(v as Estado)}
+                  options={["disponible", "reservado", "vendido"]}
+                />
               </Row>
             </div>
-
             {/* Características */}
             <div className="col-span-6 sm:col-span-3">
               <Row label="Ambientes">
-                <select
-                  className={inputClass}
-                  value={ambiente}
-                  onChange={(e) => setAmbiente(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">0</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num === 5 ? "5+" : num}
-                    </option>
-                  ))}
-                </select>
-              </Row>
-            </div>
-            <div className="col-span-6 sm:col-span-3">
-              <Row label="Baños">
-                <select
-                  className={inputClass}
-                  value={banos}
-                  onChange={(e) => setBanos(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">0</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num === 5 ? "5+" : num}
-                    </option>
-                  ))}
-                </select>
-              </Row>
-            </div>
-            <div className="col-span-6 sm:col-span-3">
-              <Row label="Antigüedad">
-                <input
-                  type="number" min={0} className={inputClass}
-                  value={antiguedad} onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
+                <SelectScroll
+                  value={ambiente === "" ? "0" : String(ambiente)}
+                  onChange={(v) => setAmbiente(v === "0" ? "" : Number(v))}
+                  options={["0", "1", "2", "3", "4", "5"]}
                 />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-3">
+              <Row label="Baños">
+                <SelectScroll
+                  value={banos === "" ? "0" : String(banos)}
+                  onChange={(v) => setBanos(v === "0" ? "" : Number(v))}
+                  options={["0", "1", "2", "3", "4", "5"]}
+                />
+              </Row>
+            </div>
+            <div className="col-span-6 sm:col-span-3">
+                <Row label="Antigüedad">
+                  <input
+                    type="number" 
+                    min={0} 
+                    className={inputClass}
+                    value={antiguedad} 
+                    onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="0"
+                  />
+                </Row>
+              </div>
+            <div className="col-span-6 sm:col-span-3">
               <Row label="Superficie (m²)">
                 <input
-                  type="number" min={0} step="0.01" className={inputClass}
-                  value={superficie} onChange={(e) => setSuperficie(e.target.value === "" ? "" : Number(e.target.value))}
+                  type="number" 
+                  min={0} 
+                  step="0.01" 
+                  className={inputClass} 
+                  value={superficie} 
+                  onChange={(e) => setSuperficie(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="0.00"
                 />
               </Row>
             </div>
@@ -396,20 +360,19 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             {/* Descripción */}
             <div className="col-span-12">
               <Row label="Descripción">
-                <textarea rows={4} className="rc-input w-full p-3 text-sm resize-none" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                <textarea rows={4} className={`${inputClass} resize-none h-auto`} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
               </Row>
             </div>
           </div>
 
           {/* Imágenes*/}
-          <div className="md:col-span-4 space-y-5 border-l border-gray-200 dark:border-gray-700 pl-8 md:block hidden">
+          <div className="md:col-span-3 space-y-4 border-l border-gray-200 dark:border-gray-700 pl-2 md:block hidden">
 
             <div>
               <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-3">Imágenes (Opcional)</h3>
 
-              {/* CAJA DE CARGA CLARA (bg-blue-50) */}
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
-                <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer">
+                <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer py-2">
                   <span className="text-sm font-bold text-blue-600 mb-1">+ Seleccionar imágenes</span>
                   <span className="text-xs text-gray-400">JPG, PNG. Múltiples.</span>
                   <input
@@ -434,7 +397,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               </div>
 
               {previews.length === 0 ? (
-                <div className="text-xs rc-muted italic">Se subirán junto con la propiedad.</div>
+                <div className="text-xs text-gray-500 italic">Se subirán junto con la propiedad.</div>
               ) : (
                 <ul className="grid grid-cols-2 gap-3 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
                   {previews.map((src, i) => (
@@ -464,29 +427,29 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
 
           {/* Versión móvil de carga de imágenes */}
           <div className="md:hidden col-span-12 space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <label className="text-sm font-medium">Cargar Imágenes</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cargar Imágenes</label>
             <input
               type="file"
               accept="image/*"
               multiple
-              className="block w-full text-sm file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-gray-100 dark:file:bg-gray-800 file:text-gray-700 dark:file:text-gray-200"
+              className="block w-full text-sm file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-gray-100 dark:file:bg-zinc-800 file:text-gray-700 dark:file:text-gray-200 text-gray-700 dark:text-gray-200"
               onChange={handleFileChange}
             />
-            {previews.length > 0 && <p className="text-xs rc-muted mt-2">{previews.length} imágenes seleccionadas.</p>}
+            {previews.length > 0 && <p className="text-xs text-gray-500 mt-2">{previews.length} imágenes seleccionadas.</p>}
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="pt-4 border-t rc-border bg-transparent flex items-center justify-end gap-2">
+      <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 bg-transparent flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-2">
         <button
-          className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white"
+          className="w-full sm:w-auto px-4 py-2 h-10 rounded-xl text-sm font-bold border border-zinc-400 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
           onClick={onClose}
         >
           Cancelar
         </button>
         <button
-          className="h-10 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60 transition-colors shadow-sm"
+          className="w-full sm:w-auto h-10 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60 transition-colors shadow-sm"
           onClick={() => onSubmit()}
           disabled={submitting || !codigo || !titulo || !ubicacion || precio === "" || !disponibilidad}
         >

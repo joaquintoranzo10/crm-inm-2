@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiUser, FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 function useOutsideClose(onClose: () => void) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -15,6 +16,7 @@ function useOutsideClose(onClose: () => void) {
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const ref = useOutsideClose(() => setOpen(false));
 
   const user = { name: "Agente", email: "agente@realconnect.com" };
@@ -24,6 +26,15 @@ export default function UserMenu() {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+
+  const handleLogout = () => {
+    localStorage.removeItem("rc_token");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("rc_user_id");
+    localStorage.removeItem("rc_user_name");
+    navigate("/");
+  };
 
   return (
     <div className="relative" ref={ref}>
@@ -50,8 +61,8 @@ export default function UserMenu() {
             <FiUser /> Perfil
           </button>
           <button
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-rose-500 hover:bg-rose-50/40 dark:hover:bg-rose-900/20"
-            onClick={() => alert("TODO: cerrar sesión")}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-rose-500 hover:bg-rose-50/40 dark:hover:bg-rose-900/20 transition-colors"
+            onClick={handleLogout} 
           >
             <FiLogOut /> Cerrar sesión
           </button>

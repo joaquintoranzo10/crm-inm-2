@@ -7,7 +7,9 @@ import {
   ChevronRight,
   Settings,
   Bell,
-  LogOut, 
+  LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
@@ -24,7 +26,7 @@ const items: Item[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard },
   { to: "/app/leads", label: "Leads", icon: Contact },
   { to: "/app/propiedades", label: "Propiedades", icon: Building2 },
-  { to: "/app/avisos", label: "Recordatorios y avisos", icon: Bell },
+  { to: "/app/avisos", label: "Recordatorios", icon: Bell },
   { to: "/app/configuracion", label: "Configuración", icon: Settings },
 ];
 
@@ -32,18 +34,26 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useLocalStorage<boolean>("rc_sidebar_collapsed", false);
   const [userName, setUserName] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  const width = collapsed ? "w-[76px]" : "w-64";
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const width = collapsed ? "w-64 md:w-[76px]" : "w-64";
 
   useEffect(() => {
-    // lee (si existe) el nombre guardado
-    const stored = localStorage.getItem("rc_user_name");
-    setUserName(stored);
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("vite-ui-theme");
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = savedTheme === "dark" || (!savedTheme && systemDark);
+
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    
+    const storedName = localStorage.getItem("rc_user_name");
+    if(storedName) setUserName(storedName);
   }, []);
 
   const handleLogout = () => {
-    // limpia credenciales/session
-    localStorage.removeItem("access");
+    localStorage.removeItem("rc_token");
     localStorage.removeItem("refresh");
     localStorage.removeItem("rc_user_id");
     localStorage.removeItem("rc_user_name");
@@ -51,86 +61,172 @@ export default function Sidebar() {
   };
 
   return (
-    <aside
-      className={clsx(
-        "h-screen sticky top-0 border-r border-soft dark:border-soft bg-app dark:bg-gray-950",
-        "transition-all duration-300 ease-in-out hidden md:flex flex-col",
-        width
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-3 px-3 py-4 border-b border-soft dark:border-soft">
-        <img src="/logo.png" alt="Real Connect" className="h-8 w-8 rounded" />
-        {!collapsed && (
-          <div className="font-semibold leading-tight">
-            <div className="text-sm">Real Connect</div>
-            <div className="text-[10px] text-muted-clr dark:text-gray-400">CRM Inmobiliario</div>
-          </div>
-        )}
+    <>
+      {/* BOTÓN FLOTANTE PARA CELULARES */}
+      {!mobileOpen && (
         <button
-          className="ml-auto inline-flex items-center justify-center rounded-md border border-soft dark:border-soft hover:bg-app dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300 h-8 w-8"
-          onClick={() => setCollapsed((c) => !c)}
-          title={collapsed ? "Expandir" : "Colapsar"}
+          onClick={() => setMobileOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-[90] p-2.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-800 dark:text-white shadow-sm flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 active:scale-95 transition-all"
+          title="Abrir menú"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          <Menu className="h-6 w-6" />
         </button>
-      </div>
+      )}
+
+      {/* OVERLAY OSCURO PARA CELULARES */}
+      {mobileOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[95] transition-opacity"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+    <aside
+        className={clsx(
+          "h-screen top-0 border-r transition-transform duration-300 ease-in-out flex flex-col z-[100]",
+          "fixed md:sticky",
+          mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          width,
+          "bg-surface md:dark:backdrop-blur-xl",
+          "rc-border shadow-2xl md:shadow-none",
+          "rc-sidebar-force",
+          "rounded-r-2xl md:rounded-none"
+        )}
+      >
+      {/* Header */}
+      <div
+        className={clsx(
+          "flex items-center py-6 border-b rc-border transition-all",
+          collapsed ? "justify-between px-4 md:justify-center md:px-0" : "justify-between px-4"
+        )}
+      >
+        <div
+          className="flex items-center gap-3 cursor-pointer overflow-hidden"
+          onClick={() => {
+            navigate("/app");
+            setMobileOpen(false); 
+          }}
+        >
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img src="/logo.png" alt="RC" className="relative h-10 w-10 rounded object-contain" />
+          </div>
+
+          <div
+            className={clsx(
+              "font-semibold leading-tight duration-300 whitespace-nowrap transition-all",
+              collapsed ? "w-auto opacity-100 translate-x-0 block md:w-0 md:opacity-0 md:translate-x-10 md:hidden" : "w-auto opacity-100 translate-x-0 block"
+            )}
+          >
+            {/* Títulos */}
+            <div className="text-sm tracking-wide rc-sidebar-force text-gray-900 dark:text-white truncate">Real Connect</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 rc-sidebar-force truncate">
+                CRM Inmobiliario
+              </div>
+            </div>
+          </div>
+          {/* BOTÓN DE CERRAR PARA CELULARES */}
+          <button 
+            type="button"
+            className="md:hidden p-2 bg-gray-100 dark:bg-zinc-800/80 rounded-full text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white shrink-0 ml-2 transition-colors"
+            onClick={(e) => {
+               e.stopPropagation();
+               setMobileOpen(false);
+            }}
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+        {/* BOTÓN DE COLAPSAR  */}
+        <button
+            className={clsx(
+              "hidden md:flex absolute -right-3.5 top-9 z-50 items-center justify-center rounded-full h-7 w-7 border shadow-md transition-all",
+              "bg-surface rc-border hover:brightness-95",
+              "rc-sidebar-force"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCollapsed((c) => !c);
+            }}
+            title={collapsed ? "Expandir" : "Colapsar"}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+        </div>
 
       {/* Navegación */}
-      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {items.map((it) => {
-          const Icon = it.icon;
-          return (
-            <NavLink
-              key={it.to}
-              to={it.to}
-              end={it.to === "/app"}
-              className={({ isActive }) =>
-                clsx(
-                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
-                  // Normal
-                  "text-[color:var(--text)] hover:bg-[color:var(--bg-muted)] hover:text-[color:var(--primary)]",
-                  "dark:text-[color:var(--text-muted)] dark:hover:bg-[color:var(--surface-2)] dark:hover:text-[color:var(--text-strong)]",
-                  // Activo
-                  isActive &&
-                    "bg-[color:var(--primary)] text-white dark:bg-[color:var(--primary)] dark:text-white shadow-sm"
-                )
-              }
-            >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span className="truncate">{it.label}</span>}
-            </NavLink>
-          );
-        })}
-      </nav>
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+          {items.map((it) => {
+            const Icon = it.icon;
+            return (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.to === "/app"}
+                onClick={() => setMobileOpen(false)} 
+                className={({ isActive }) =>
+                  clsx(
+                    "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 relative overflow-hidden",
+                    isActive
+                      ? "bg-blue-100 shadow-sm text-blue-800 dark:text-blue-100 dark:bg-blue-600/20 dark:border dark:border-blue-500/30"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-white/10 dark:hover:text-white",
+                      isActive && "rc-active"
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r-full shadow-sm"></div>
+                    )}
+                    <Icon className="h-5 w-5 shrink-0 transition-colors" />
+                    <span className={clsx("truncate", collapsed ? "block md:hidden" : "block")}>
+                      {it.label}
+                    </span>
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
 
-      {/* Pie: Cerrar sesión + versión */}
-      <div className="mt-auto border-t border-soft dark:border-soft">
+
+      {/* Footer */}
+      <div
+        className={clsx(
+          "mt-auto border-t transition-colors",
+          "bg-transparent rc-border"
+          )}
+        >
         <div className="p-3">
           <button
             onClick={handleLogout}
             className={clsx(
-              "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
-              "hover:bg-[color:var(--surface-2)] text-[color:var(--text)] dark:text-[color:var(--text-strong)]",
-              "transition-colors"
+              "w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-transparent transition-all duration-200",
+              "text-gray-600 dark:text-gray-300",
+              "hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200",
+              "dark:hover:bg-white/10 dark:hover:text-rose-400 dark:hover:border-transparent"
             )}
             title="Cerrar sesión"
           >
-            <LogOut className="h-5 w-5" />
-            {!collapsed && <span>Cerrar sesión</span>}
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className={clsx("truncate", collapsed ? "block md:hidden" : "block")}>
+             Cerrar sesión
+            </span>
           </button>
 
-          {!collapsed && userName && (
-            <p className="mt-2 text-[11px] text-muted-clr dark:text-gray-400">
-              Sesión iniciada como <strong>{userName}</strong>
-            </p>
+          {userName && (
+            <div className={clsx("mt-3 px-1 text-center", collapsed ? "block md:hidden" : "block")}>
+              <p className="text-[10px] uppercase tracking-widest opacity-60 rc-sidebar-force">
+                Usuario
+              </p>
+              <p className="text-xs font-medium truncate rc-sidebar-force">
+                {userName}
+              </p>
+            </div>
           )}
-        </div>
-
-        <div className="px-3 pb-3 text-[10px] text-muted-clr dark:text-gray-400">
-          {collapsed ? "v0.1" : "v0.1 • Dev"}
         </div>
       </div>
     </aside>
+    </>
   );
 }

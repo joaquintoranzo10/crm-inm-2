@@ -5,26 +5,31 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.http import JsonResponse
 # ViewSets existentes
 from avisos.views import AvisoViewSet
 from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
 from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 # Usuarios
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
-    # ChangePasswordView, DeleteAccountView,  # se importan en el try más abajo
 )
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def health(_request):
     return Response({"status": "ok"})
 
+
+
+def health_check(request):
+    return JsonResponse({"status": "ok", "mensaje": "¡El servidor está vivo!"})
 
 router = DefaultRouter()
 router.register(r"estados-lead", EstadoLeadViewSet)
@@ -59,11 +64,12 @@ urlpatterns = [
     
     #  INCLUSIÓN DE DASHBOARD (SOLUCIÓN DEL 404)
     path("api/", include("dashboard.urls")),
+
+    #para que uptime lo encuentre y de ok en el servidor
+    path('api/health/', health_check),
 ]
 
-# ===== Extensiones que se activan si existen =====
-
-# 1) Cambio de contraseña y eliminación de cuenta
+#Cambio de contraseña y eliminación de cuenta
 try:
     from usuarios.views import ChangePasswordView, DeleteAccountView
     urlpatterns += [
@@ -71,15 +77,25 @@ try:
         path("api/usuarios/me/delete/", DeleteAccountView.as_view(), name="usuarios-delete-account"),
     ]
 except Exception:
-    # Si aún no existen esas vistas, ignoramos.
+    
     pass
 
-# 2) Exportación y métricas (app: exportacion)
+#reseteo de contraseña
+try:
+    from usuarios.password_reset_views import PasswordResetRequestView, PasswordResetConfirmView
+    urlpatterns += [
+        path("api/auth/password-reset/request/", PasswordResetRequestView.as_view(), name="password-reset-request"),
+        path("api/auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
+    ]
+except Exception:
+    pass
+
+#exportación y metricas
 try:
     urlpatterns += [path("api/exportacion/", include("exportacion.urls"))]
 except Exception:
-    # Si la app 'exportacion' aún no existe, ignoramos.
     pass
+
 
 # Media en dev
 if settings.DEBUG:

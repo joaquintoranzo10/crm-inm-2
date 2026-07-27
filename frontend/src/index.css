@@ -1,200 +1,161 @@
 @import "tailwindcss";
 
-:root {
-  /* Controles nativos claros */
-  color-scheme: light;
+@layer base {
+  :root {
+    /* --- TEMA CLARO --- */
+    --text-main: #000000;
+    --bg-body: #f9fafb;
+    
+    /* Cajas Dashboard (Configuración, Avisos) */
+    --bg-card: #ffffff;
+    --border-card: #e5e7eb;
 
-  /*  Paleta base (tema claro) */
-  --bg: #faf9f6;                 /* fondo general */
-  --bg-muted: #f3f2ef;           /* secciones suaves */
-  --surface: #ffffff;            /* tarjetas, contenedores, inputs */
-  --surface-2: #f7f7f5;          /* headers, tiras */
-  --border: #dedcd8;             /* bordes sutiles */
+    /* Superficies SÓLIDAS (Ventanas, Inputs, Paneles) */
+    
+    --surface: #ffffff; 
+    --bg-surface: #ffffff;       
+    
+    --border: #e5e7eb;
+    --muted: #6b7280;
+  }
 
-  --text: #1a1f2c;               /* texto principal */
-  --text-muted: #475569;         /* texto secundario */
-  --text-strong: #111827;        /* texto fuerte en tablas, etc. */
+  /* --- TEMA OSCURO --- */
+  :root.dark, body.dark {
+    --text-main: #ffffff;
+    --bg-body: #000000;
 
-  --primary: #2563eb;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger:  #dc2626;
+    /* Cajas Dashboard -> Transparentes */
+    --bg-card: rgba(255, 255, 255, 0.05); 
+    --border-card: rgba(255, 255, 255, 0.1);
 
-  --chip-bg:   #eef2ff;
-  --chip-text: #3730a3;
+    /* Superficies SÓLIDAS -> Gris muy oscuro (Nunca transparente) */
+    --surface: #18181b;  /* zinc-900 */
+    --bg-surface: #18181b; /* Alias para compatibilidad */
+    
+    --border: #27272a;   /* zinc-800 */
+    --muted: #a1a1aa;
+  }
 
-  --elev-1: 0 2px 6px rgba(15, 23, 42, 0.05); /* sombra suave */
-  --overlay: rgba(15, 23, 42, 0.25);          /* backdrop modal (claro) */
-
-  /* Popover */
-  --popover-bg: var(--surface);
-  --popover-ring: var(--border);
-  --popover-item-hover: rgba(15, 23, 42, 0.04);
-  --popover-unread:     rgba(37, 99, 235, 0.08);
+  body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif;
+  }
 }
 
-:root.dark {
-  /* Controles nativos oscuros */
-  color-scheme: dark;
+@layer utilities {
+  /* Utilidad de texto base */
+  .text-base-clr { color: var(--text-main) !important; }
+  
+  /* Cajas Dashboard (Transparentes en Dark) */
+  .card-base { 
+    background-color: var(--bg-card); 
+    border: 1px solid var(--border-card); 
+    color: var(--text-main); 
+  }
 
-  /* Paleta base (tema oscuro)  */
-  --bg:        #0b1220;
-  --bg-muted:  #0f172a;
-  --surface:   #0f172a;
-  --surface-2: #0b1220;
-  --border:    #1f2937;
+  /* --- CLASES COMPARTIDAS (Leads + Propiedades + Legacy) --- */
+  
+  
+  .bg-surface {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+  }
 
-  --text:       #e5e7eb;
-  --text-muted: #94a3b8;
-  --text-strong:#e2e8f0;
 
-  --chip-bg:   #111827;
-  --chip-text: #e5e7eb;
+  .rc-modal-panel {
+    border-radius: 1rem;       
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transition-property: all;
+    transition-duration: 150ms;
+    border-width: 1px;
+    
+    background-color: var(--bg-body) !important; 
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+  }
 
-  --elev-1: 0 1px 2px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.25);
-  --overlay: rgba(0, 0, 0, 0.55);             /* backdrop modal (oscuro) */
+  .rc-input {
+    height: 2.5rem;            
+    width: 100%;               
+    padding: 0.5rem 0.75rem;   
+    font-size: 0.875rem;       
+    border-radius: 0.5rem;     
+    outline: 2px solid transparent;
+    transition-property: all;
+    transition-duration: 150ms;
+    border-width: 1px;
+    
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+  }
+  
+  .rc-input:focus {
+    border-color: #3b82f6 !important; /* blue-500 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  }
 
-  /* Popover */
-  --popover-bg: var(--surface);
-  --popover-ring: var(--border);
-  --popover-item-hover: rgba(255,255,255,.04);
-  --popover-unread:     rgba(37,99,235,.18);
+  /* Textos y bordes */
+  .rc-border { border-color: var(--border) !important; }
+  .rc-muted { color: var(--muted) !important; }
+  .rc-text { color: var(--text-main) !important; }
+  
+  /* Fondo negro detrás */
+  .rc-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    transition-property: opacity;
+    transition-duration: 150ms;
+  }
 }
 
-html, body, #root { background: var(--bg); color: var(--text); }
-
-.bg-app       { background-color: var(--bg); }
-.bg-muted     { background-color: var(--bg-muted); }
-.bg-surface   { background-color: var(--surface); }
-.bg-surface-2 { background-color: var(--surface-2); }
-
-.text-base-clr  { color: var(--text); }
-.text-muted-clr { color: var(--text-muted); }
-.border-soft    { border-color: var(--border); }
-.shadow-elev-1  { box-shadow: var(--elev-1); }
-
-.text-base-clr { color: var(--text-strong) !important; }
-table td, table th { color: var(--text-strong) !important; }
-
-/* Fall-back por si algún navegador ignora color-scheme */
-:root.dark select,
-:root.dark option {
-  background-color: var(--surface) !important;
-  color: var(--text) !important;
-  border-color: var(--border);
-}
-:root.dark input,
-:root.dark textarea {
-  color-scheme: dark;
-}
-
-.rc-input,
-.rc-select,
-.rc-textarea {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  outline: none;
-}
-.rc-input::placeholder,
-.rc-textarea::placeholder {
-  color: var(--text-muted);
-  opacity: 1;
-}
-.rc-input:focus,
-.rc-select:focus,
-.rc-textarea:focus {
-  border-color: var(--primary);
-}
-
-
-.input-like, .select-like, .textarea-like {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  outline: none;
-}
-.input-like::placeholder { color: var(--text-muted); }
-.input-like:focus, .select-like:focus, .textarea-like:focus { border-color: var(--primary); }
-
-/* Tarjetas / Chips */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: var(--elev-1);
-}
-.chip {
-  background: var(--chip-bg);
-  color: var(--chip-text);
-  border-radius: 9999px;
-  padding: 0.125rem 0.5rem;
-  font-size: .75rem;
-  line-height: 1rem;
-}
-
-button, .btn {
-  color: var(--text);
-  font-weight: 500;
-}
-
-/*Popover (notificaciones, menús) */
-.rc-popover {
-  background: var(--popover-bg);
-  color: var(--text);
-  border: 1px solid var(--popover-ring);
-  border-radius: 14px;
-  box-shadow: var(--elev-1);
-  overflow: hidden;
-}
-.rc-popover .rc-popover-header {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--popover-ring);
-  font-weight: 600;
-}
-.rc-popover-item {
-  display: flex;
-  gap: 10px;
-  align-items: start;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  line-height: 1.2rem;
-  cursor: pointer;
-}
-.rc-popover-item:hover { background: var(--popover-item-hover); }
-.rc-popover-item.unread { background: var(--popover-unread); }
-.rc-popover-item .meta { font-size: .75rem; color: var(--text-muted); }
-.rc-popover-divider { height: 1px; background: var(--popover-ring); margin: 6px 0; }
-.rc-popover-footer { display: flex; justify-content: space-between; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--popover-ring); }
-.rc-popover .scroll { max-height: 360px; overflow: auto; }
-.rc-popover .scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.rc-popover .scroll::-webkit-scrollbar-thumb { background: var(--popover-ring); border-radius: 999px; }
-
-/* Panel del modal: usa colores del tema */
-.rc-modal-panel {
-  width: 100%;
-  border-radius: 1rem;                 /* ~ rounded-2xl */
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-  background-color: var(--surface);
-  color: var(--text);
-  position: relative;
-  z-index: 10001 !important;       /* panel por encima del backdrop */
-}
-
-/* Backdrop del modal: toma opacidad en base a --overlay (claro/oscuro) */
-.rc-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: var(--overlay);
-  z-index: 10000 !important;
-  backdrop-filter: none !important; 
- 
-}
-
-/* Bloqueo de scroll cuando haya un modal abierto */
+/* Bloqueo de scroll */
 body.modal-open { overflow: hidden; }
+
+/* Por defecto: Negro absoluto */
+.rc-sidebar-force {
+  color: #000000 !important;
+}
+
+/* En modo oscuro: Blanco absoluto */
+.dark .rc-sidebar-force {
+  color: #ffffff !important;
+}
+
+/* Cuando el ítem está activo (azul) */
+.rc-sidebar-force.rc-active {
+  color: #1e40af !important; 
+}
+
+.dark .rc-sidebar-force.rc-active {
+  color: #60a5fa !important; 
+}
+
+@keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite; 
+
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fade-in-up {
+    animation: fadeInUp 1s ease-out forwards;
+}

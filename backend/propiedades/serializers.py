@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from .models import Propiedad, PropiedadImagen
 
-# 1. Serializer de Imágenes (MANUAL)
+
 class PropiedadImagenSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     imagen = serializers.ImageField()
     descripcion = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
-# 2. Serializer Principal (MANUAL - NO hereda de ModelSerializer)
+
 class PropiedadSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     
@@ -46,8 +46,8 @@ class PropiedadSerializer(serializers.Serializer):
         except Exception:
             return []
 
-    # Guardado manual
     def create(self, validated_data):
+        validated_data.pop('owner', None) 
         user = self.context['request'].user
         return Propiedad.objects.create(owner=user, **validated_data)
 
@@ -57,7 +57,7 @@ class PropiedadSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-# 3. Serializer de Subida (MANUAL)
+
 class SubirImagenesSerializer(serializers.Serializer):
     imagenes = serializers.ListField(
         child=serializers.ImageField(), 

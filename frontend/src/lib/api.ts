@@ -1,13 +1,10 @@
 import axios from "axios";
 
-/**
- * Debe terminar en /api/
- * Ej: VITE_API_URL = http://127.0.0.1:8000/api/
- */
-export const API_BASE =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api/";
 
-/* ---------------- Cliente dedicado ---------------- */
+export const API_BASE =
+  import.meta.env.VITE_API_URL || "https://crm-real-connect.onrender.com/api/";
+
+
 export const api = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -29,16 +26,16 @@ function normalizeUrl(u?: string) {
   return url;
 }
 
-/* --- Bearer + normalización para el cliente dedicado --- */
+/* Bearer + normalización para el cliente dedicado  */
 api.interceptors.request.use((config) => {
-  // AHORA BUSCAMOS 'rc_token' para estandarizar
+  
   const token = localStorage.getItem("rc_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (config.url) config.url = normalizeUrl(config.url);
   return config;
 });
 
-/* -------- Parche global para axios “crudo” (por si alguna vista lo usa) -------- */
+/* Parche global para axios “crudo” (por si alguna vista lo usa)*/
 axios.defaults.baseURL = API_BASE;
 axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.timeout = 15000;
@@ -53,7 +50,7 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-/* ----- Leads ----- */
+/*  Leads */
 export type Contacto = {
   id: number;
   nombre: string;
@@ -71,7 +68,7 @@ export async function fetchLeads(params: Record<string, any> = {}) {
   return data.results ?? data;
 }
 
-/* ----- Propiedades ----- */
+/* Propiedades */
 export type Propiedad = {
   id: number;
   codigo: string;
@@ -95,7 +92,7 @@ export async function fetchPropiedades(params: Record<string, any> = {}) {
   return data.results ?? data;
 }
 
-/* ----- Usuarios ----- */
+/* Usuarios */
 export type Usuario = {
   id: number;
   username?: string;
@@ -111,7 +108,7 @@ export async function fetchUsuarios() {
   return data.results ?? data;
 }
 
-/* ----- Eventos ----- */
+/*  Eventos  */
 export type Evento = {
   id: number;
   owner?: number; // read-only (puede no venir en todas las vistas)

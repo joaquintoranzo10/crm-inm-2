@@ -15,7 +15,6 @@ export default function Login() {
   // Hook de navegación
   const navigate = useNavigate();
 
-  // ======== ESTADOS ========
   const [userOrEmail, setUserOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,12 +22,12 @@ export default function Login() {
 
   // Al cargar, limpiamos datos viejos
   useEffect(() => {
-    localStorage.removeItem("access");
+    localStorage.removeItem("rc_token");
     localStorage.removeItem("refresh");
     localStorage.removeItem("rc_user_id");
   }, []);
 
-  // Lógica de Submit (INTACTA)
+ 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -80,12 +79,12 @@ export default function Login() {
     }
   }
 
-  // ======== RENDER MODERNO ========
+
   return (
-    // CORRECCIÓN: Quitamos bg-[#050505] de acá para evitar conflictos con el fixed
+
     <div className="relative w-full min-h-screen text-white font-sans overflow-hidden flex items-center justify-center p-4">
       
-      {/* --- ESTILOS LOCALES (ANIMACIONES) --- */}
+     
       <style>{`
         @keyframes spin {
             from { transform: rotate(0deg); }
@@ -93,19 +92,16 @@ export default function Login() {
         }
       `}</style>
 
-      {/* --- FONDO FIJO LIMPIO (IGUAL A LA LANDING) --- */}
-      {/* Definimos el color base #050505 AQUÍ y quitamos las blobs de colores que manchaban el fondo */}
+
       <div className="fixed inset-0 -z-10 bg-[#050505]">
-        {/* Grilla sutil para dar textura sin cambiar el color */}
+      
         <div className="absolute inset-0 opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
         </div>
       </div>
 
-      {/* --- TARJETA DE LOGIN GLASSMORPHISM --- */}
       <div className="w-full max-w-[420px] relative z-10">
-        
-        {/* Efecto de brillo DETRÁS de la tarjeta (Sutil) */}
+     
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20"></div>
 
         <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
@@ -197,7 +193,15 @@ export default function Login() {
           </form>
 
           {/* Footer del card */}
-          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+          <div className="mt-8 pt-6 border-t border-white/5 text-center space-y-3">
+            <p className="text-xs text-gray-400">
+              <Link
+                to="/forgot-password"
+                className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </p>
             <p className="text-xs text-gray-500">
               ¿No tienes cuenta?{' '}
               <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">

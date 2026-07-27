@@ -1,16 +1,14 @@
-// src/pages/Leads/EventCreateModal.tsx
 import type { FormEvent, ReactNode } from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import Modal from "@/components/Modal";
-// --- CAMBIO: Imports añadidos para el Autocomplete ---
 import { api, fetchLeads, type Contacto } from "@/lib/api"; 
-// --- FIN CAMBIO ---
+
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated?: () => void; // callback para refrescar listas si querés
+  onCreated?: () => void;
 };
 
 type PropiedadOption = { id: number; titulo?: string };
@@ -36,8 +34,6 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
   const [propsOpts, setPropsOpts] = useState<PropiedadOption[]>([]);
   const [loadingProps, setLoadingProps] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  
-  // --- CAMBIO: Estados del formulario actualizados ---
   const [contactos, setContactos] = useState<Contacto[]>([]); // Lista para el autocomplete
   const [mode, setMode] = useState<"select" | "new">("select"); // "select" o "new"
   const [contactoId, setContactoId] = useState<number | null>(null); // ID del lead existente
@@ -47,7 +43,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
   const [propiedadId, setPropiedadId] = useState<number | "">("");
   const [fechaHora, setFechaHora] = useState("");
   const [tipo, setTipo] = useState<"Reunion" | "Visita" | "Llamada" | "">("");
-  // --- FIN CAMBIO ---
+
 
   // Carga las propiedades y los contactos al abrir el modal
   useEffect(() => {
@@ -93,8 +89,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     }
 
     setSubmitting(true);
-    
-    // --- CAMBIO: Payload dinámico ---
+
     const payload: any = {
       propiedad: propiedadId,
       fecha_hora: new Date(fechaHora).toISOString(),
@@ -110,7 +105,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
       payload.apellido = apellido;
       payload.email = email;
     }
-    // --- FIN CAMBIO ---
+
 
     try {
       await api.post("/api/eventos/", payload); // Usamos 'api' para el token
@@ -133,8 +128,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
   return (
     <Modal open={open} onClose={onClose} title="Agregar evento" maxWidth="sm">
       <form onSubmit={onSubmit} className="space-y-4">
-        
-        {/* --- CAMBIO: Lógica de selección de Contacto --- */}
+
         {mode === 'select' ? (
           <Field label="Contacto (Lead existente)">
             <ContactAutocomplete
@@ -142,7 +136,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
               initialList={contactos}
               onChange={(id, item) => {
                 setContactoId(id);
-                // Opcional: autocompletar campos si cambiamos a modo 'new'
+                
                 if (item) {
                   setNombre(item.nombre || "");
                   setApellido(item.apellido || "");
@@ -165,28 +159,28 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Field label="Nombre">
-                {/* CAMBIO: Clases limpiadas */}
+                
                 <input className="rc-input mt-1 w-full h-10"
                   value={nombre} onChange={(e) => setNombre(e.target.value)} />
               </Field>
               <Field label="Apellido">
-                {/* CAMBIO: Clases limpiadas */}
+                
                 <input className="rc-input mt-1 w-full h-10"
                   value={apellido} onChange={(e) => setApellido(e.target.value)} />
               </Field>
             </div>
             <Field label="Email">
-              {/* CAMBIO: Clases limpiadas */}
+              
               <input type="email" className="rc-input mt-1 w-full h-10"
                 value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
           </div>
         )}
-        {/* --- FIN CAMBIO --- */}
+      
 
         <Field label="Propiedad">
           <select
-            className="rc-input mt-1 w-full h-10" // CAMBIO: Clases limpiadas
+            className="rc-input mt-1 w-full h-10" 
             value={propiedadId}
             onChange={(e) => setPropiedadId(Number(e.target.value))}
             disabled={loadingProps}
@@ -206,7 +200,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
         <Field label="Fecha y hora">
           <input
             type="datetime-local"
-            className="rc-input mt-1 w-full h-10" // CAMBIO: Clases limpiadas
+            className="rc-input mt-1 w-full h-10" 
             value={fechaHora}
             onChange={(e) => setFechaHora(e.target.value)}
             min={getTodayMin()}
@@ -216,7 +210,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
 
         <Field label="Tipo de evento">
           <select
-            className="rc-input mt-1 w-full h-10" // CAMBIO: Clases limpiadas
+            className="rc-input mt-1 w-full h-10" 
             value={tipo}
             onChange={(e) => setTipo(e.target.value as any)}
             required
@@ -228,13 +222,16 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
           </select>
         </Field>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose}
-            className="rounded-md border px-4 py-2 text-sm rc-border"> {/* CAMBIO: Clases limpiadas */}
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-2 pt-4">
+          <button 
+            type="button" 
+            onClick={onClose}
+            className="w-full sm:w-auto h-10 px-6 rounded-lg text-sm font-bold transition-all duration-200 border border-gray-400 text-gray-600 dark:text-gray-300 dark:border-gray-500 hover:bg-gray-600 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white shadow-sm transform hover:scale-105 active:scale-95"
+          > 
             Cancelar
           </button>
           <button disabled={submitting || !propiedadId || !fechaHora || !tipo}
-            className="rounded-md px-4 py-2 text-sm rc-text bg-blue-600 hover:bg-blue-700 disabled:opacity-60"> {/* CAMBIO: Clases limpiadas */}
+            className="w-full sm:w-auto rounded-md px-4 py-2 text-sm rc-text bg-blue-600 hover:bg-blue-700 disabled:opacity-60"> 
             {submitting ? "Guardando..." : "Registrar"}
           </button>
         </div>
@@ -243,10 +240,6 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
   );
 }
 
-
-// ========================================================================
-// --- COMPONENTES COPIADOS (de Dashboard/index.tsx y Leads/index.tsx) ---
-// ========================================================================
 
 // Hook de Debounce
 function useDebouncedValue<T>(value: T, delay = 300) {
@@ -258,7 +251,7 @@ function useDebouncedValue<T>(value: T, delay = 300) {
   return v;
 }
 
-// Componente Field (copiado de Leads/index.tsx)
+// Componente Field 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -268,7 +261,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-// Componente ContactAutocomplete (copiado de Dashboard/index.tsx y adaptado)
+// Componente ContactAutocomplete 
 function ContactAutocomplete({
   valueId,
   initialList,
@@ -291,8 +284,7 @@ function ContactAutocomplete({
     () => (valueId ? (initialList.find((i) => i.id === valueId) || items.find((i) => i.id === valueId)) : null),
     [valueId, items, initialList]
   );
-
-  // Buscar cuando cambia el query debounced
+  
   useEffect(() => {
     let done = false;
     (async () => {
@@ -309,7 +301,7 @@ function ContactAutocomplete({
         const res = await fetchLeads({ q, limit: 10 });
         if (!done) setItems(Array.isArray(res) ? res : res?.results ?? []);
       } catch (e) {
-        // no romper el input
+        
       }
     })();
     return () => { done = true; };
@@ -413,4 +405,4 @@ function ContactAutocomplete({
       )}
     </div>
   );
-}import { useMemo } from "react";
+}

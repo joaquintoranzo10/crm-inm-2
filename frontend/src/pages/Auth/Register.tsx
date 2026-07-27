@@ -28,7 +28,7 @@ export default function Register() {
     setError(null);
     setLoading(true);
     try {
-      // 1) Registrar (público)
+      // Registrar usuario
       await api.post("auth/register/", {
         nombre: nombre.trim(),
         apellido: apellido.trim(),
@@ -38,7 +38,7 @@ export default function Register() {
         dni: dni.trim() || undefined,
       });
 
-      // 2) Login inmediato
+      //  Login inmediato
       const { data } = await api.post<{ access: string; refresh?: string }>(
         "auth/token/",
         { username: email.trim(), password }
@@ -47,7 +47,7 @@ export default function Register() {
       if (data.refresh) localStorage.setItem("refresh", data.refresh);
       if (!localStorage.getItem("rc_theme")) localStorage.setItem("rc_theme", "dark");
 
-      // 3) Obtener mi usuario
+      // Obtener mi usuario
       const me = await api.get<{ id: number }>("usuarios/me/");
       localStorage.setItem("rc_user_id", String(me.data.id));
 
@@ -72,7 +72,7 @@ export default function Register() {
     // Contenedor principal con scroll vertical permitido (py-10) por si el formulario es alto en móviles
     <div className="relative w-full min-h-screen text-white font-sans flex items-center justify-center py-10 px-4">
       
-      {/* --- ESTILOS LOCALES --- */}
+    
       <style>{`
         @keyframes spin {
             from { transform: rotate(0deg); }
@@ -80,7 +80,7 @@ export default function Register() {
         }
       `}</style>
 
-      {/* --- FONDO FIJO LIMPIO (#050505) --- */}
+   
       <div className="fixed inset-0 -z-10 bg-[#050505]">
         <div className="absolute inset-0 opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>

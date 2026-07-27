@@ -1,20 +1,15 @@
-// src/components/Topbar.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// CAMBIO: Importamos FiCheckCircle y quitamos FiSearch
 import { FiBell, FiCheckCircle } from "react-icons/fi"; 
-import ThemeToggle from "@/components/ThemeToggle";
-import { api } from "@/lib/api"; // Asegúrate de que tu wrapper de api esté aquí
-
-/* ===================== Tipos de datos ===================== */
-// --- CAMBIO: Tipos de Search (Evento, Propiedad, Usuario, SearchItem) eliminados ---
-
-// Este es el tipo para un objeto Aviso individual que viene de la API
+import ThemeToggle from "@/components/ThemeToggle"; 
+import { api } from "@/lib/api"; 
+import clsx from "clsx";
+/* ===================== Tipos ===================== */
 type Aviso = {
   id: number;
   titulo: string;
   descripcion?: string | null;
-  fecha: string; // ISO string
+  fecha: string; 
   estado: "pendiente" | "completado" | "atrasado";
   lead?: number | null;
   propiedad?: number | null;
@@ -26,35 +21,19 @@ export default function Topbar({ title }: { title: string }) {
   const navigate = useNavigate();
   const token = localStorage.getItem("rc_token") || "";
   
-  /* --------- CAMBIO: Estados del buscador eliminados --------- */
-  // const [query, setQuery] = useState("");
-  // const q = useDebouncedValue(query, 300);
-  // const [open, setOpen] = useState(false);
-  // const [loading, setLoading] = useState(false);
-  // const [results, setResults] = useState<SearchItem[]>([]);
-  // const wrapRef = useRef<HTMLDivElement | null>(null);
-
-  /* --------- Estado de la campana (MODIFICADO) --------- */
   const [openBell, setOpenBell] = useState(false);
   const bellWrapRef = useRef<HTMLDivElement | null>(null);
   
-  // El estado ahora es un array simple de Avisos
   const [avisos, setAvisos] = useState<Aviso[] | null>(null);
-  
   const [loadingAvisos, setLoadingAvisos] = useState(false);
   const [errorAvisos, setErrorAvisos] = useState<string | null>(null);
 
-  /* --------- Cerrar popovers con click afuera o Escape (MODIFICADO) --------- */
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
-      // CAMBIO: Lógica de wrapRef (buscador) eliminada
       if (bellWrapRef.current && !bellWrapRef.current.contains(e.target as Node)) setOpenBell(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        // CAMBIO: Lógica de setOpen(false) (buscador) eliminada
-        setOpenBell(false);
-      }
+      if (e.key === "Escape") setOpenBell(false);
     }
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onKey);
@@ -62,27 +41,18 @@ export default function Topbar({ title }: { title: string }) {
       document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, []); // El 'wrapRef' ya no es dependencia
+  }, []);
 
-  /* --------- CAMBIO: useEffect de búsqueda eliminado --------- */
-
-  /* --------- CAMBIO: 'onSelect' de búsqueda eliminado --------- */
-
-  /* --------- Fetch de avisos --------- */
   async function fetchAvisos() {
     if (!token) return;
     setLoadingAvisos(true);
     setErrorAvisos(null);
     try {
-      // 1. Llamamos a la nueva API
       const res = await api.get(`/avisos/`);
-      
-      // 2. La API devuelve un objeto paginado { count, next, previous, results }
-      //    Queremos el array 'results'.
       const data: Aviso[] = res.data?.results ?? (Array.isArray(res.data) ? res.data : []);
       setAvisos(data);
     } catch {
-      setErrorAvisos("No se pudieron cargar los avisos.");
+      setErrorAvisos("Error al cargar.");
       setAvisos(null);
     } finally {
       setLoadingAvisos(false);
@@ -91,11 +61,10 @@ export default function Topbar({ title }: { title: string }) {
 
   useEffect(() => {
     fetchAvisos();
-    const id = setInterval(fetchAvisos, 60000); // Refresca cada 60 seg
+    const id = setInterval(fetchAvisos, 60000); 
     return () => clearInterval(id);
   }, [token]);
 
-  // El total de avisos es simplemente el largo del array
   const totalAvisos = avisos?.length ?? 0;
 
   function goAvisos() {
@@ -103,106 +72,194 @@ export default function Topbar({ title }: { title: string }) {
     navigate("/app/avisos");
   }
 
-  /* --------- Función Marcar como leído --------- */
   async function handleMarcarLeido(e: React.MouseEvent, id: number) {
-    e.stopPropagation(); // Evita que el clic cierre el dropdown
-    
-    // 1. Actualiza la UI localmente (optimista)
+    e.stopPropagation();
     setAvisos((prevAvisos) => prevAvisos?.filter((a) => a.id !== id) ?? null);
-    
-    // 2. Llama a la API en segundo plano
     try {
       await api.post(`/avisos/${id}/marcar-leido/`);
     } catch (err) {
-      setErrorAvisos("Error al marcar aviso. Refrescando...");
-      fetchAvisos(); // Refresca la lista completa para revertir
+      fetchAvisos(); 
     }
   }
   
-  /* --------- Render --------- */
   return (
-    <header className="flex items-center justify-between p-4 border-b rc-border">
-      <h1 className="text-xl font-semibold rc-text">{title}</h1>
-
-      <div className="flex items-center gap-3">
+    <header
+      className={clsx(
+        "sticky top-0 z-40 flex items-center justify-end px-6 py-4 transition-all duration-200",
+        "bg-transparent" 
+      )}
+    >
+      
+      <div className="flex items-center gap-4">
         
-        {/* ------- CAMBIO: Search eliminado ------- */}
-        
-        {/* ------- Campana de avisos ------- */}
+        {/* Campana */}
         <div className="relative" ref={bellWrapRef}>
           <button
-            className="relative h-9 w-9 grid place-items-center rounded-lg border rc-border bg-surface"
+            className={clsx(
+              "relative h-10 w-10 grid place-items-center rounded-xl border transition-all duration-200",
+              openBell
+                ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40"
+                : "bg-transparent border-gray-300/50 text-gray-600 hover:bg-gray-200 hover:border-gray-400 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/20 dark:hover:border-white/40 dark:hover:text-white"
+            )}
             onClick={() => setOpenBell((v) => !v)}
-            title="Recordatorios y avisos"
+            title="Notificaciones"
           >
-            <FiBell className="text-lg rc-text" />
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+            >
+              <style>
+                {`
+                  @keyframes n-info-2 {
+                    0%, 100% { transform: rotate(0deg); transform-origin: top center; }
+                    10%, 90% { transform: rotate(2deg); }
+                    20%, 40%, 60% { transform: rotate(-6deg); }
+                    30%, 50%, 70% { transform: rotate(6deg); }
+                    80% { transform: rotate(-2deg); }
+                  }
+                `}
+              </style>
+            
+              <path
+                stroke="currentColor"
+                strokeWidth="1.5"
+                d="M12 3.398a5 5 0 00-5 5v2c0 .758-.442 1.505-1.005 2.012A3 3 0 008 17.642h8a3 3 0 002.005-5.232C17.442 11.903 17 11.156 17 10.398v-2a5 5 0 00-5-5z"
+              />
+              
+              <g style={{ animation: "n-info-2 1.5s cubic-bezier(.455,.03,.515,.955) both infinite" }}>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="1.5"
+                  d="M14.39 20.312l-.043.01a9.715 9.715 0 01-4.67-.01"
+                />
+                
+                <path
+                  stroke={openBell ? "currentColor" : "#265BFF"} 
+                  strokeLinecap="round"
+                  strokeWidth="1.5"
+                  d="M12 7.923v3.206"
+                />
+                <circle cx="12" cy="13.245" r=".832" fill={openBell ? "currentColor" : "#265BFF"} />
+              </g>
+            </svg>
+
+            {/* Contador de notificaciones */}
             {totalAvisos > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] grid place-items-center">
-                {totalAvisos > 99 ? "99+" : totalAvisos}
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-[#18181b]">
+                {totalAvisos > 9 ? "9+" : totalAvisos}
               </span>
             )}
           </button>
 
+          {/* Dropdown Avisos */}
           {openBell && (
-            <div className="absolute right-0 mt-2 w-104 z-60 rounded-xl border rc-border bg-surface shadow-elev-1 overflow-hidden">
-              <div className="px-3 py-2 border-b rc-border flex items-center justify-between">
-                <div className="text-sm font-medium rc-text">Recordatorios y avisos</div>
-                <button className="text-xs underline rc-text" onClick={goAvisos}>
-                  Ver todos
+            <div className="absolute right-0 mt-3 w-80 sm:w-96 z-50 rounded-2xl shadow-2xl overflow-hidden ring-1 
+              bg-[var(--surface)] border border-gray-200 ring-black/5
+              dark:border-white/10 dark:ring-white/5"
+            >
+              
+              <div className="px-4 py-3 border-b flex items-center justify-between
+                bg-gray-50/50 border-gray-100
+                dark:bg-white/5 dark:border-white/10"
+              >
+                <div className="text-sm font-semibold text-[var(--text-main)]">Notificaciones</div>
+                <button className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors" onClick={goAvisos}>
+                  Ver todas
                 </button>
               </div>
 
-              {/* --- ÁREA DE AVISOS --- */}
-              <div className="max-h-96 overflow-auto">
-                {loadingAvisos && <div className="px-3 py-2 text-sm rc-muted">Cargando…</div>}
+              <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
+                {loadingAvisos && <div className="px-4 py-8 text-center text-sm text-gray-500">Cargando...</div>}
+                
                 {errorAvisos && !loadingAvisos && (
-                  <div className="px-3 py-2 text-sm text-rose-500">{errorAvisos}</div>
+                  <div className="px-4 py-4 text-sm text-rose-500 dark:text-rose-400 text-center">{errorAvisos}</div>
                 )}
+                
                 {!loadingAvisos && !errorAvisos && avisos && (
                   <>
                     {avisos.length === 0 && (
-                      <div className="p-4 text-center text-sm rc-muted">
-                        ¡Estás al día! No hay avisos pendientes.
+                      <div className="px-4 py-12 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3
+                          bg-gray-100 text-gray-400
+                          dark:bg-white/5 dark:text-gray-600"
+                        >
+                            <FiBell className="text-xl" />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Sin notificaciones</p>
                       </div>
                     )}
-                    <ul className="divide-y rc-border/50">
+                    <ul className="divide-y divide-gray-100 dark:divide-white/5">
                       {avisos.map((aviso) => (
-                        <li key={aviso.id} className="p-3 hover:bg-black/5 dark:hover:bg-app/5">
-                          <div className="flex items-start justify-between gap-3">
+                        <li key={aviso.id} className="group transition-colors duration-200
+                          hover:bg-gray-50 dark:hover:bg-white/5"
+                        >
+                          <div className="p-4 flex gap-3">
+                            <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${aviso.estado === 'atrasado' ? 'bg-rose-500' : 'bg-blue-500'}`} />
+                            
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium rc-text truncate" title={aviso.titulo}>
-                                {aviso.titulo}
+                              <div className="flex justify-between items-start gap-2">
+                                  <p className="text-sm font-medium truncate transition-colors
+                                    text-[var(--text-main)]"
+                                  >
+                                    {aviso.titulo}
+                                  </p>
+                                  <span className="text-[10px] whitespace-nowrap shrink-0
+                                    text-gray-400
+                                    dark:text-gray-500"
+                                  >
+                                    {new Date(aviso.fecha).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
                               </div>
+                              
                               {aviso.descripcion && (
-                                <div className="text-xs rc-muted truncate" title={aviso.descripcion}>
+                                <p className="text-xs mt-0.5 line-clamp-2
+                                  text-gray-500
+                                  dark:text-gray-400"
+                                >
                                   {aviso.descripcion}
-                                </div>
+                                </p>
                               )}
-                              <div className="text-xs rc-muted mt-1">
-                                {new Date(aviso.fecha).toLocaleString("es-AR", { dateStyle: 'short', timeStyle: 'short' })}
+                              
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border
+                                  bg-gray-100 text-gray-500 border-gray-200
+                                  dark:bg-white/5 dark:text-gray-500 dark:border-white/5"
+                                >
+                                    {new Date(aviso.fecha).toLocaleDateString("es-AR")}
+                                </span>
+                                <button 
+                                    className="text-xs flex items-center gap-1 transition-colors opacity-0 group-hover:opacity-100
+                                      text-gray-400 hover:text-emerald-600
+                                      dark:text-gray-500 dark:hover:text-emerald-400"
+                                    onClick={(e) => handleMarcarLeido(e, aviso.id)}
+                                >
+                                    <FiCheckCircle className="w-3.5 h-3.5" />
+                                    <span>Listo</span>
+                                </button>
                               </div>
                             </div>
-                            <button 
-                              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-1 -m-1"
-                              onClick={(e) => handleMarcarLeido(e, aviso.id)}
-                              title="Marcar como leído"
-                            >
-                              <FiCheckCircle className="w-4 h-4" />
-                            </button>
                           </div>
                         </li>
                       ))}
                     </ul>
                   </>
                 )}
-                {!loadingAvisos && !errorAvisos && !avisos && (
-                  <div className="px-3 py-2 text-sm rc-muted">No hay datos de avisos.</div>
-                )}
               </div>
-              {/* --- FIN ÁREA DE AVISOS --- */}
 
-              <div className="px-2 py-2 border-t rc-border bg-surface-2/50">
-                <button className="w-full h-8 rounded-md border rc-border text-xs hover:bg-black/5 dark:hover:bg-white/5" onClick={fetchAvisos}>
+              <div className="p-2 border-t 
+                bg-gray-50 border-gray-100
+                dark:bg-white/[0.02] dark:border-white/10"
+              >
+                <button 
+                    className="w-full h-8 rounded-lg text-xs font-medium transition-colors
+                      text-gray-500 hover:text-gray-900 hover:bg-gray-200
+                      dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/5" 
+                    onClick={fetchAvisos}
+                >
                   Actualizar
                 </button>
               </div>
@@ -210,8 +267,10 @@ export default function Topbar({ title }: { title: string }) {
           )}
         </div>
 
-        {/* Toggle claro/oscuro */}
-        <ThemeToggle />
+        {/* Theme Toggle */}
+        <div className="opacity-50 hover:opacity-100 transition-opacity">
+            <ThemeToggle />
+        </div>
       </div>
     </header>
   );
