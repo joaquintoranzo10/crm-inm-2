@@ -14,7 +14,7 @@ import {
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { LayoutDashboard } from "lucide-react";
+
 type Item = {
   to: string;
   label: string;
@@ -168,7 +168,7 @@ export default function Sidebar() {
                   }`
                 }
               >
-                <LayoutDashboard className="w-5 h-5" /> 
+                <TuIcono className="w-5 h-5" />
                 <span>Dashboard</span>
               </NavLink>
             );
