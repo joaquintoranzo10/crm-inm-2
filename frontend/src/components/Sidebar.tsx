@@ -19,7 +19,6 @@ type Item = {
   to: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: number | string;
 };
 
 const items: Item[] = [
@@ -66,7 +65,7 @@ export default function Sidebar() {
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[90] p-2.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-800 dark:text-white shadow-sm flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 active:scale-95 transition-all"
+          className="md:hidden fixed top-4 left-4 z-[90] p-2.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-800 dark:text-white shadow-sm flex items-center justify-center hover:bg-gray-100 dark:hover:bg-zinc-800 active:scale-95 transition-all"
           title="Abrir menú"
         >
           <Menu className="h-6 w-6" />
@@ -80,50 +79,51 @@ export default function Sidebar() {
           onClick={() => setMobileOpen(false)}
         />
       )}
-    <aside
+
+      <aside
         className={clsx(
           "h-screen top-0 border-r transition-transform duration-300 ease-in-out flex flex-col z-[100]",
           "fixed md:sticky",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           width,
           "bg-surface md:dark:backdrop-blur-xl",
-          "rc-border shadow-2xl md:shadow-none",
-          "rc-sidebar-force",
+          "rc-border shadow-2xl md:shadow-none text-slate-800 dark:text-slate-200", // Eliminamos rc-sidebar-force
           "rounded-r-2xl md:rounded-none"
         )}
       >
-      {/* Header */}
-      <div
-        className={clsx(
-          "flex items-center py-6 border-b rc-border transition-all",
-          collapsed ? "justify-between px-4 md:justify-center md:px-0" : "justify-between px-4"
-        )}
-      >
+        {/* Header */}
         <div
-          className="flex items-center gap-3 cursor-pointer overflow-hidden"
-          onClick={() => {
-            navigate("/app");
-            setMobileOpen(false); 
-          }}
+          className={clsx(
+            "flex items-center py-6 border-b rc-border transition-all",
+            collapsed ? "justify-between px-4 md:justify-center md:px-0" : "justify-between px-4"
+          )}
         >
-          <div className="relative group shrink-0">
-            <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <img src="/logo.png" alt="RC" className="relative h-10 w-10 rounded object-contain" />
-          </div>
-
           <div
-            className={clsx(
-              "font-semibold leading-tight duration-300 whitespace-nowrap transition-all",
-              collapsed ? "w-auto opacity-100 translate-x-0 block md:w-0 md:opacity-0 md:translate-x-10 md:hidden" : "w-auto opacity-100 translate-x-0 block"
-            )}
+            className="flex items-center gap-3 cursor-pointer overflow-hidden"
+            onClick={() => {
+              navigate("/app");
+              setMobileOpen(false); 
+            }}
           >
-            {/* Títulos */}
-            <div className="text-sm tracking-wide rc-sidebar-force text-gray-900 dark:text-white truncate">Real Connect</div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 rc-sidebar-force truncate">
+            <div className="relative group shrink-0">
+              <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img src="/logo.png" alt="RC" className="relative h-10 w-10 rounded object-contain" />
+            </div>
+
+            <div
+              className={clsx(
+                "font-semibold leading-tight duration-300 whitespace-nowrap transition-all",
+                collapsed ? "w-auto opacity-100 translate-x-0 block md:w-0 md:opacity-0 md:translate-x-10 md:hidden" : "w-auto opacity-100 translate-x-0 block"
+              )}
+            >
+  
+              <div className="text-sm tracking-wide text-slate-900 dark:text-white truncate font-bold">Real Connect</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-400 truncate font-semibold">
                 CRM Inmobiliario
               </div>
             </div>
           </div>
+
           {/* BOTÓN DE CERRAR PARA CELULARES */}
           <button 
             type="button"
@@ -136,12 +136,11 @@ export default function Sidebar() {
             <X className="h-5 w-5" />
           </button>
 
-        {/* BOTÓN DE COLAPSAR  */}
-        <button
+          {/* BOTÓN DE COLAPSAR */}
+          <button
             className={clsx(
-              "hidden md:flex absolute -right-3.5 top-9 z-50 items-center justify-center rounded-full h-7 w-7 border shadow-md transition-all",
-              "bg-surface rc-border hover:brightness-95",
-              "rc-sidebar-force"
+              "hidden md:flex absolute -right-3.5 top-9 z-50 items-center justify-center rounded-full h-7 w-7 border shadow-md transition-all text-slate-700 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white",
+              "bg-surface rc-border hover:brightness-95"
             )}
             onClick={(e) => {
               e.stopPropagation();
@@ -153,72 +152,60 @@ export default function Sidebar() {
           </button>
         </div>
 
-      {/* Navegación */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-        {items.map((it) => {
-          const Icon = it.icon;
-          return (
-            <NavLink
-              key={it.to}
-              to={it.to}
-              end={it.to === "/app"} 
-              onClick={() => setMobileOpen(false)} 
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
-                  isActive
-                    ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5" 
-                }`
-              }
+        
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+          {items.map((it) => {
+            const Icon = it.icon;
+            return (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.to === "/app"}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
+                    isActive
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5"
+                  }`
+                }
+              >
+                <Icon className="w-5 h-5 shrink-0" />
+                <span className={clsx("truncate", collapsed ? "hidden md:hidden" : "block")}>
+                  {it.label}
+                </span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        
+        <div className="mt-auto border-t border-slate-200 dark:border-white/10 transition-colors bg-transparent">
+          <div className="p-3">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-500/10"
+              title="Cerrar sesión"
             >
-              <Icon className="w-5 h-5 shrink-0" /> 
-              {/* clsx para que el texto desaparezca cuando la barra colapsa */}
+              <LogOut className="h-5 w-5 shrink-0" />
               <span className={clsx("truncate", collapsed ? "hidden md:hidden" : "block")}>
-                {it.label}
+                Cerrar sesión
               </span>
-            </NavLink>
-          );
-        })}
-      </nav>
+            </button>
 
-
-      {/* Footer */}
-      <div
-        className={clsx(
-          "mt-auto border-t transition-colors",
-          "bg-transparent rc-border"
-          )}
-        >
-        <div className="p-3">
-          <button
-            onClick={handleLogout}
-            className={clsx(
-              "w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-transparent transition-all duration-200",
-              "text-gray-600 dark:text-gray-300",
-              "hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200",
-              "dark:hover:bg-white/10 dark:hover:text-rose-400 dark:hover:border-transparent"
+            {userName && (
+              <div className={clsx("mt-3 px-1 text-center", collapsed ? "hidden md:hidden" : "block")}>
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-700 font-bold">
+                  Usuario
+                </p>
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+                  {userName}
+                </p>
+              </div>
             )}
-            title="Cerrar sesión"
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span className={clsx("truncate", collapsed ? "block md:hidden" : "block")}>
-             Cerrar sesión
-            </span>
-          </button>
-
-          {userName && (
-            <div className={clsx("mt-3 px-1 text-center", collapsed ? "block md:hidden" : "block")}>
-              <p className="text-[10px] uppercase tracking-widest opacity-60 rc-sidebar-force">
-                Usuario
-              </p>
-              <p className="text-xs font-medium truncate rc-sidebar-force">
-                {userName}
-              </p>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
     </>
   );
 }
