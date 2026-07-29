@@ -22,7 +22,7 @@ export default function AppLayout() {
     const token = localStorage.getItem("rc_token");
     
     if (!token) {
-     
+      // Si no hay token, redirigimos a la landing/login inmediatamente
       navigate("/", { replace: true });
     }
   }, [navigate]);
@@ -40,7 +40,6 @@ export default function AppLayout() {
 
   usePageTitle(sectionTitle ? `${sectionTitle} · Real Connect` : "Real Connect");
 
-  
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [propiedadModalOpen, setPropiedadModalOpen] = useState(false);
@@ -128,10 +127,10 @@ export default function AppLayout() {
         </div>
       </div>
 
-    
+      {/* Asistente */}
       <AssistantWidget />
 
-      
+      {/* RENDER DE MODALES */}
       {leadModalOpen && (
         <LeadModal
           title="Nuevo Lead"
@@ -456,7 +455,7 @@ function ModalShell({
         role="dialog"
         aria-modal="true"
       >
-    
+        {/* Glow */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shrink-0"></div>
 
         {title && (

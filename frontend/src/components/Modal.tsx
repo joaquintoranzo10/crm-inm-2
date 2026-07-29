@@ -54,14 +54,16 @@ export default function Modal({ open, title, onClose, children, maxWidth = "md" 
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <div className={`relative w-full ${maxWidth} rc-modal-panel flex flex-col max-h-[90vh]`}>
-          
+        
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b rc-border shrink-0">
           {title && <h3 className="text-lg font-black tracking-tight">{title}</h3>}
           <button onClick={onClose} className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
             <X className="w-5 h-5 opacity-70" />
           </button>
         </div>
-   
+        
+        {/* Contenido */}
         <div className="p-6 overflow-y-auto custom-scrollbar">
           {children}
         </div>
