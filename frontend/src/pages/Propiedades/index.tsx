@@ -132,7 +132,7 @@ function badgeEstado(estado: Propiedad["estado"]) {
 
 // Define los estilos del badge de tipo de propiedad
 function badgeTipo(tipo: Propiedad["tipo_de_propiedad"]) {
-  return { className: "inline-flex items-center rounded-md px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide shadow-md transition-colors bg-zinc-900 text-white dark:bg-white dark:text-zinc-900", label: tipo };
+  return { className: "inline-flex items-center rounded-md px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wide shadow-md transition-colors bg-zinc-900 text-white dark:bg-white dark:text-zinc-900", label: tipo };
 }
 
 
@@ -185,7 +185,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
       </div>
       {/* PARTE INFERIOR: MINIATURAS*/}
       {valid.length > 1 && (
-        <div className="h-16 w-full flex gap-2 overflow-x-auto pb-1 px-1 snap-x">
+        <div className="h-11 sm:h-16 w-full flex gap-2 overflow-x-auto pb-1 px-1 snap-x">
           {valid.map((img, idx) => (
             <button
               key={idx}
@@ -304,7 +304,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
 
   // Si no hay imágenes, mostramos placeholder
   if (len === 0) {
-    return <div className="relative aspect-[16/9] bg-gray-200 dark:bg-gray-800 rounded-t-xl flex items-center justify-center text-gray-400 text-xs">Sin imagen</div>;
+    return <div className="relative aspect-[2/1] sm:aspect-[16/9] bg-gray-200 dark:bg-gray-800 rounded-t-xl flex items-center justify-center text-gray-400 text-xs">Sin imagen</div>;
   }
 
   const prev = () => setI((v) => (v - 1 + len) % len);
@@ -322,7 +322,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
 
   return (
     <div
-      className="relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-t-2xl group"
+      className="relative aspect-[2/1] sm:aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-t-2xl group"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -334,7 +334,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
         loading="lazy"
       />
 
-      {/* CONTROLES (Solo si hay más de 1 imagen) */}
+   
       {len > 1 && (
         <>
           {/* Flecha Izquierda */}
@@ -413,7 +413,6 @@ export default function PropiedadesPage() {
     }
   }
 
-  // Ejecuta fetchProps solo una vez al montar
   useEffect(() => {
     fetchProps();
   }, []);
@@ -448,10 +447,13 @@ export default function PropiedadesPage() {
     .card_box:hover { transform: scale(0.95); box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
     .ribbon-wrapper { position: absolute; overflow: hidden; width: 120px; height: 120px; top: -10px; left: -10px; display: flex; align-items: center; justify-content: center; z-index: 20; pointer-events: none; }
     .ribbon-content { position: absolute; width: 150%; height: 30px; background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%); transform: rotate(-45deg) translateY(-15px); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 0 5px 10px rgba(0,0,0,0.23); }
+    @media (max-width: 639px) {
+      .ribbon-wrapper { width: 90px; height: 90px; top: -8px; left: -8px; }
+      .ribbon-content { height: 22px; font-size: 8px; transform: rotate(-45deg) translateY(-11px); }
+    }
   `;
 
 
-  /*Principal (render)*/
   return (
 
     <div className="space-y-6">
@@ -495,7 +497,7 @@ export default function PropiedadesPage() {
       ) : filtered.length === 0 ? (
         <div className="text-sm rc-muted">No hay propiedades que coincidan con tu búsqueda.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {filtered.map((p) => {
             const tipo = badgeTipo(p.tipo_de_propiedad);
 
@@ -529,23 +531,23 @@ export default function PropiedadesPage() {
                 </div>
 
                 {/* Cuerpo de la tarjeta */}
-                <div className="p-5 space-y-2 flex-1 text-gray-200">
+                <div className="p-3 sm:p-5 space-y-1 sm:space-y-2 flex-1 text-gray-200">
                   <div className="flex justify-between items-start">
-                    <div className="text-xs text-gray-400">{p.ubicacion}</div>
-                    {!!p.disponibilidad && <div className="text-[10px] uppercase font-bold text-orange-400 border border-orange-400/30 px-1.5 py-0.5 rounded">{p.disponibilidad}</div>}
+                    <div className="text-[11px] sm:text-xs text-gray-400">{p.ubicacion}</div>
+                    {!!p.disponibilidad && <div className="text-[9px] sm:text-[10px] uppercase font-bold text-orange-400 border border-orange-400/30 px-1.5 py-0.5 rounded">{p.disponibilidad}</div>}
                   </div>
 
-                  <h3 className="font-bold text-lg leading-tight text-white">{p.titulo}</h3>
-                  <div className="text-xl font-medium text-white">{money(p.precio, p.moneda)}</div>
+                  <h3 className="font-bold text-base sm:text-lg leading-tight text-white">{p.titulo}</h3>
+                  <div className="text-lg sm:text-xl font-medium text-white">{money(p.precio, p.moneda)}</div>
 
                   {!!p.descripcion && (
-                    <p className="text-xs text-gray-400 line-clamp-2">{p.descripcion}</p>
+                    <p className="hidden sm:block text-xs text-gray-400 line-clamp-2">{p.descripcion}</p>
                   )}
                 </div>
 
                 {/* Footer de la card */}
-                <div className="mt-auto px-5 py-4 border-t border-white/10">
-                  <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="mt-auto px-3 py-2.5 sm:px-5 sm:py-4 border-t border-white/10">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2.5 sm:mb-4">
                     {[
                       { k: "Amb", v: p.ambiente ?? "-" },
                       { k: "Baños", v: p.banos ?? "-" },
@@ -553,29 +555,29 @@ export default function PropiedadesPage() {
                       { k: "Sup", v: `${p.superficie} m²` },
                       { k: "Cod", v: p.codigo },
                     ].map((it) => (
-                      <div key={it.k} className="bg-white/5 rounded-lg px-1 py-1.5 text-center border border-white/5">
-                        <div className="text-[9px] text-gray-500 uppercase">{it.k}</div>
-                        <div className="text-xs font-bold text-gray-200 truncate">{it.v}</div>
+                      <div key={it.k} className="bg-white/5 rounded-lg px-1 py-1 sm:py-1.5 text-center border border-white/5">
+                        <div className="text-[8px] sm:text-[9px] text-gray-500 uppercase">{it.k}</div>
+                        <div className="text-[11px] sm:text-xs font-bold text-gray-200 truncate">{it.v}</div>
                       </div>
                     ))}
                   </div>
 
                   {/* Botones 3D */}
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                     <button
-                      className="flex-1 cursor-pointer transition-all bg-gray-600 text-white px-2 py-1.5 rounded-lg border-gray-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[11px] font-bold text-center"
+                      className="flex-1 cursor-pointer transition-all bg-gray-600 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-gray-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
                       onClick={(e) => { e.stopPropagation(); setDetail(p); }} // stopPropagation para evitar doble evento, aunque es la misma acción
                     >
                       VER
                     </button>
                     <button
-                      className="flex-1 cursor-pointer transition-all bg-blue-500 text-white px-2 py-1.5 rounded-lg border-blue-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[11px] font-bold text-center"
+                      className="flex-1 cursor-pointer transition-all bg-blue-500 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-blue-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
                       onClick={(e) => { e.stopPropagation(); setEditTarget(p); }} // stopPropagation IMPORTANTE: Evita que se abra el "Ver" al querer editar
                     >
                       EDITAR
                     </button>
                     <button
-                      className="flex-1 cursor-pointer transition-all bg-rose-500 text-white px-2 py-1.5 rounded-lg border-rose-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[11px] font-bold text-center"
+                      className="flex-1 cursor-pointer transition-all bg-rose-500 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-rose-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
                       onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} // stopPropagation IMPORTANTE: Evita que se abra el "Ver" al querer borrar
                     >
                       BORRAR
@@ -602,7 +604,7 @@ export default function PropiedadesPage() {
 function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag }: any) {
   return (
     <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="2xl">
-      <div className="flex flex-col gap-5 p-1">
+      <div className="flex flex-col gap-3 sm:gap-5 p-1">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-2">
             <div className="flex-1 min-w-0">
@@ -630,7 +632,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
                     </span>
                 </div>
                 {/* Título y Ubicación combinada */}
-                <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
+                <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
                   {propiedad.titulo}
                 </h2>
                 <p className="text-sm font-black text-[var(--text-main)] leading-tight mt-1">
@@ -644,14 +646,14 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
                 </p>
             </div>
             <div className="text-right">
-                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+                <div className="text-xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
                 <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
             </div>
         </div>
 
         {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="w-full h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
+          <div className="w-full h-[140px] sm:h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
           </div>
           
@@ -685,10 +687,10 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
       </div>
       
       {/* Footer */}
-      <div className="mt-4 pt-4 border-t rc-border flex justify-end gap-2">
-        {onDelete && <button onClick={onDelete} className="px-4 py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all">Eliminar</button>}
-        <button className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
-        <button className="px-6 py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
+      <div className="mt-2 sm:mt-4 pt-3 sm:pt-4 border-t rc-border flex justify-end gap-2">
+        {onDelete && <button onClick={onDelete} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all">Eliminar</button>}
+        <button className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
+        <button className="px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
       </div>
     </Modal>
   );
@@ -696,16 +698,16 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
 
 function InfoBox({ label, value, icon }: { label: string; value: any; icon?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center p-2 rounded-lg shadow-sm transition-all duration-300 group text-center h-full border
+    <div className="flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg shadow-sm transition-all duration-300 group text-center h-full border
       bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
     >
-      <div className="mb-3 text-[var(--muted)] group-hover:text-blue-500 group-hover:scale-110 transition-all text-3xl">
+      <div className="mb-1 sm:mb-3 text-[var(--muted)] group-hover:text-blue-500 group-hover:scale-110 transition-all text-lg sm:text-3xl">
         {icon}
       </div>
-      <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] truncate leading-none mb-1">
+      <span className="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[var(--muted)] truncate leading-none mb-1">
         {label}
       </span>
-      <span className="text-2xl font-bold text-[var(--text-main)] leading-none">
+      <span className="text-sm sm:text-2xl font-bold text-[var(--text-main)] leading-none">
         {String(value)}
       </span>
     </div>
