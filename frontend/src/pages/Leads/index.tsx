@@ -161,7 +161,9 @@ export default function LeadsPage() {
         apellido: formData.get('apellido'),
         email: formData.get('email'),
         telefono: formData.get('telefono'),
-        estado: formData.get('estado') ? Number(formData.get('estado')) : null
+        estado: formData.get('estado') ? Number(formData.get('estado')) : null,
+        next_contact_at: formData.get('next_contact_at') || null,
+        
     };
 
     try {
@@ -639,6 +641,19 @@ export default function LeadsPage() {
                             <option key={e.id} value={e.id}>{e.fase}</option>
                         ))}
                     </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <label className="text-xs uppercase text-muted-clr font-semibold tracking-wider">Próximo Contacto</label>
+                        <input 
+                            type="datetime-local"
+                            name="next_contact_at" 
+                            defaultValue={editTarget.next_contact_at ? editTarget.next_contact_at.slice(0, 16) : ""}
+                            className="rc-input w-full h-10"
+                        />
+                    </div>
+                    
                 </div>
 
                 <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-4 mt-4 border-t border-soft">
