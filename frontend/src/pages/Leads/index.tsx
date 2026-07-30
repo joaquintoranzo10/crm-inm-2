@@ -102,6 +102,7 @@ export default function LeadsPage() {
       if (q.trim()) params.q = q.trim();
       if (vencimiento) params.vencimiento = vencimiento;
       if (estadoFiltro) params.estado = estadoFiltro;
+      params.page_size = 100;
 
       const res = await api.get("contactos/", { params });
       const toArr = (d: any) => (Array.isArray(d) ? d : Array.isArray(d?.results) ? d.results : []);
