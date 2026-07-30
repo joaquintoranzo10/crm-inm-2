@@ -5,9 +5,7 @@ from django.utils import timezone
 from .models import Contacto, EstadoLeadHistorial
 
 
-# =========================
-# Cachear estado anterior
-# =========================
+
 @receiver(pre_save, sender=Contacto, dispatch_uid="leads_contacto_cache_old_estado_v1")
 def _cache_old_estado(sender, instance: Contacto, **kwargs):
     if instance.pk:
@@ -20,22 +18,40 @@ def _cache_old_estado(sender, instance: Contacto, **kwargs):
         instance._old_estado_id = None
 
 
-# =========================================
-# Log de historial cuando cambia el estado
-# =========================================
+
 @receiver(post_save, sender=Contacto, dispatch_uid="leads_contacto_log_estado_change_v2")
+
+def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool, **kwargs):
+    if kwargs.get('raw', False):
+        return
+    
+    contacto = instance.contacto
+    if not contacto:
+        return
+
+    
+    if instance.notas and instance.notas.strip():
+        
+        from .models import HistorialLead
+        texto_nota = f"Evento ({instance.tipo}): {instance.notas.strip()}"
+        
+        
+        HistorialLead.objects.create(
+            contacto=contacto,
+            nota=texto_nota
+        )
+
+
+    now = timezone.localtime()
+    evento_dt = timezone.localtime(instance.fecha_hora)
+
+
 def _log_estado_change(sender, instance: Contacto, created, **kwargs):
-    """
-    Crea historial SOLO cuando:
-      - El contacto se crea con estado, o
-      - El estado efectivamente CAMBIÓ.
-    Además, evita duplicados consecutivos con el mismo estado (p. ej. si la signal
-    se dispara dos veces por autoreload o por dos saves seguidos sin cambio real).
-    """
+    
     if not instance.estado_id:
         return
 
-    # Evitar duplicados consecutivos del mismo estado
+   
     last = (
         EstadoLeadHistorial.objects
         .filter(contacto=instance)
@@ -44,7 +60,7 @@ def _log_estado_change(sender, instance: Contacto, created, **kwargs):
         .first()
     )
     if last and last.estado_id == instance.estado_id:
-        # Ya tenemos registrado este mismo estado como último evento; no repetir
+       
         return
 
     if created:
