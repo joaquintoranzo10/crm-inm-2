@@ -17,7 +17,7 @@ from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
 )
-
+from django.core.management import call_command
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -27,6 +27,19 @@ def health(_request):
     return Response({"status": "ok"})
 
 
+
+def disparar_recordatorios_view(request):
+  
+    token = request.GET.get('token')
+    if token != 'realconnect2405':  
+        return JsonResponse({'error': 'No autorizado'}, status=401)
+    
+    try:
+        
+        call_command('enviar_recordatorios')
+        return JsonResponse({'status': 'ok', 'mensaje': 'Recordatorios procesados correctamente'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 def health_check(request):
     return JsonResponse({"status": "ok", "mensaje": "¡El servidor está vivo!"})
@@ -66,6 +79,7 @@ urlpatterns = [
 
     #para que uptime lo encuentre y de ok en el servidor
     path('api/health/', health_check),
+    path('api/cron/enviar-recordatorios/', disparar_recordatorios_view),
 ]
 
 #Cambio de contraseña y eliminación de cuenta
