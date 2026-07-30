@@ -1,4 +1,3 @@
-# leads/views.py
 import logging
 from datetime import datetime, timedelta, time as dt_time
 from django.db.models import Q, F, ExpressionWrapper, DateTimeField, Value
@@ -11,15 +10,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 
-from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial
+from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial,HistorialLead
 from .serializers import (
     EstadoLeadSerializer,
     ContactoSerializer,
     EventoSerializer,
     EstadoLeadHistorialSerializer,
+    HistorialLeadSerializer,
 )
 
-# Notificaciones por email (importación defensiva)
+
 try:
     from usuarios.email_utils import send_evento_email
     from usuarios.models import Usuario as UsuarioModel
@@ -330,6 +330,26 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         }
         return Response(payload)
 
+    @action(detail=True, methods=['get', 'post'])
+    def historial(self, request, pk=None):
+        contacto = self.get_object() 
+
+        if request.method == 'GET':
+            
+            notas = contacto.historial.all()
+            serializer = HistorialLeadSerializer(notas, many=True)
+            return Response(serializer.data)
+
+        elif request.method == 'POST':
+    
+            serializer = HistorialLeadSerializer(data=request.data)
+            if serializer.is_valid():
+                
+                serializer.save(contacto=contacto)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     queryset = Evento.objects.all().select_related("contacto", "propiedad").order_by("-fecha_hora", "-id")
@@ -357,7 +377,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 if start:
                     qs = qs.filter(fecha_hora__gte=start)
             if end_s:
-                # Si viene solo fecha, interpretamos fin de día (exclusivo -> +1 día)
+               
                 if len(end_s.strip()) == 10:
                     end = _parse_date_or_datetime(end_s, end_of_day=True)
                     end = end + timedelta(microseconds=1)
@@ -366,7 +386,6 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 if end:
                     qs = qs.filter(fecha_hora__lt=end)
 
-        # Filtro por tipos (CSV o repetido ?types=Reunion&types=Visita)
         types_param = p.getlist("types") or ([p.get("types")] if p.get("types") else [])
         tipos = []
         for t in types_param:
@@ -379,7 +398,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         if tipos:
             qs = qs.filter(tipo__in=tipos)
 
-        # Orden seguro
+      
         allowed = {"id", "fecha_hora", "tipo", "creado_en"}
         ordering = p.get("ordering")
         if ordering:
@@ -396,10 +415,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         return qs
 
     def _events_overlapping(self, propiedad, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
-        """
-        Retorna queryset de eventos que solapan con el rango [new_start, new_start + duration).
-        Solo compara eventos de la misma propiedad.
-        """
+        
         new_start = timezone.localtime(new_start)
         new_end = new_start + timedelta(minutes=duration_minutes)
 
@@ -407,7 +423,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         if ignore_id:
             base_qs = base_qs.exclude(id=ignore_id)
 
-        # Annotate existing_end = fecha_hora + duration
+    
         existing_end_expr = ExpressionWrapper(
             F("fecha_hora") + Value(timedelta(minutes=duration_minutes)),
             output_field=DateTimeField(),
@@ -425,7 +441,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         contacto = validated_data.get("contacto")
         email = validated_data.get("email")
         
-        # Solo actuamos si hay un email Y no hay un contacto ya seleccionado
+       
         if email and not contacto:
             nombre = validated_data.get("nombre", "")
             apellido = validated_data.get("apellido", "")
@@ -434,7 +450,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
            
             lead, created = Contacto.objects.get_or_create(
                 owner=owner,
-                email__iexact=email.strip(), # iexact = ignora mayúsculas/minúsculas
+                email__iexact=email.strip(), 
                 defaults={
                     'nombre': nombre,
                     'apellido': apellido,
@@ -457,11 +473,11 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 raise ValidationError("No se puede crear un evento en el pasado.")
 
             with transaction.atomic():
-                # duplicado exacto
+               
                 dup = Evento.objects.filter(propiedad=propiedad, fecha_hora=fecha_hora).exists()
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
-                # solapamientos
+                
                 overlap_qs = self._events_overlapping(propiedad, fecha_hora)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
@@ -470,12 +486,12 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                     )
                 
                 super().perform_create(serializer)
-                # — Notificación por email —
+             
                 _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
             
             super().perform_create(serializer)
-            # — Notificación por email (fallback) —
+       
             if serializer.instance:
                 _notificar_evento_por_email(serializer.instance, self.request.user)
 
@@ -534,3 +550,8 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             # — Notificación por email (fallback) —
             if serializer.instance:
                 _notificar_evento_por_email(serializer.instance, self.request.user)
+
+
+class HistorialLeadViewSet(viewsets.ModelViewSet):
+    queryset = HistorialLead.objects.all()
+    serializer_class = HistorialLeadSerializer

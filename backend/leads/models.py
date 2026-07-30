@@ -16,6 +16,18 @@ class EstadoLead(models.Model):
     def __str__(self):
         return self.fase
 
+class HistorialLead(models.Model):
+    
+    contacto = models.ForeignKey('Contacto', on_delete=models.CASCADE, related_name='historial')
+    nota = models.TextField()
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+       
+        ordering = ['-creado_en'] 
+
+    def __str__(self):
+        return f"Nota de {self.contacto.nombre} - {self.creado_en.strftime('%d/%m/%Y')}"
 
 class Contacto(models.Model):
     owner = models.ForeignKey(
