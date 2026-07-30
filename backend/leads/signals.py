@@ -1,9 +1,7 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
-
-from .models import Contacto, EstadoLeadHistorial
-
+from .models import Contacto, EstadoLeadHistorial, Evento, HistorialLead
 
 
 @receiver(pre_save, sender=Contacto, dispatch_uid="leads_contacto_cache_old_estado_v1")
@@ -19,8 +17,7 @@ def _cache_old_estado(sender, instance: Contacto, **kwargs):
 
 
 
-@receiver(post_save, sender=Contacto, dispatch_uid="leads_contacto_log_estado_change_v2")
-
+@receiver(post_save, sender=Evento)
 def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool, **kwargs):
     if kwargs.get('raw', False):
         return
@@ -29,29 +26,24 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
     if not contacto:
         return
 
-    
+
     if instance.notas and instance.notas.strip():
-        
-        from .models import HistorialLead
         texto_nota = f"Evento ({instance.tipo}): {instance.notas.strip()}"
-        
-        
         HistorialLead.objects.create(
             contacto=contacto,
             nota=texto_nota
         )
 
-
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
 
+
+@receiver(post_save, sender=Contacto, dispatch_uid="leads_contacto_log_estado_change_v2")
 def _log_estado_change(sender, instance: Contacto, created, **kwargs):
-    
     if not instance.estado_id:
         return
 
-   
     last = (
         EstadoLeadHistorial.objects
         .filter(contacto=instance)
@@ -60,7 +52,6 @@ def _log_estado_change(sender, instance: Contacto, created, **kwargs):
         .first()
     )
     if last and last.estado_id == instance.estado_id:
-       
         return
 
     if created:
