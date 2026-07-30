@@ -330,25 +330,31 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         }
         return Response(payload)
 
-    @action(detail=True, methods=['get', 'post'])
+    @action(detail=True, methods=['get', 'post', 'delete'])
     def historial(self, request, pk=None):
-        contacto = self.get_object() 
-
+        contacto = self.get_object()
+        
         if request.method == 'GET':
             
             notas = contacto.historial.all()
             serializer = HistorialLeadSerializer(notas, many=True)
             return Response(serializer.data)
-
+            
         elif request.method == 'POST':
-    
+           
             serializer = HistorialLeadSerializer(data=request.data)
             if serializer.is_valid():
-                
                 serializer.save(contacto=contacto)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        elif request.method == 'DELETE':
+           
+            nota_id = request.query_params.get('nota_id')
+            if nota_id:
+                contacto.historial.filter(id=nota_id).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"error": "Falta el ID de la nota"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
