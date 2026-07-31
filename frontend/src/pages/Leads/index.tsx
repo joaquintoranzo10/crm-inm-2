@@ -295,24 +295,24 @@ export default function LeadsPage() {
         </div>
 
         {/* KPIs */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {kpis.map((k) => (
             <div
                 key={k.label}
-                className="relative overflow-hidden rounded-2xl bg-surface p-5 group transition-all duration-300 ease-in-out
-                           shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]
-                           hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)]
-                           border-t border-white/40 dark:border-white/5"
+                className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-surface p-3 sm:p-5 group transition-all duration-300 ease-in-out
+                          shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]
+                          hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)]
+                          border-t border-white/40 dark:border-white/5"
             >
                 <div className={`absolute top-0 left-0 w-1 h-full opacity-50 group-hover:opacity-100 transition-opacity
                     ${k.label === 'Vencidos' ? 'bg-rose-500' : 'bg-blue-500'} 
                 `}></div>
 
-                <div className="relative flex flex-col justify-between h-full z-10">
-                    <span className="text-sm font-medium text-muted-clr uppercase tracking-wider mb-2">
+                <div className="relative flex flex-col justify-between h-full min-h-[64px] sm:min-h-[100px] z-10">
+                    <span className="text-[11px] sm:text-sm font-medium text-muted-clr uppercase tracking-wider mb-1 sm:mb-2 leading-tight">
                         {k.label}
                     </span>
-                    <div className={`text-4xl font-bold tracking-tight ${k.label === 'Vencidos' ? 'text-rose-600 dark:text-rose-400' : 'text-base-clr'}`}>
+                    <div className={`text-2xl sm:text-4xl font-bold tracking-tight ${k.label === 'Vencidos' ? 'text-rose-600 dark:text-rose-400' : 'text-base-clr'}`}>
                         {k.value}
                     </div>
                 </div>
