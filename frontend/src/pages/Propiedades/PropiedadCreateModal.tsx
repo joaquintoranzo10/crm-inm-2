@@ -738,22 +738,63 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                       </button>
 =======
           {/*  Imágenes */}
-          <div className="md:col-span-3 space-y-4 border-l border-gray-100 dark:border-gray-800 pl-3 md:block hidden">
+          {/* Imágenes */}
+          <div className="col-span-12 md:col-span-3 space-y-4 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-700 pt-4 md:pt-0 pl-0 md:pl-2">
             <div>
-              <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-3">Imágenes</h3>
+              <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-3">Imágenes (Opcional)</h3>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
-                <label className="flex flex-col items-center justify-center cursor-pointer py-2">
-                  <span className="text-sm font-bold text-blue-600 mb-1">+ Seleccionar</span>
-                  <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+                <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer py-2">
+                  <span className="text-sm font-bold text-blue-600 mb-1">+ Seleccionar imágenes</span>
+                  <span className="text-xs text-gray-400">JPG, PNG. Múltiples.</span>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </label>
               </div>
-              {previews.length > 0 && (
-                <ul className="grid grid-cols-2 gap-2 mt-3">
+            </div>
+
+            {/* Lista de Previsualización */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Previsualización</label>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                  {previews.length}
+                </span>
+              </div>
+              {previews.length === 0 ? (
+                <div className="text-xs text-gray-500 italic">Se subirán junto con la propiedad.</div>
+              ) : (
+                <ul className="grid grid-cols-3 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
                   {previews.map((src, i) => (
+<<<<<<< HEAD
                     <li key={i} className="relative group rounded overflow-hidden aspect-square border border-blue-200">
                       <img src={src} className="w-full h-full object-cover" />
                       <button type="button" onClick={() => removeImage(i)} className="absolute top-0 right-0 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center">x</button>
 >>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
+=======
+                    <li key={i} className="relative group rounded-lg overflow-hidden aspect-square border border-gray-200 dark:border-gray-800 shadow-sm">
+                      <img
+                        src={src}
+                        alt={`Preview ${i}`}
+                        className="w-full h-full object-cover"
+                      />
+                    
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-red-500/80 text-white opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        title="Quitar imagen"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                        </svg>
+                      </button>
+>>>>>>> 27e565ab6f4a246db789bcb6adf0d40fcbbde664
                     </li>
                   ))}
                 </ul>
