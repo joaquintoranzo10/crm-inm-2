@@ -65,7 +65,7 @@ export default function Sidebar() {
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[90] p-2.5 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-800 dark:text-white shadow-sm flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+          className="md:hidden fixed top-4 left-4 z-[90] p-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-[var(--text-main)] shadow-sm flex items-center justify-center active:scale-95 transition-all"
           title="Abrir menú"
         >
           <Menu className="h-6 w-6" />
@@ -86,15 +86,15 @@ export default function Sidebar() {
           "fixed md:sticky",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           width,
-          "bg-surface md:dark:backdrop-blur-xl",
-          "rc-border shadow-2xl md:shadow-none text-gray-800 dark:text-gray-200", 
-          "rounded-r-2xl md:rounded-none"
+       
+          "bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]", 
+          "shadow-2xl md:shadow-none rounded-r-2xl md:rounded-none"
         )}
       >
         {/* Header */}
         <div
           className={clsx(
-            "flex items-center py-6 border-b rc-border transition-all",
+            "flex items-center py-6 border-b border-[var(--border)] transition-all",
             collapsed ? "justify-between px-4 md:justify-center md:px-0" : "justify-between px-4"
           )}
         >
@@ -116,8 +116,8 @@ export default function Sidebar() {
                 collapsed ? "w-auto opacity-100 translate-x-0 block md:w-0 md:opacity-0 md:translate-x-10 md:hidden" : "w-auto opacity-100 translate-x-0 block"
               )}
             >
-              <div className="text-sm tracking-wide text-gray-900 dark:text-white truncate font-bold">Real Connect</div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate font-semibold">
+              <div className="text-sm tracking-wide text-[var(--text-main)] truncate font-bold">Real Connect</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--muted)] truncate font-semibold">
                 CRM Inmobiliario
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function Sidebar() {
           {/* BOTÓN DE CERRAR PARA CELULARES */}
           <button 
             type="button"
-            className="md:hidden p-2 bg-gray-100 dark:bg-gray-800/80 rounded-full text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white shrink-0 ml-2 transition-colors"
+            className="md:hidden p-2 rounded-full text-[var(--muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] shrink-0 ml-2 transition-colors"
             onClick={(e) => {
                e.stopPropagation();
                setMobileOpen(false);
@@ -138,8 +138,8 @@ export default function Sidebar() {
           {/* BOTÓN DE COLAPSAR */}
           <button
             className={clsx(
-              "hidden md:flex absolute -right-3.5 top-9 z-50 items-center justify-center rounded-full h-7 w-7 border shadow-md transition-all text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white",
-              "bg-surface rc-border hover:brightness-95"
+              "hidden md:flex absolute -right-3.5 top-9 z-50 items-center justify-center rounded-full h-7 w-7 border shadow-md transition-all text-[var(--muted)] hover:text-[var(--text-main)]",
+              "bg-[var(--surface)] border-[var(--border)] hover:brightness-95"
             )}
             onClick={(e) => {
               e.stopPropagation();
@@ -151,7 +151,7 @@ export default function Sidebar() {
           </button>
         </div>
 
-      
+
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
           {items.map((it) => {
             const Icon = it.icon;
@@ -164,8 +164,8 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
                     isActive
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/5"
+                      ? "bg-blue-600/10 text-blue-600"
+                      : "text-[var(--muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)]"
                   }`
                 }
               >
@@ -179,11 +179,11 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto border-t border-gray-200 dark:border-white/10 transition-colors bg-transparent">
+        <div className="mt-auto border-t border-[var(--border)] transition-colors bg-transparent">
           <div className="p-3">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-gray-700 hover:text-rose-600 hover:bg-rose-50 dark:text-gray-400 dark:hover:text-rose-400 dark:hover:bg-rose-500/10"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-[var(--muted)] hover:text-rose-600 hover:bg-rose-500/10"
               title="Cerrar sesión"
             >
               <LogOut className="h-5 w-5 shrink-0" />
@@ -194,10 +194,10 @@ export default function Sidebar() {
 
             {userName && (
               <div className={clsx("mt-3 px-1 text-center", collapsed ? "hidden md:hidden" : "block")}>
-                <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 font-bold">
+                <p className="text-[10px] uppercase tracking-widest text-[var(--muted)] font-bold">
                   Usuario
                 </p>
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate">
+                <p className="text-xs font-semibold text-[var(--text-main)] truncate">
                   {userName}
                 </p>
               </div>

@@ -468,6 +468,7 @@ export default function PropiedadesPage() {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 md:mt-0">
           <div className="relative w-full sm:w-auto">
+<<<<<<< HEAD
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -476,6 +477,13 @@ export default function PropiedadesPage() {
                 bg-white border-gray-300 text-black 
                 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white 
                 focus:ring-2 focus:ring-blue-500/50"
+=======
+            <input 
+              value={q} 
+              onChange={(e) => setQ(e.target.value)} 
+              placeholder="Buscar..." 
+              className="bg-[var(--surface)] text-[var(--text-main)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors w-full md:w-64 placeholder-[var(--muted)] shadow-sm"
+>>>>>>> dfa66734b8c4f09acee884d11795499449fca207
             />
             {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => setQ("")}>Limpiar</button>}
           </div>
@@ -932,7 +940,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 <input className={inputClass} value={form.titulo} onChange={(e) => set("titulo", e.target.value)} />
               </Row>
             </div>
-            
+
             {/* Buscador Inteligente */}
             <div className="col-span-12">
               <Row label="Buscador Inteligente de Ubicación">
