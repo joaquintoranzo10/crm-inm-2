@@ -159,31 +159,17 @@ export default function Sidebar() {
             const Icon = it.icon;
             return (
               <NavLink
-                key={it.to}
-                to={it.to}
-                end={it.to === "/app"}
-                onClick={() => setMobileOpen(false)} 
+                to="/app/dashboard"
                 className={({ isActive }) =>
-                  clsx(
-                    "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 relative overflow-hidden",
+                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
                     isActive
-                      ? "bg-blue-100 shadow-sm text-blue-800 dark:text-blue-100 dark:bg-blue-600/20 dark:border dark:border-blue-500/30"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-white/10 dark:hover:text-white",
-                      isActive && "rc-active"
-                  )
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5" 
+                  }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r-full shadow-sm"></div>
-                    )}
-                    <Icon className="h-5 w-5 shrink-0 transition-colors" />
-                    <span className={clsx("truncate", collapsed ? "block md:hidden" : "block")}>
-                      {it.label}
-                    </span>
-                  </>
-                )}
+                <TuIcono className="w-5 h-5" />
+                <span>Dashboard</span>
               </NavLink>
             );
           })}
