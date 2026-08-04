@@ -49,7 +49,7 @@ function toArray<T>(data: any): T[] {
 
 // URL base del backend (usa variable de entorno o fallback local)
 const BACKEND_ORIGIN =
-  (import.meta as any).env?.VITE_BACKEND_ORIGIN || "http://127.0.0.1:8000";
+  (import.meta as any).env?.VITE_BACKEND_ORIGIN || "https://crm-real-connect.onrender.com";
 
 // Devuelve la ruta completa de un archivo multimedia
 function absMedia(url?: string | null) {
