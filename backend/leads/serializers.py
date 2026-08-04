@@ -85,7 +85,12 @@ class ContactoSerializer(serializers.ModelSerializer):
    
     def create(self, validated_data):
         contacto = Contacto.objects.create(**validated_data)
-        
+        nota_inicial = validated_data.get("next_contact_note")
+        if nota_inicial:
+            HistorialLead.objects.create(
+                contacto=contacto,
+                nota=f"Nota inicial: {nota_inicial}"
+            )
         return contacto
 
     def update(self, instance, validated_data):
