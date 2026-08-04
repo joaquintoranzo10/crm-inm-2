@@ -4,6 +4,9 @@ import PropiedadCreateModal from "./PropiedadCreateModal";
 import Modal from "@/components/Modal";
 import clsx from "clsx";
 import { Ruler } from "lucide-react";
+import Select from "react-select";
+import geoData from "@/data/arg-geo.json";
+
 // Tipo de imagen asociada a una propiedad
 type PropiedadImagen = { id: number; imagen: string; descripcion?: string | null };
 
@@ -39,6 +42,45 @@ type Propiedad = {
   imagenes?: PropiedadImagen[];
 };
 
+const opcionesUbicacion = geoData.provinces.flatMap((provincia: any) =>
+  provincia.departments.flatMap((depto: any) =>
+    depto.localities.map((loc: any) => ({
+      label: `${loc.name}, ${depto.name} (${provincia.name})`,
+      value: {
+        ubicacionGeneral: `${provincia.name}, ${depto.name}`,
+        localidad: loc.name
+      }
+    }))
+  )
+);
+
+const customSelectStyles = {
+  control: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--surface)',
+    borderColor: 'var(--border)',
+    color: 'var(--text-main)',
+    minHeight: '2.5rem',
+    borderRadius: '0.5rem',
+    boxShadow: 'none',
+    '&:hover': { borderColor: '#3b82f6' }
+  }),
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--surface)',
+    border: '1px solid var(--border)',
+    zIndex: 50
+  }),
+  singleValue: (base: any) => ({ ...base, color: 'var(--text-main)' }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isFocused ? '#3b82f6' : 'transparent',
+    color: state.isFocused ? 'white' : 'var(--text-main)',
+    cursor: 'pointer'
+  }),
+  input: (base: any) => ({ ...base, color: 'var(--text-main)' }),
+  placeholder: (base: any) => ({ ...base, color: 'var(--muted)' })
+};
 
 // Normaliza respuestas del backend para asegurar arrays
 function toArray<T>(data: any): T[] {
@@ -47,7 +89,7 @@ function toArray<T>(data: any): T[] {
   return [];
 }
 
-// URL base del backend (usa variable de entorno o fallback local)
+// URL base del backend 
 const BACKEND_ORIGIN =
   (import.meta as any).env?.VITE_BACKEND_ORIGIN || "https://crm-real-connect.onrender.com";
 
@@ -123,7 +165,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
           className="w-full h-full object-contain"
         />
 
-        {/* Flechas superpuestas (aparecen al pasar el mouse) */}
+        
         {valid.length > 1 && (
           <>
             <button
@@ -164,7 +206,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
-// Normaliza texto para búsquedas (minúsculas, sin tildes)
+// Normaliza texto para búsquedas
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
@@ -207,8 +249,8 @@ function Select4<T extends string>({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const ITEM_H = 36;                // altura por item
-  const maxH = ITEM_H * 4;          // 4 visibles
+  const ITEM_H = 36;                
+  const maxH = ITEM_H * 4;        
 
   return (
     <div ref={rootRef} className="relative">
@@ -699,7 +741,7 @@ function InfoBox({ label, value, icon }: { label: string; value: any; icon?: Rea
   );
 }
 
-/*Subcomponente Info */
+
 function Info({ label, value }: { label: string; value: any }) {
   return (
     <div className="rounded-lg px-2.5 py-1.5 min-w-0 bg-white text-gray-900 border border-gray-200 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800">
@@ -736,7 +778,7 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
         <span className="truncate capitalize">{value || "Seleccionar..."}</span>
         <span className="text-gray-400 text-xs">▼</span>
       </button>
-      {/* Dropdown consistente con el tema */}
+      
       {open && (
         <ul className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border rc-border bg-[var(--surface)] text-[var(--text-main)] max-h-[200px] overflow-y-auto">
           {options.map((opt) => (
@@ -890,22 +932,43 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 <input className={inputClass} value={form.titulo} onChange={(e) => set("titulo", e.target.value)} />
               </Row>
             </div>
+            
+            {/* Buscador Inteligente */}
             <div className="col-span-12">
-              <Row label="Ubicación General">
+              <Row label="Buscador Inteligente de Ubicación">
+                <Select
+                  options={opcionesUbicacion}
+                  placeholder="Empezá a escribir (Ej: Marcos Juárez)..."
+                  noOptionsMessage={() => "No se encontraron localidades"}
+                  onChange={(selectedItem: any) => {
+                    if (selectedItem) {
+                      set("ubicacion", selectedItem.value.ubicacionGeneral);
+                      set("localidad", selectedItem.value.localidad);
+                    }
+                  }}
+                  isClearable
+                  styles={customSelectStyles}
+                />
+              </Row>
+            </div>
+
+            {/* Inputs Autocompletables de Ubicación */}
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Ubicación General *">
                 <input className={inputClass} value={form.ubicacion} onChange={(e) => set("ubicacion", e.target.value)} />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-6">
               <Row label="Localidad">
                 <input className={inputClass} value={form.localidad || ""} onChange={(e) => set("localidad", e.target.value)} />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-6">
               <Row label="Barrio">
                 <input className={inputClass} value={form.barrio || ""} onChange={(e) => set("barrio", e.target.value)} />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-6">
               <Row label="Dirección exacta">
                 <input className={inputClass} value={form.direccion || ""} onChange={(e) => set("direccion", e.target.value)} />
               </Row>

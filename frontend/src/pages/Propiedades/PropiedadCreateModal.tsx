@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import React, { useRef, useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 const api = axios.create({
@@ -82,6 +83,53 @@ function SmartLocationCombo({ value, onChange }: SmartLocationComboProps) {
     />
   );
 }
+=======
+import Modal from "@/components/Modal";
+import Select from "react-select";
+import geoData from "@/data/arg-geo.json";
+
+
+const opcionesUbicacion = geoData.provinces.flatMap((provincia: any) =>
+  provincia.departments.flatMap((depto: any) =>
+    depto.localities.map((loc: any) => ({
+      label: `${loc.name}, ${depto.name} (${provincia.name})`,
+      value: {
+        ubicacionGeneral: `${provincia.name}, ${depto.name}`,
+        localidad: loc.name
+      }
+    }))
+  )
+);
+
+
+const customSelectStyles = {
+  control: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--surface)',
+    borderColor: 'var(--border)',
+    color: 'var(--text-main)',
+    minHeight: '2.5rem',
+    borderRadius: '0.5rem',
+    boxShadow: 'none',
+    '&:hover': { borderColor: '#3b82f6' }
+  }),
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--surface)',
+    border: '1px solid var(--border)',
+    zIndex: 50
+  }),
+  singleValue: (base: any) => ({ ...base, color: 'var(--text-main)' }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isFocused ? '#3b82f6' : 'transparent',
+    color: state.isFocused ? 'white' : 'var(--text-main)',
+    cursor: 'pointer'
+  }),
+  input: (base: any) => ({ ...base, color: 'var(--text-main)' }),
+  placeholder: (base: any) => ({ ...base, color: 'var(--muted)' })
+};
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -94,6 +142,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 function SelectScroll<T extends string>({
@@ -105,23 +154,23 @@ function SelectScroll<T extends string>({
   onChange: (v: T) => void;
   options: T[];
 }) {
+=======
+function SelectScroll<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: T[]; }) {
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function onDoc(ev: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(ev.target as Node)) {
-        setOpen(false);
-      }
+      if (rootRef.current && !rootRef.current.contains(ev.target as Node)) setOpen(false);
     }
-    if (open) {
-      document.addEventListener("mousedown", onDoc);
-    }
+    if (open) document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
   return (
     <div ref={rootRef} className="relative">
+<<<<<<< HEAD
       <button
         type="button"
         className="rc-input h-8 text-sm text-left flex items-center justify-between w-full px-3 py-1 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100"
@@ -130,10 +179,14 @@ function SelectScroll<T extends string>({
         <span className="truncate block capitalize">
           {value ? value : "Seleccionar..."}
         </span>
+=======
+      <button type="button" className="rc-input h-8 text-sm text-left flex items-center justify-between" onClick={() => setOpen(!open)}>
+        <span className="truncate block capitalize">{value ? value : "Seleccionar..."}</span>
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
         <span className="text-gray-400 text-xs ml-2">▼</span>
       </button>
-
       {open && (
+<<<<<<< HEAD
         <ul
           className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100"
           style={{ maxHeight: "200px", overflowY: "auto" }}
@@ -158,6 +211,16 @@ function SelectScroll<T extends string>({
               </li>
             );
           })}
+=======
+        <ul className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border rc-border bg-[var(--surface)] text-[var(--text-main)]" style={{ maxHeight: "200px", overflowY: "auto" }}>
+          {options.map((opt) => (
+            <li key={opt}>
+              <button type="button" className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${opt === value ? "bg-blue-600 text-white font-bold" : "hover:bg-gray-100 dark:hover:bg-zinc-800"}`} onClick={() => { onChange(opt); setOpen(false); }}>
+                {opt}
+              </button>
+            </li>
+          ))}
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
         </ul>
       )}
     </div>
@@ -165,7 +228,6 @@ function SelectScroll<T extends string>({
 }
 
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void };
-
 type Estado = "disponible" | "vendido" | "reservado";
 type TipoProp =
   | "casa"
@@ -216,13 +278,15 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+<<<<<<< HEAD
 <<<<<<< HEAD
   const inputClass =
     "rc-input h-8 text-sm w-full px-3 py-1 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100";
 =======
 
+=======
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
   const inputClass = "rc-input";
 >>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 
@@ -242,6 +306,18 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   }
 
+<<<<<<< HEAD
+=======
+  async function uploadImagen(propId: number) {
+    if (filesToUpload.length === 0) return;
+    const fd = new FormData();
+    filesToUpload.forEach((f) => fd.append("imagenes", f));
+    await axios.post(`/api/propiedades/${propId}/subir-imagenes/`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+    setPreviews([]);
+    setFilesToUpload([]);
+  }
+
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
   async function onSubmit(e?: FormEvent) {
     if (e) e.preventDefault();
     setSubmitting(true);
@@ -252,13 +328,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       const formData = new FormData();
 =======
       const payload = {
-        codigo,
-        titulo,
-        descripcion,
-        ubicacion,
-        localidad,
-        barrio,
-        direccion,
+        codigo, titulo, descripcion, ubicacion, localidad, barrio, direccion,
         tipo_de_propiedad: tipoDePropiedad,
         disponibilidad: disponibilidad || "",
         precio: precio === "" ? 0 : Number(precio),
@@ -268,13 +338,11 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
         banos: banos === "" ? 0 : Number(banos),
         superficie: superficie === "" ? 0 : Number(superficie),
         cocheras: cocheras === "" ? 0 : Number(cocheras),
-        tiene_patio: tienePatio,
-        tiene_pileta: tienePileta,
-        tiene_quincho: tieneQuincho,
-        estado,
+        tiene_patio: tienePatio, tiene_pileta: tienePileta, tiene_quincho: tieneQuincho, estado,
       };
 >>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 
+<<<<<<< HEAD
       // 1. Campos obligatorios y de texto
       formData.append("codigo", codigo.trim());
       formData.append("titulo", titulo.trim());
@@ -315,27 +383,20 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       await api.post("propiedades/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+=======
+      const res = await axios.post("/api/propiedades/", payload);
+      try { await uploadImagen(res.data?.id); } catch (e) { console.warn("Falló subida de imagen", e); }
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
 
       onCreated?.();
       onClose();
-
-      // Resetear formulario
-      setCodigo(""); setTitulo(""); setDescripcion(""); setUbicacion("");
-      setTipoDePropiedad("casa"); setDisponibilidad("");
-      setPrecio(""); setMoneda("USD"); setAmbiente(""); setAntiguedad("");
-      setBanos(""); setSuperficie(""); setEstado("disponible");
-      setLocalidad(""); setBarrio(""); setDireccion("");
-      setCocheras(""); setTienePatio(false); setTienePileta(false); setTieneQuincho(false);
-      setPreviews([]);
-      setFilesToUpload([]);
-
     } catch (err) {
       const e = err as AxiosError<any>;
       console.error("Error al crear la propiedad:", e?.response?.data);
 
       if (e.response) {
-        const status = e.response.status;
         const data = e.response.data;
+<<<<<<< HEAD
 
         if (status === 401) {
           setServerError("Necesitás iniciar sesión para crear propiedades.");
@@ -359,6 +420,14 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       } else {
         setServerError("No hay conexión con el servidor.");
       }
+=======
+        if (e.response.status === 401) setServerError("Necesitás iniciar sesión.");
+        else if (e.response.status === 400 && data) {
+          const firstKey = Object.keys(data)[0];
+          setServerError(`${firstKey}: ${Array.isArray(data[firstKey]) ? data[firstKey][0] : JSON.stringify(data[firstKey])}`);
+        } else setServerError("Error inesperado del servidor.");
+      } else setServerError("No hay conexión con el servidor.");
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
     } finally {
       setSubmitting(false);
     }
@@ -366,16 +435,12 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
 
   return (
     <Modal open={open} onClose={onClose} title="Registrar propiedad" maxWidth="xl">
-      {serverError && (
-        <div className="mb-3 rounded-md border px-3 py-2 text-sm border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
-          {serverError}
-        </div>
-      )}
-
+      {serverError && <div className="mb-3 rounded-md border px-3 py-2 text-sm border-red-300 bg-red-50 text-red-700">{serverError}</div>}
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
           {/* Formulario principal */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
+<<<<<<< HEAD
             {/* Código y Título */}
             <div className="col-span-12 sm:col-span-4">
               <Row label="Código *">
@@ -384,6 +449,11 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value)}
                 />
+=======
+            <div className="col-span-12 sm:col-span-4">
+              <Row label="Código *">
+                <input className={`${inputClass} font-mono h-8 text-sm`} value={codigo} onChange={(e) => setCodigo(e.target.value)} />
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
               </Row>
             </div>
             <div className="col-span-12 sm:col-span-8">
@@ -396,32 +466,42 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               </Row>
             </div>
 
-            {/* Ubicación Principal */}
+            
             <div className="col-span-12">
-              <Row label="Ubicación General *">
-                <SmartLocationCombo
-                  value={ubicacion}
-                  onChange={(v) => setUbicacion(v)}
-                  required
-                  minChars={2}
-                  limit={10}
-                  showOnEmpty={false}
+              <Row label="Buscador Inteligente de Ubicación">
+                <Select
+                  options={opcionesUbicacion}
+                  placeholder="Empezá a escribir (Ej: Marcos Juárez)..."
+                  noOptionsMessage={() => "No se encontraron localidades"}
+                  onChange={(selectedItem: any) => {
+                    if (selectedItem) {
+                      setUbicacion(selectedItem.value.ubicacionGeneral);
+                      setLocalidad(selectedItem.value.localidad);
+                    }
+                  }}
+                  isClearable
+                  styles={customSelectStyles}
                 />
               </Row>
             </div>
 
-            {/* Detalles de Ubicación */}
-            <div className="col-span-12 sm:col-span-4">
-              <Row label="Localidad">
-                <input className={inputClass} value={localidad} onChange={(e) => setLocalidad(e.target.value)} />
+            
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Ubicación General *">
+                <input className={inputClass} value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Provincia, Departamento" />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Localidad">
+                <input className={inputClass} value={localidad} onChange={(e) => setLocalidad(e.target.value)} placeholder="Ej: Marcos Juárez" />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-6">
               <Row label="Barrio">
                 <input className={inputClass} value={barrio} onChange={(e) => setBarrio(e.target.value)} />
               </Row>
             </div>
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-6">
               <Row label="Dirección exacta">
                 <input className={inputClass} value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ej: San Martín 123" />
               </Row>
@@ -430,6 +510,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             {/* Tipo y Disponibilidad */}
             <div className="col-span-12 sm:col-span-6">
               <Row label="Tipo de propiedad *">
+<<<<<<< HEAD
                 <SelectScroll
                   value={tipoDePropiedad}
                   onChange={(v) => setTipoDePropiedad(v as TipoProp)}
@@ -453,21 +534,21 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                     "otro",
                   ]}
                 />
+=======
+                <SelectScroll value={tipoDePropiedad} onChange={(v) => setTipoDePropiedad(v as TipoProp)} options={["casa", "departamento", "ph", "terreno", "cochera", "local", "oficina", "consultorio", "quinta", "chacra", "galpon", "deposito", "campo", "hotel", "fondo de comercio", "edificio", "otro"]} />
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
               </Row>
             </div>
             <div className="col-span-12 sm:col-span-6">
               <Row label="Disponibilidad *">
-                <SelectScroll
-                  value={disponibilidad}
-                  onChange={(v) => setDisponibilidad(v as Disponibilidad)}
-                  options={["venta", "alquiler"]}
-                />
+                <SelectScroll value={disponibilidad} onChange={(v) => setDisponibilidad(v as Disponibilidad)} options={["venta", "alquiler"]} />
               </Row>
             </div>
 
             {/* Precio, Moneda, Estado */}
             <div className="col-span-12 sm:col-span-5">
               <Row label="Precio *">
+<<<<<<< HEAD
                 <input
                   type="number"
                   min={0}
@@ -477,50 +558,42 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                     setPrecio(e.target.value === "" ? "" : Number(e.target.value))
                   }
                 />
+=======
+                <input type="number" min={0} className={`${inputClass} font-medium`} value={precio} onChange={(e) => setPrecio(e.target.value === "" ? "" : Number(e.target.value))} />
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-3">
               <Row label="Moneda *">
-                <SelectScroll
-                  value={moneda}
-                  onChange={(v) => setMoneda(v as Moneda)}
-                  options={["USD", "ARS"]}
-                />
+                <SelectScroll value={moneda} onChange={(v) => setMoneda(v as Moneda)} options={["USD", "ARS"]} />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-4">
               <Row label="Estado *">
-                <SelectScroll
-                  value={estado}
-                  onChange={(v) => setEstado(v as Estado)}
-                  options={["disponible", "reservado", "vendido"]}
-                />
+                <SelectScroll value={estado} onChange={(v) => setEstado(v as Estado)} options={["disponible", "reservado", "vendido"]} />
               </Row>
             </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             {/* Características */}
 =======
 >>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
+=======
+            
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
             <div className="col-span-6 sm:col-span-3">
               <Row label="Ambientes">
-                <SelectScroll
-                  value={ambiente === "" ? "0" : String(ambiente)}
-                  onChange={(v) => setAmbiente(v === "0" ? "" : Number(v))}
-                  options={["0", "1", "2", "3", "4", "5"]}
-                />
+                <SelectScroll value={ambiente === "" ? "0" : String(ambiente)} onChange={(v) => setAmbiente(v === "0" ? "" : Number(v))} options={["0", "1", "2", "3", "4", "5"]} />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-3">
               <Row label="Baños">
-                <SelectScroll
-                  value={banos === "" ? "0" : String(banos)}
-                  onChange={(v) => setBanos(v === "0" ? "" : Number(v))}
-                  options={["0", "1", "2", "3", "4", "5"]}
-                />
+                <SelectScroll value={banos === "" ? "0" : String(banos)} onChange={(v) => setBanos(v === "0" ? "" : Number(v))} options={["0", "1", "2", "3", "4", "5"]} />
               </Row>
             </div>
             <div className="col-span-6 sm:col-span-3">
+<<<<<<< HEAD
               <Row label="Antigüedad">
                 <input
                   type="number"
@@ -547,16 +620,22 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   }
                   placeholder="0.00"
                 />
+=======
+                <Row label="Antigüedad">
+                  <input type="number" min={0} className={inputClass} value={antiguedad} onChange={(e) => setAntiguedad(e.target.value === "" ? "" : Number(e.target.value))} placeholder="0" />
+                </Row>
+              </div>
+            <div className="col-span-6 sm:col-span-3">
+              <Row label="Superficie (m²)">
+                <input type="number" min={0} step="0.01" className={inputClass} value={superficie} onChange={(e) => setSuperficie(e.target.value === "" ? "" : Number(e.target.value))} placeholder="0.00" />
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
               </Row>
             </div>
 
+            
             <div className="col-span-6 sm:col-span-3">
               <Row label="Cocheras">
-                <SelectScroll
-                  value={cocheras === "" ? "0" : String(cocheras)}
-                  onChange={(v) => setCocheras(v === "0" ? "" : Number(v))}
-                  options={["0", "1", "2", "3", "4", "5"]}
-                />
+                <SelectScroll value={cocheras === "" ? "0" : String(cocheras)} onChange={(v) => setCocheras(v === "0" ? "" : Number(v))} options={["0", "1", "2", "3", "4", "5"]} />
               </Row>
             </div>
 
@@ -588,6 +667,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* Sección de Imágenes */}
           <div className="md:col-span-3 space-y-4 border-l border-gray-200 dark:border-gray-700 pl-2 md:block hidden">
             <div>
@@ -656,12 +736,31 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                           <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                         </svg>
                       </button>
+=======
+          {/*  Imágenes */}
+          <div className="md:col-span-3 space-y-4 border-l border-gray-100 dark:border-gray-800 pl-3 md:block hidden">
+            <div>
+              <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-3">Imágenes</h3>
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
+                <label className="flex flex-col items-center justify-center cursor-pointer py-2">
+                  <span className="text-sm font-bold text-blue-600 mb-1">+ Seleccionar</span>
+                  <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+                </label>
+              </div>
+              {previews.length > 0 && (
+                <ul className="grid grid-cols-2 gap-2 mt-3">
+                  {previews.map((src, i) => (
+                    <li key={i} className="relative group rounded overflow-hidden aspect-square border border-blue-200">
+                      <img src={src} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeImage(i)} className="absolute top-0 right-0 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center">x</button>
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
                     </li>
                   ))}
                 </ul>
               )}
             </div>
           </div>
+<<<<<<< HEAD
 
           {/* Carga de imágenes para mobile */}
           <div className="md:hidden col-span-12 space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -709,6 +808,14 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
         >
           {submitting ? "Guardando..." : "Registrar propiedad"}
         </button>
+=======
+        </div>
+      </div>
+
+      <div className="pt-4 mt-4 border-t rc-border bg-transparent flex justify-end gap-2">
+        <button className="h-10 px-4 rounded-xl text-sm font-bold border border-zinc-400 text-zinc-600 hover:bg-zinc-500 hover:text-white transition-colors" onClick={onClose}>Cancelar</button>
+        <button className="h-10 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60" onClick={() => onSubmit()} disabled={submitting || !codigo || !titulo || !ubicacion || precio === "" || !disponibilidad}>{submitting ? "Guardando..." : "Registrar propiedad"}</button>
+>>>>>>> e224b0e512cb5077982a286c99eee2b4f2db1cff
       </div>
     </Modal>
   );
