@@ -238,8 +238,8 @@ export default function DashboardPage() {
       else fetchMonthEvents();
       fetchStatic();
     };
-    window.addEventListener("assistant:refresh-calendar", handler as EventListener);
-    return () => window.removeEventListener("assistant:refresh-calendar", handler as EventListener);
+    window.addEventListener("calendar:refresh", handler as EventListener);
+    return () => window.removeEventListener("calendar:refresh", handler as EventListener);
   }, [activeFilters, cursor]);
 
 

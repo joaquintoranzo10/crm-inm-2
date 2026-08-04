@@ -4,7 +4,6 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { useMemo, useState, useEffect, ReactNode } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import AssistantWidget from "@/components/AssistantWidget";
 import { api } from "@/lib/api";
 
 import PropiedadCreateModal from "@/pages/Propiedades/PropiedadCreateModal";
@@ -127,8 +126,6 @@ export default function AppLayout() {
         </div>
       </div>
 
-      {/* Asistente */}
-      <AssistantWidget />
 
       {/* RENDER DE MODALES */}
       {leadModalOpen && (

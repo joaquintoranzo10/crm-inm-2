@@ -111,7 +111,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
       await api.post("/api/eventos/", payload); // Usamos 'api' para el token
       
       // Disparamos el evento global para refrescar el dashboard
-      window.dispatchEvent(new CustomEvent("assistant:refresh-calendar"));
+      window.dispatchEvent(new CustomEvent("calendar:refresh"));
       
       onCreated?.();
       onClose();
@@ -367,7 +367,7 @@ function ContactAutocomplete({
         ) : null}
       </div>
 
-      {/* hint seleccionado */}
+      
       {valueId != null && selected && (
         <div className="mt-1 text-xs rc-muted dark:text-gray-300">
           Seleccionado: <strong>{(selected.nombre || "") + " " + (selected.apellido || "")}</strong>

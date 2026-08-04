@@ -45,8 +45,7 @@ urlpatterns = [
     # API base (routers)
     path("api/", include(router.urls)),
 
-    # Asistente IA
-    path("api/asistente/", include("asistente.urls")),
+    
     
     path('api/', include('propiedades.urls')),
 
