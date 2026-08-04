@@ -125,6 +125,9 @@ class EstadoLeadHistorial(models.Model):
 @receiver(post_save, sender=Contacto)
 def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **kwargs):
    
+    if kwargs.get('raw', False):
+        return
+
     if created and not instance.next_contact_at:
         Contacto.objects.filter(pk=instance.pk).update(
             next_contact_at=timezone.now() + timezone.timedelta(days=3),
@@ -134,7 +137,10 @@ def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **k
 
 @receiver(post_save, sender=Evento)
 def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool, **kwargs):
-    
+
+    if kwargs.get('raw', False):
+        return
+
     contacto = instance.contacto
     if not contacto:
         return
@@ -220,6 +226,9 @@ def delete_aviso_on_evento_delete(sender, instance, **kwargs):
     """
     Elimina el aviso asociado cuando se elimina el evento.
     """
+    if kwargs.get('raw', False):
+        return
+    
     try:
         Aviso.objects.get(evento=instance).delete()
     except Aviso.DoesNotExist:
