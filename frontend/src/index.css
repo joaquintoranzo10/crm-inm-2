@@ -1,16 +1,17 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
-    /* --- TEMA CLARO --- */
+    
     --text-main: #000000;
     --bg-body: #f9fafb;
     
-    /* Cajas Dashboard (Configuración, Avisos) */
+   
     --bg-card: #ffffff;
     --border-card: #e5e7eb;
 
-    /* Superficies SÓLIDAS (Ventanas, Inputs, Paneles) */
+    
     
     --surface: #ffffff; 
     --bg-surface: #ffffff;       
@@ -19,20 +20,20 @@
     --muted: #6b7280;
   }
 
-  /* --- TEMA OSCURO --- */
+  
   :root.dark, body.dark {
     --text-main: #ffffff;
     --bg-body: #000000;
 
-    /* Cajas Dashboard -> Transparentes */
+    
     --bg-card: rgba(255, 255, 255, 0.05); 
     --border-card: rgba(255, 255, 255, 0.1);
 
-    /* Superficies SÓLIDAS -> Gris muy oscuro (Nunca transparente) */
-    --surface: #18181b;  /* zinc-900 */
-    --bg-surface: #18181b; /* Alias para compatibilidad */
     
-    --border: #27272a;   /* zinc-800 */
+    --surface: #18181b;  
+    --bg-surface: #18181b; 
+    
+    --border: #27272a;   
     --muted: #a1a1aa;
   }
 
@@ -44,17 +45,17 @@
 }
 
 @layer utilities {
-  /* Utilidad de texto base */
+  
   .text-base-clr { color: var(--text-main) !important; }
   
-  /* Cajas Dashboard (Transparentes en Dark) */
+  
   .card-base { 
     background-color: var(--bg-card); 
     border: 1px solid var(--border-card); 
     color: var(--text-main); 
   }
 
-  /* --- CLASES COMPARTIDAS (Leads + Propiedades + Legacy) --- */
+
   
   
   .bg-surface {
@@ -97,12 +98,11 @@
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
   }
 
-  /* Textos y bordes */
+
   .rc-border { border-color: var(--border) !important; }
   .rc-muted { color: var(--muted) !important; }
   .rc-text { color: var(--text-main) !important; }
   
-  /* Fondo negro detrás */
   .rc-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -113,20 +113,20 @@
   }
 }
 
-/* Bloqueo de scroll */
+
 body.modal-open { overflow: hidden; }
 
-/* Por defecto: Negro absoluto */
+
 .rc-sidebar-force {
   color: #000000 !important;
 }
 
-/* En modo oscuro: Blanco absoluto */
+
 .dark .rc-sidebar-force {
   color: #ffffff !important;
 }
 
-/* Cuando el ítem está activo (azul) */
+
 .rc-sidebar-force.rc-active {
   color: #1e40af !important; 
 }
