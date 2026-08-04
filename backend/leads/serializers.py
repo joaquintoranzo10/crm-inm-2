@@ -23,7 +23,7 @@ class HistorialLeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistorialLead
         fields = ['id', 'contacto', 'nota', 'creado_en']
-        read_only_fields = ['contacto', 'creado_en']
+        read_only_fields = ['creado_en']
 
 
 class ContactoSerializer(serializers.ModelSerializer):

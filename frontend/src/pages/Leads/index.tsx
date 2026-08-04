@@ -672,15 +672,12 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
   const [nuevaNota, setNuevaNota] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+ 
+  const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
 
   useEffect(() => {
-    
-    api.get(`historial/`, { params: { contacto: contacto.id } })
-      .then((res) => {
-          
-          const data = Array.isArray(res.data) ? res.data : [];
-          setNotas(data.filter((n: any) => n.contacto === contacto.id));
-      })
+    api.get(`contactos/${contacto.id}/historial/`)
+      .then((res) => setNotas(Array.isArray(res.data) ? res.data : []))
       .catch(() => setNotas([]))
       .finally(() => setLoading(false));
   }, [contacto.id]);
@@ -691,35 +688,33 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
     setSaving(true);
     
     try {
-      const res = await api.post(`historial/`, { 
+      const res = await api.post(`contactos/${contacto.id}/historial/`, { 
           nota: nuevaNota,
           contacto: contacto.id 
       });
+    
       setNotas([res.data, ...notas]);
       setNuevaNota("");
     } catch (error) {
       console.error("Error al guardar la nota:", error);
-      alert("Asegurate de tener el endpoint configurado en Django. Simulando guardado local por ahora...");
-      
-      const notaSimulada = {
-        id: Date.now(),
-        nota: nuevaNota,
-        creado_en: new Date().toISOString(),
-        contacto: contacto.id
-      };
-      setNotas([notaSimulada, ...notas]);
-      setNuevaNota("");
+    
+      alert("No se pudo guardar la nota. Verificá tu conexión o intentá de nuevo.");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDeleteNote(notaId: number) {
-    if (!window.confirm("¿Seguro que querés eliminar esta nota?")) return;
+  
+  async function confirmDeleteNote() {
+    if (noteToDelete === null) return;
     
     try {
-      await api.delete(`historial/${notaId}/`);
-      setNotas(prevNotas => prevNotas.filter(n => n.id !== notaId));
+      
+      await api.delete(`contactos/${contacto.id}/historial/`, { 
+          params: { nota_id: noteToDelete } 
+      });
+      setNotas(prevNotas => prevNotas.filter(n => n.id !== noteToDelete));
+      setNoteToDelete(null); 
     } catch (error) {
       console.error("Error al eliminar la nota:", error);
       alert("No se pudo eliminar la nota.");
@@ -728,9 +723,8 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-3xl bg-surface border border-soft rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-3xl bg-surface border border-soft rounded-2xl shadow-2xl flex flex-col max-h-[90vh] relative">
         
-        {/* Cabecera */}
         <div className="px-6 py-4 border-b border-soft flex justify-between items-center shrink-0">
           <div>
             <h3 className="text-xl font-bold text-base-clr">Historial de Interacciones</h3>
@@ -739,7 +733,6 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-2 text-muted-clr hover:text-base-clr text-lg font-bold transition-colors">✕</button>
         </div>
 
-        
         <div className="p-6 border-b border-soft bg-surface-2 shrink-0">
           <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-3">
             <input
@@ -772,25 +765,22 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
                 const date = new Date(n.creado_en);
                 return (
                   <div key={n.id || idx} className="relative flex items-start gap-4 group">
-                   
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-blue-500 text-white shadow-sm shrink-0 z-10 relative mt-1">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                         <path fillRule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902.848.137 1.705.248 2.57.331v3.443a.75.75 0 001.28.53l3.58-2.579a44.126 44.126 0 003.203.279c1.439 0 2.433-1.258 2.433-2.67V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0010 2zm0 7a1 1 0 100-2 1 1 0 000 2zM8 8a1 1 0 11-2 0 1 1 0 012 0zm5 1a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    
-                   
                     <div className="flex-1 p-4 rounded-xl border border-soft bg-surface-2 shadow-sm transition-all hover:shadow-md">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
                         <span className="font-bold text-base-clr text-sm">Nota de seguimiento</span>
-                        
                         <div className="flex items-center gap-2 self-start sm:self-auto">
                           <time className="text-[11px] font-medium text-muted-clr bg-surface px-2.5 py-1 rounded-md border border-soft">
                             {date.toLocaleDateString("es-AR", { day: '2-digit', month: 'short' })} a las {date.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}
                           </time>
                           <button
                             type="button"
-                            onClick={() => handleDeleteNote(n.id)}
+                            
+                            onClick={() => setNoteToDelete(n.id)}
                             className="text-xs p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-500 transition-colors border border-transparent hover:border-rose-500/20"
                             title="Eliminar nota"
                           >
@@ -806,6 +796,32 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
             </div>
           )}
         </div>
+
+
+        {noteToDelete !== null && (
+          <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm rounded-2xl">
+            <div className="w-full max-w-sm bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">
+              <h3 className="text-lg font-bold mb-2">Eliminar Nota</h3>
+              <p className="text-sm text-muted-clr mb-6">
+                ¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setNoteToDelete(null)}
+                  className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteNote}
+                  className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
