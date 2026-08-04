@@ -35,7 +35,7 @@ class Propiedad(models.Model):
         ("ARS", "ARS"),
     ]
 
-    # === Multi-tenant ===
+    
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -49,6 +49,14 @@ class Propiedad(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
     ubicacion = models.CharField(max_length=255)
+    localidad = models.CharField(max_length=100, blank=True, null=True)
+    barrio = models.CharField(max_length=100, blank=True, null=True)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
+    cocheras = models.PositiveIntegerField(default=0)
+    tiene_patio = models.BooleanField(default=False)
+    tiene_pileta = models.BooleanField(default=False)
+    tiene_quincho = models.BooleanField(default=False)
+
     tipo_de_propiedad = models.CharField(
         max_length=50,
         choices=TIPO_DE_PROPIEDAD_CHOICES,

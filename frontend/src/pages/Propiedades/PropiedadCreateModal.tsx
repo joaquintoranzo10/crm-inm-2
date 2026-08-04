@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 import React, { useRef, useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 
+<<<<<<< HEAD
 const api = axios.create({
   baseURL: "/api/",
   headers: { "Content-Type": "application/json" },
@@ -26,6 +27,9 @@ interface ModalProps {
 function Modal({ open, onClose, title, children }: ModalProps) {
   if (!open) return null;
 
+=======
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <div
@@ -57,6 +61,7 @@ function Modal({ open, onClose, title, children }: ModalProps) {
   );
 }
 
+<<<<<<< HEAD
 interface SmartLocationComboProps {
   value: string;
   onChange: (val: string) => void;
@@ -89,6 +94,8 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+=======
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 function SelectScroll<T extends string>({
   value,
   onChange,
@@ -198,13 +205,26 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
   const [banos, setBanos] = useState<number | "">("");
   const [superficie, setSuperficie] = useState<number | "">("");
   const [estado, setEstado] = useState<Estado>("disponible");
+  
+  const [localidad, setLocalidad] = useState("");
+  const [barrio, setBarrio] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [cocheras, setCocheras] = useState<number | "">("");
+  const [tienePatio, setTienePatio] = useState(false);
+  const [tienePileta, setTienePileta] = useState(false);
+  const [tieneQuincho, setTieneQuincho] = useState(false);
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+<<<<<<< HEAD
   const inputClass =
     "rc-input h-8 text-sm w-full px-3 py-1 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100";
+=======
+
+  const inputClass = "rc-input";
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = e.target.files;
@@ -228,7 +248,32 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
     setServerError(null);
 
     try {
+<<<<<<< HEAD
       const formData = new FormData();
+=======
+      const payload = {
+        codigo,
+        titulo,
+        descripcion,
+        ubicacion,
+        localidad,
+        barrio,
+        direccion,
+        tipo_de_propiedad: tipoDePropiedad,
+        disponibilidad: disponibilidad || "",
+        precio: precio === "" ? 0 : Number(precio),
+        moneda,
+        ambiente: ambiente === "" ? 0 : Number(ambiente),
+        antiguedad: antiguedad === "" ? 0 : Number(antiguedad),
+        banos: banos === "" ? 0 : Number(banos),
+        superficie: superficie === "" ? 0 : Number(superficie),
+        cocheras: cocheras === "" ? 0 : Number(cocheras),
+        tiene_patio: tienePatio,
+        tiene_pileta: tienePileta,
+        tiene_quincho: tieneQuincho,
+        estado,
+      };
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
 
       // 1. Campos obligatorios y de texto
       formData.append("codigo", codigo.trim());
@@ -279,6 +324,8 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
       setTipoDePropiedad("casa"); setDisponibilidad("");
       setPrecio(""); setMoneda("USD"); setAmbiente(""); setAntiguedad("");
       setBanos(""); setSuperficie(""); setEstado("disponible");
+      setLocalidad(""); setBarrio(""); setDireccion("");
+      setCocheras(""); setTienePatio(false); setTienePileta(false); setTieneQuincho(false);
       setPreviews([]);
       setFilesToUpload([]);
 
@@ -349,9 +396,9 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               </Row>
             </div>
 
-            {/* Ubicación */}
+            {/* Ubicación Principal */}
             <div className="col-span-12">
-              <Row label="Ubicación *">
+              <Row label="Ubicación General *">
                 <SmartLocationCombo
                   value={ubicacion}
                   onChange={(v) => setUbicacion(v)}
@@ -360,6 +407,23 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   limit={10}
                   showOnEmpty={false}
                 />
+              </Row>
+            </div>
+
+            {/* Detalles de Ubicación */}
+            <div className="col-span-12 sm:col-span-4">
+              <Row label="Localidad">
+                <input className={inputClass} value={localidad} onChange={(e) => setLocalidad(e.target.value)} />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-4">
+              <Row label="Barrio">
+                <input className={inputClass} value={barrio} onChange={(e) => setBarrio(e.target.value)} />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-4">
+              <Row label="Dirección exacta">
+                <input className={inputClass} value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ej: San Martín 123" />
               </Row>
             </div>
 
@@ -434,7 +498,10 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
               </Row>
             </div>
 
+<<<<<<< HEAD
             {/* Características */}
+=======
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
             <div className="col-span-6 sm:col-span-3">
               <Row label="Ambientes">
                 <SelectScroll
@@ -481,6 +548,31 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
                   placeholder="0.00"
                 />
               </Row>
+            </div>
+
+            <div className="col-span-6 sm:col-span-3">
+              <Row label="Cocheras">
+                <SelectScroll
+                  value={cocheras === "" ? "0" : String(cocheras)}
+                  onChange={(v) => setCocheras(v === "0" ? "" : Number(v))}
+                  options={["0", "1", "2", "3", "4", "5"]}
+                />
+              </Row>
+            </div>
+
+            <div className="col-span-12 flex flex-wrap gap-6 mt-1 p-3 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-gray-200 dark:border-zinc-800">
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={tienePatio} onChange={e => setTienePatio(e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Patio
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={tienePileta} onChange={e => setTienePileta(e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Pileta
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={tieneQuincho} onChange={e => setTieneQuincho(e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Quincho
+              </label>
             </div>
 
             {/* Descripción */}

@@ -10,6 +10,7 @@ class PropiedadImagenSerializer(serializers.Serializer):
 
 class PropiedadSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
+<<<<<<< HEAD
     codigo = serializers.CharField(max_length=50)
     titulo = serializers.CharField(max_length=255)
     descripcion = serializers.CharField(required=False, allow_blank=True, allow_null=True)
@@ -18,6 +19,27 @@ class PropiedadSerializer(serializers.Serializer):
     disponibilidad = serializers.CharField(max_length=50, default='disponible')
     moneda = serializers.CharField(max_length=3, default='USD')
     estado = serializers.CharField(max_length=50, default='disponible')
+=======
+   
+    codigo = serializers.CharField(max_length=50)
+    titulo = serializers.CharField(max_length=255)
+    descripcion = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    ubicacion = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    localidad = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
+    barrio = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
+    direccion = serializers.CharField(max_length=255, required=False, allow_blank=True, allow_null=True)
+
+    cocheras = serializers.IntegerField(required=False, allow_null=True)
+    tiene_patio = serializers.BooleanField(required=False, default=False)
+    tiene_pileta = serializers.BooleanField(required=False, default=False)
+    tiene_quincho = serializers.BooleanField(required=False, default=False)
+
+    tipo_de_propiedad = serializers.CharField(max_length=50)
+    disponibilidad = serializers.CharField(max_length=50)
+    moneda = serializers.CharField(max_length=3, default='USD')
+    estado = serializers.CharField(max_length=50, default='disponible')
+ 
+>>>>>>> db1be1c5bc52e412cec8d048b99fc2190eabff7a
     precio = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, allow_null=True)
     ambientes = serializers.IntegerField(required=False, allow_null=True)
     ambiente = serializers.IntegerField(required=False, allow_null=True)
