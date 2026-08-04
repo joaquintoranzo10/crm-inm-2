@@ -384,17 +384,17 @@ export default function DashboardPage() {
  return (
     <div className="relative w-full h-full">
       
-      <div className="flex flex-col gap-8 max-w-[1600px] mx-auto relative z-10">
+      <div className="flex flex-col gap-5 sm:gap-8 max-w-[1600px] mx-auto relative z-10">
         
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-3xl font-black tracking-tighter text-base-clr text-center md:text-left">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-base-clr text-center md:text-left">
             Bienvenido a Real Connect
           </h2>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-end gap-2.5 sm:gap-3">
             <button
-              className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
+              className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
             >
               <CalendarPlus className="w-5 h-5" />
@@ -402,7 +402,7 @@ export default function DashboardPage() {
             </button>
             
             {/* Controles navegación*/}
-            <div className="flex items-center gap-2 bg-surface border border-soft rounded-xl p-1 shadow-sm">
+            <div className="flex items-center justify-center gap-2 bg-surface border border-soft rounded-xl p-1 shadow-sm">
               <button 
                 onClick={prevMonth}
                 className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-clr hover:bg-surface-2 hover:text-base-clr transition-colors"
@@ -410,7 +410,7 @@ export default function DashboardPage() {
                 ←
               </button>
 
-              <div className="min-w-[140px] text-center font-bold text-sm text-base-clr px-2 uppercase tracking-wide">
+              <div className="flex-1 sm:flex-none min-w-[120px] sm:min-w-[140px] text-center font-bold text-sm text-base-clr px-2 uppercase tracking-wide">
                 {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
               </div>
 
@@ -425,12 +425,12 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI CARDS */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {kpis.map((k) => (
             <div
               key={k.label}
              
-              className="relative group overflow-hidden rounded-2xl bg-surface p-5 transition-all duration-300 ease-in-out
+              className="relative group overflow-hidden rounded-xl sm:rounded-2xl bg-surface p-3 sm:p-5 transition-all duration-300 ease-in-out
                          shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]
                          hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)]
                          border-t border-white/40 dark:border-white/5"
@@ -438,13 +438,13 @@ export default function DashboardPage() {
             
               <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
               
-              <div className="relative flex flex-col justify-between h-full min-h-[100px]">
+              <div className="relative flex flex-col justify-between h-full min-h-[64px] sm:min-h-[100px]">
                 <div>
-                    <span className="text-sm font-medium text-muted-clr uppercase tracking-wider block mb-1">
+                    <span className="text-[11px] sm:text-sm font-medium text-muted-clr uppercase tracking-wider block mb-1 leading-tight">
                     {k.label}
                     </span>
                 </div>
-                <div className="text-4xl font-bold text-base-clr tracking-tight">
+                <div className="text-2xl sm:text-4xl font-bold text-base-clr tracking-tight">
                   {k.value}
                 </div>
               </div>
@@ -592,6 +592,7 @@ type ModalShellProps = {
   onClose: () => void;
 };
 
+
 let openModalCount = 0;
 
 function ModalShell({
@@ -607,6 +608,7 @@ function ModalShell({
   }, [onClose]);
 
   useEffect(() => {
+   
     openModalCount++;
     document.documentElement.style.overflow = "hidden";
     return () => {
@@ -875,7 +877,7 @@ function EventModal({
           </div>
         </div>
 
-        {/*  (Contacto | Notas) */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/*  Contacto */}
