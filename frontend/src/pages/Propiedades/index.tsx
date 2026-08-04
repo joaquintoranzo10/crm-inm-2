@@ -587,8 +587,31 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
               <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm
                         bg-blue-600 text-white border border-blue-700
                         dark:bg-blue-500 dark:text-white dark:border-blue-400">
+<<<<<<< HEAD
                 {propiedad.tipo_de_propiedad}
               </span>
+=======
+                        {propiedad.tipo_de_propiedad}
+                    </span>
+                </div>
+                {/* Título y Ubicación combinada */}
+                <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
+                  {propiedad.titulo}
+                </h2>
+                <p className="text-sm font-black text-[var(--text-main)] leading-tight mt-1">
+                  {propiedad.ubicacion}
+                  
+                  {(propiedad.localidad || propiedad.barrio || propiedad.direccion) && (
+                    <span className="block text-xs font-normal text-[var(--muted)] mt-1">
+                      {[propiedad.direccion, propiedad.barrio, propiedad.localidad].filter(Boolean).join(", ")}
+                    </span>
+                  )}
+                </p>
+            </div>
+            <div className="text-right">
+                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+                <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
+>>>>>>> 09b885ba4bc4388722a2f0122541101b95c8eaea
             </div>
             {/* Título adaptable */}
             <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
@@ -602,12 +625,14 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
           </div>
         </div>
 
-        {/* GRID */}
+        {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="w-full h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
           </div>
+          
           <div className="flex flex-col gap-2">
+<<<<<<< HEAD
             <div className="grid grid-cols-2 gap-2">
               <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
               <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
@@ -616,6 +641,27 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
             </div>
             {/* Caja descripción */}
             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
+=======
+            
+             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
+                <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
+                <InfoBox label="Cocheras" value={propiedad.cocheras || 0} icon="🚗" />
+                <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏"/>
+                <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
+             </div>
+
+             {(propiedad.tiene_patio || propiedad.tiene_pileta || propiedad.tiene_quincho) && (
+               <div className="flex flex-wrap gap-2 py-1">
+                 {propiedad.tiene_patio && <span className="px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🌿 Patio</span>}
+                 {propiedad.tiene_pileta && <span className="px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🏊 Pileta</span>}
+                 {propiedad.tiene_quincho && <span className="px-2 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🍖 Quincho</span>}
+               </div>
+             )}
+
+             {/* Caja descripción */}
+             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
+>>>>>>> 09b885ba4bc4388722a2f0122541101b95c8eaea
                 bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
             >
               <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
