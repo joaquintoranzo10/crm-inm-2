@@ -1,5 +1,5 @@
-// src/pages/Dashboard/index.tsx
 import { useEffect, useMemo, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import { CalendarPlus } from "lucide-react";
 import { toast } from 'react-hot-toast';
@@ -12,7 +12,7 @@ import {
   type Contacto as ContactoApi,
 } from "../../lib/api";
 
-/* ============================== Types ============================== */
+
 type Contacto = ContactoApi;
 type Propiedad = PropiedadApi;
 type Evento = EventoApi;
@@ -29,7 +29,7 @@ type DashboardData = {
   avisos_atrasados: number;
 };
 
-/* ============================ Utilities ============================ */
+
 const MONTHS = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
@@ -86,7 +86,7 @@ function monthRange(d: Date) {
   return { from: ymd(start), to: ymd(end) };
 }
 
-/* =============== Validación de solapamientos =============== */
+
 const DEFAULT_DURATION_MS = 60 * 60 * 1000;
 function parseFechaHoraRange(ev: Partial<Evento>, durationMs = DEFAULT_DURATION_MS): { start: Date; end: Date } | null {
   if (!ev || !ev.fecha_hora) return null;
@@ -136,7 +136,7 @@ function validateEventoNoSolapa(
   return { ok: true };
 }
 
-/* ============================== Page =============================== */
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -147,7 +147,7 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [activeFilters, setActiveFilters] = useState<Filters | null>(null);
 
-  // UI/Modals
+  
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [openEventModal, setOpenEventModal] = useState<{
     mode: "create" | "edit";
@@ -157,7 +157,6 @@ export default function DashboardPage() {
   const [openDayModal, setOpenDayModal] = useState<Date | null>(null);
   const [deleting, setDeleting] = useState<Evento | null>(null);
 
-  /* ------------------------ Fetch data ------------------------ */
   async function fetchStatic() {
     if (!localStorage.getItem('rc_token')) {
       setLoading(false);
@@ -243,7 +242,7 @@ export default function DashboardPage() {
     return () => window.removeEventListener("assistant:refresh-calendar", handler as EventListener);
   }, [activeFilters, cursor]);
 
-  /* ------------------------ Calendar helpers ------------------------ */
+
   const monthLabel = `${MONTHS[cursor.getMonth()]} de ${cursor.getFullYear()}`;
 
   const monthGrid = useMemo(() => {
@@ -288,7 +287,7 @@ export default function DashboardPage() {
   }, [eventsByDay]);
 
 
-  /* ------------------------------ KPIs ------------------------------ */
+
   const kpis = useMemo(() => {
     const totalLeads = contactos.length;
     const norm = (s?: string | null) => (s || "").trim().toLowerCase();
@@ -313,7 +312,7 @@ export default function DashboardPage() {
     ];
   }, [contactos, propiedades, eventos]);
 
-  /* ---------------------------- Handlers ---------------------------- */
+
   const prevMonth = () => { const d = new Date(cursor); d.setMonth(cursor.getMonth() - 1); setCursor(d); };
   const nextMonth = () => { const d = new Date(cursor); d.setMonth(cursor.getMonth() + 1); setCursor(d); };
 
@@ -381,7 +380,7 @@ export default function DashboardPage() {
     }
   }
 
-  /* ------------------------------- UI ------------------------------- */
+  
  return (
     <div className="relative w-full h-full">
       
@@ -536,7 +535,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* --- MODALES --- */}
+      
       {openDayModal && (
         <DayEventsModal
           date={openDayModal}
@@ -585,7 +584,7 @@ export default function DashboardPage() {
     );
 }
 
-/*  Modals Components*/
+
 
 type ModalShellProps = {
   title?: string;
@@ -612,7 +611,7 @@ function ModalShell({
     return () => { document.documentElement.style.overflow = prev; };
   }, []);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr max-h-[90vh] flex flex-col`}>
@@ -624,7 +623,8 @@ function ModalShell({
         )}
         <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

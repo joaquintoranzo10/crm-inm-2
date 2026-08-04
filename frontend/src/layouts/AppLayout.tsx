@@ -1,4 +1,5 @@
 import { Outlet, useLocation, Link, useNavigate  } from "react-router-dom";
+import { createPortal } from "react-dom";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { useMemo, useState, useEffect, ReactNode } from "react";
@@ -21,7 +22,7 @@ export default function AppLayout() {
     const token = localStorage.getItem("rc_token");
     
     if (!token) {
-      // Si no hay token, redirigimos a la landing/login inmediatamente
+     
       navigate("/", { replace: true });
     }
   }, [navigate]);
@@ -39,7 +40,7 @@ export default function AppLayout() {
 
   usePageTitle(sectionTitle ? `${sectionTitle} · Real Connect` : "Real Connect");
 
-  // --- LÓGICA DE MODALES GLOBALES ---
+  
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [propiedadModalOpen, setPropiedadModalOpen] = useState(false);
@@ -101,7 +102,7 @@ export default function AppLayout() {
         />
       </div>
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
+    
       <div className="relative z-10 flex min-h-screen">
         <Sidebar />
 
@@ -127,10 +128,10 @@ export default function AppLayout() {
         </div>
       </div>
 
-      {/* Asistente */}
+    
       <AssistantWidget />
 
-      {/* RENDER DE MODALES */}
+      
       {leadModalOpen && (
         <LeadModal
           title="Nuevo Lead"
@@ -446,7 +447,7 @@ function ModalShell({
     };
   }, []);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
@@ -455,7 +456,7 @@ function ModalShell({
         role="dialog"
         aria-modal="true"
       >
-        {/* Glow */}
+    
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shrink-0"></div>
 
         {title && (
@@ -466,6 +467,7 @@ function ModalShell({
         )}
         <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
