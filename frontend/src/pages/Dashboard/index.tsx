@@ -608,6 +608,7 @@ function ModalShell({
     const prev = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     return () => { document.documentElement.style.overflow = prev || "auto"; };
+    document.body.style.overflow = "auto";
   }, []);
 
   return createPortal(
