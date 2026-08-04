@@ -7,7 +7,7 @@ from datetime import timedelta
 
 # Importamos Aviso para gestionar el quick-contact
 from avisos.models import Aviso 
-from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial
+from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial,HistorialLead
 from propiedades.models import Propiedad
 
 # Duración por defecto de un evento (minutos)
@@ -19,24 +19,30 @@ class EstadoLeadSerializer(serializers.ModelSerializer):
         fields = ["id", "fase", "descripcion"]
 
 
+class HistorialLeadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistorialLead
+        fields = ['id', 'contacto', 'nota', 'creado_en']
+        read_only_fields = ['contacto', 'creado_en']
+
+
 class ContactoSerializer(serializers.ModelSerializer):
-    # read-only para multi-tenant (id del auth.User dueño)
+   
     owner = serializers.ReadOnlyField(source="owner.id")
 
-    # escribible por id
+
     estado = serializers.PrimaryKeyRelatedField(
         queryset=EstadoLead.objects.all(), allow_null=True, required=False
     )
-    # lectura expandida
+
     estado_detalle = EstadoLeadSerializer(source="estado", read_only=True)
 
-    # === Seguimiento: campos expuestos ===
+   
     last_contact_at = serializers.DateTimeField(required=False, allow_null=True)
     next_contact_at = serializers.DateTimeField(required=False, allow_null=True)
     next_contact_note = serializers.CharField(required=False, allow_blank=True, max_length=255)
 
-    # === Derivados del modelo (solo lectura) ===
-    # Nota: si el nombre del field coincide con el atributo/property del modelo, no uses `source`
+   
     proximo_contacto_estado = serializers.ReadOnlyField()
     dias_sin_seguimiento = serializers.ReadOnlyField()
 
@@ -83,16 +89,15 @@ class ContactoSerializer(serializers.ModelSerializer):
         return contacto
 
     def update(self, instance, validated_data):
-        # Guardamos cambios
+        
         for attr, val in validated_data.items():
             setattr(instance, attr, val)
-        instance.save() # Guarda Contacto y dispara signal para EstadoLeadHistorial
+        instance.save() 
 
         
         if "next_contact_at" in validated_data or "next_contact_note" in validated_data:
             
-            # Buscamos un Aviso existente ligado a este Lead y que NO provenga de un Evento
-            # Esto es nuestro marcador para "Quick Follow-up"
+           
             quick_aviso_qs = Aviso.objects.filter(lead=instance, evento__isnull=True)
             
             next_contact_at = validated_data.get("next_contact_at")
@@ -111,14 +116,14 @@ class ContactoSerializer(serializers.ModelSerializer):
                         'descripcion': descripcion,
                         'fecha': next_contact_at,
                         'estado': 'pendiente', 
-                        'propiedad': None, # No conocemos la propiedad en este modal rápido
+                        'propiedad': None, 
                     }
                 )
                 
             else:
                 quick_aviso_qs.delete()
         
-        return instance # Devuelve la instancia actualizada
+        return instance 
 
 
 class EstadoLeadHistorialSerializer(serializers.ModelSerializer):
@@ -168,7 +173,7 @@ class EventoSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = getattr(request, "user", None)
         if user and not isinstance(user, AnonymousUser) and not (user.is_staff or user.is_superuser):
-            # Limitá las opciones disponibles a lo del owner
+           
             self.fields["contacto"].queryset = Contacto.objects.filter(owner=user)
             self.fields["propiedad"].queryset = Propiedad.objects.filter(owner=user)
 
@@ -193,19 +198,13 @@ class EventoSerializer(serializers.ModelSerializer):
 
     
     def validate(self, attrs):
-        """
-        - Previene eventos en el pasado (fecha_hora < ahora).
-        - Previene duplicados exactos: misma propiedad + misma fecha_hora
-        - Previene solapamiento: intervalo [fecha_hora, fecha_hora + duration) no debe
-          intersectar con otros eventos de la misma propiedad.
-        """
+        
         fecha_hora = attrs.get("fecha_hora", getattr(self.instance, "fecha_hora", None))
         propiedad = attrs.get("propiedad", getattr(self.instance, "propiedad", None))
         if not fecha_hora or not propiedad:
-            # Si faltan, dejamos que otras validaciones manejen el error
+
             return attrs
 
-        # Normalizamos a timezone local
         fecha_hora_local = timezone.localtime(fecha_hora)
         now_local = timezone.localtime(timezone.now())
         if fecha_hora_local < now_local:
@@ -215,16 +214,15 @@ class EventoSerializer(serializers.ModelSerializer):
         new_start = fecha_hora_local
         new_end = new_start + timedelta(minutes=duration_min)
 
-        # Construimos queryset base (mismo propiedad), excluimos si estamos en update
         base_qs = Evento.objects.filter(propiedad=propiedad)
         if self.instance and getattr(self.instance, "id", None):
             base_qs = base_qs.exclude(id=self.instance.id)
 
-        # Duplicado exacto
+     
         if base_qs.filter(fecha_hora=fecha_hora).exists():
             raise serializers.ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
 
-        # Anotamos existing_end = fecha_hora + duration y chequeamos overlap:
+
         existing_end_expr = ExpressionWrapper(
             F("fecha_hora") + Value(timedelta(minutes=duration_min)),
             output_field=DateTimeField(),
