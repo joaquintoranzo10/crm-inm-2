@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from .models import Propiedad, PropiedadImagen
 
-# 1. Serializer de Imágenes (MANUAL)
+
 class PropiedadImagenSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     imagen = serializers.ImageField()
     descripcion = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
-# 2. Serializer Principal (MANUAL - NO hereda de ModelSerializer)
+
 class PropiedadSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     codigo = serializers.CharField(max_length=50)
@@ -39,6 +39,7 @@ class PropiedadSerializer(serializers.Serializer):
             return []
 
     def create(self, validated_data):
+<<<<<<< HEAD
         has_ambientes = hasattr(Propiedad, 'ambientes')
         has_ambiente = hasattr(Propiedad, 'ambiente')
         ambientes_val = validated_data.pop('ambientes', None)
@@ -57,6 +58,11 @@ class PropiedadSerializer(serializers.Serializer):
                 validated_data['owner'] = request.user
 
         return Propiedad.objects.create(**validated_data)
+=======
+        validated_data.pop('owner', None) 
+        user = self.context['request'].user
+        return Propiedad.objects.create(owner=user, **validated_data)
+>>>>>>> 8dc177ba8c3c7e8ad57258d939b9966106af79dc
 
     def update(self, instance, validated_data):
         has_ambientes = hasattr(Propiedad, 'ambientes')
@@ -77,7 +83,7 @@ class PropiedadSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-# 3. Serializer de Subida (MANUAL)
+
 class SubirImagenesSerializer(serializers.Serializer):
     imagenes = serializers.ListField(
         child=serializers.ImageField(), 
