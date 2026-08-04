@@ -592,6 +592,8 @@ type ModalShellProps = {
   onClose: () => void;
 };
 
+let openModalCount = 0;
+
 function ModalShell({
   title,
   children,
@@ -605,10 +607,15 @@ function ModalShell({
   }, [onClose]);
 
   useEffect(() => {
-    const prev = document.documentElement.style.overflow;
+    openModalCount++;
     document.documentElement.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = prev || "auto"; };
-    document.body.style.overflow = "auto";
+    return () => {
+      openModalCount = Math.max(0, openModalCount - 1);
+      if (openModalCount === 0) {
+        document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
+      }
+    };
   }, []);
 
   return createPortal(
