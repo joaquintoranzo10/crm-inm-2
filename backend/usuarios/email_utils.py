@@ -26,7 +26,7 @@ def send_reset_password_email(user_email: str, reset_url: str, nombre: str) -> b
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user_email],
             html_message=html_message,
-            fail_silently=False,
+            fail_silently=True,
         )
         logger.info(f"[EMAIL] Reset-password enviado a: {user_email}")
         return True
@@ -57,7 +57,7 @@ def send_aviso_email(user_email: str, nombre: str, aviso_data: dict) -> bool:
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user_email],
             html_message=html_message,
-            fail_silently=False,
+            fail_silently=True,
         )
         logger.info(f"[EMAIL] Notificación de aviso enviada a: {user_email} — '{aviso_data.get('titulo')}'")
         return True
@@ -76,20 +76,7 @@ _TIPO_META = {
 
 
 def send_evento_email(user_email: str, nombre: str, evento_data: dict) -> bool:
-    """
-    Envía la notificación de un evento (nuevo o modificado) por correo.
-
-    Args:
-        user_email:   Dirección de destino.
-        nombre:       Nombre del usuario dueño del evento.
-        evento_data:  Dict con:
-                        - tipo            (str) "Reunion" | "Visita" | "Llamada"
-                        - fecha_hora      (str formateada)
-                        - propiedad       (str) título de la propiedad
-                        - contacto_nombre (str, opcional)
-                        - contacto_email  (str, opcional)
-                        - notas           (str, opcional)
-    """
+    
     tipo_raw = evento_data.get("tipo", "")
     tipo_key = tipo_raw.lower()
     meta = _TIPO_META.get(tipo_key, {"emoji": "📅", "css": "default"})
@@ -119,7 +106,7 @@ def send_evento_email(user_email: str, nombre: str, evento_data: dict) -> bool:
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user_email],
             html_message=html_message,
-            fail_silently=False,
+            fail_silently=True,
         )
         logger.info(
             f"[EMAIL] Notificación de evento enviada a: {user_email} "
