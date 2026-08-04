@@ -15,14 +15,15 @@ class EmailOrUsernameModelBackend(ModelBackend):
         if username is None or password is None:
             return None
 
-        try:
-            # Si hay '@' buscamos por email, si no por username, pero igual chequeamos ambos.
-            user = UserModel.objects.get(
-                Q(username__iexact=username) | Q(email__iexact=username)
-            )
-        except UserModel.DoesNotExist:
+        #No duplica usuario
+        user = UserModel.objects.filter(
+            Q(username__iexact=username) | Q(email__iexact=username)
+        ).first()
+
+        if not user:
             return None
 
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
+            
         return None
