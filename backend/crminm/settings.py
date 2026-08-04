@@ -117,25 +117,8 @@ TIME_ZONE = 'America/Argentina/Cordoba'
 USE_I18N = True
 USE_TZ = True
 
-<<<<<<< HEAD
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
-=======
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
->>>>>>> 3fb57d04d4d32bc68e1b7dd5b7fd0178a9b6cc9b
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
