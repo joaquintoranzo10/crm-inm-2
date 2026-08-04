@@ -155,25 +155,31 @@ export default function Sidebar() {
 
       {/* Navegación */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-          {items.map((it) => {
-            const Icon = it.icon;
-            return (
-              <NavLink
-                to="/app/dashboard"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
-                    isActive
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5" 
-                  }`
-                }
-              >
-                <TuIcono className="w-5 h-5" />
-                <span>Dashboard</span>
-              </NavLink>
-            );
-          })}
-        </nav>
+        {items.map((it) => {
+          const Icon = it.icon;
+          return (
+            <NavLink
+              key={it.to}
+              to={it.to}
+              end={it.to === "/app"} 
+              onClick={() => setMobileOpen(false)} 
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold ${
+                  isActive
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5" 
+                }`
+              }
+            >
+              <Icon className="w-5 h-5 shrink-0" /> 
+              {/* clsx para que el texto desaparezca cuando la barra colapsa */}
+              <span className={clsx("truncate", collapsed ? "hidden md:hidden" : "block")}>
+                {it.label}
+              </span>
+            </NavLink>
+          );
+        })}
+      </nav>
 
 
       {/* Footer */}
