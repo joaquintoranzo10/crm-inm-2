@@ -454,86 +454,85 @@ export default function DashboardPage() {
         </div>
 
         {/* CALENDARIO */}
-        <div className="rounded-2xl border border-soft bg-surface shadow-lg overflow-x-auto custom-scrollbar">
-          
-          <div className="min-w-[800px]">
-            <div className="grid grid-cols-7 border-b border-soft text-xs font-semibold text-muted-clr uppercase tracking-wider bg-surface-2">
-              {WEEKDAYS.map((w) => (
-                <div key={w} className="px-4 py-3 text-center">{w}</div>
-              ))}
-            </div>
+        <div className="w-full">
+          <div className="rounded-2xl border border-soft bg-surface shadow-lg overflow-hidden">
+            <div className="w-full">
+              <div className="grid grid-cols-7 border-b border-soft text-[10px] md:text-xs font-semibold text-muted-clr uppercase tracking-wider bg-surface-2">
+                {WEEKDAYS.map((w) => (
+                  <div key={w} className="px-1 md:px-4 py-2 md:py-3 text-center truncate">{w}</div>
+                ))}
+              </div>
 
-          <div className="grid grid-cols-7 auto-rows-[minmax(8rem,auto)]">
-            {monthGrid.days.map((d, i) => {
-              const inMonth = d.getMonth() === cursor.getMonth();
-              const key = toKey(d);
-              const isToday = sameDay(d, today);
-              const allEvents = inMonth ? (eventsByDay.get(key) || []) : [];
-              const sum = summaryByDay.get(key) || { r: 0, l: 0, v: 0, total: 0 };
+              <div className="grid grid-cols-7 auto-rows-[minmax(5rem,auto)] md:auto-rows-[minmax(8rem,auto)]">
+                {monthGrid.days.map((d, i) => {
+                  const inMonth = d.getMonth() === cursor.getMonth();
+                  const key = toKey(d);
+                  const isToday = sameDay(d, today);
+                  const allEvents = inMonth ? (eventsByDay.get(key) || []) : [];
+                  const sum = summaryByDay.get(key) || { r: 0, l: 0, v: 0, total: 0 };
 
-              const dd = String(d.getDate()).padStart(2, "0");
-              const monthAbbr = MONTHS[d.getMonth()].slice(0, 3);
-              const dayLabel = inMonth ? (d.getDate() === 1 ? `${dd} ${monthAbbr}` : dd) : "";
+                  const dd = String(d.getDate()).padStart(2, "0");
 
-              return (
-                <div
-                  key={i}
-                  className={`border-r border-b border-soft p-3 flex flex-col transition-colors ${
-                      inMonth ? "bg-transparent hover:bg-surface-2" : "bg-surface-2/30 opacity-50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between shrink-0 mb-2">
-                    <div className={`text-sm font-medium ${inMonth ? "text-base-clr" : "text-muted-clr"}`}>
-                      {dd}
-                    </div>
-                    {inMonth && isToday && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">
-                        HOY
-                      </span>
-                    )}
-                  </div>
-
-                  {inMonth && sum.total > 0 && (
-                    <button
-                      className="w-full text-left bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg p-2 transition-all group"
-                      onClick={() => setOpenDayModal(d)}
+                  return (
+                    <div
+                      key={i}
+                      className={`border-r border-b border-soft p-1 sm:p-2 md:p-3 flex flex-col transition-colors group ${
+                          inMonth ? "bg-transparent hover:bg-surface-2" : "bg-surface-2/30 opacity-50"
+                      }`}
                     >
-                        <div className="flex flex-wrap gap-1.5">
-                            {sum.r > 0 && <span className="text-[10px] px-1.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">{sum.r} Reun.</span>}
-                            {sum.l > 0 && <span className="text-[10px] px-1.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">{sum.l} Llam.</span>}
-                            {sum.v > 0 && <span className="text-[10px] px-1.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{sum.v} Visit.</span>}
+                      <div className="flex flex-col lg:flex-row items-center justify-between shrink-0 mb-1 md:mb-2 gap-1">
+                        <div className={`text-xs md:text-sm font-medium ${inMonth ? "text-base-clr" : "text-muted-clr"}`}>
+                          {dd}
                         </div>
-                    </button>
-                  )}
+                        {inMonth && isToday && (
+                          <span className="text-[8px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded-full bg-blue-600 text-white">
+                            HOY
+                          </span>
+                        )}
+                      </div>
 
-                  <div className="flex-1" />
+                      {inMonth && sum.total > 0 && (
+                        <button
+                          className="w-full text-left bg-white/5 hover:bg-white/10 border border-white/10 rounded p-1 md:p-2 transition-all active:scale-95"
+                          onClick={() => setOpenDayModal(d)}
+                        >
+                            <div className="flex flex-col xl:flex-row flex-wrap gap-1 md:gap-1.5 justify-center xl:justify-start">
+                                {sum.r > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-center" title="Reuniones"><span className="xl:hidden">R:</span>{sum.r} <span className="hidden xl:inline">Reun.</span></span>}
+                                {sum.l > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-center" title="Llamadas"><span className="xl:hidden">L:</span>{sum.l} <span className="hidden xl:inline">Llam.</span></span>}
+                                {sum.v > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center" title="Visitas"><span className="xl:hidden">V:</span>{sum.v} <span className="hidden xl:inline">Visit.</span></span>}
+                            </div>
+                        </button>
+                      )}
 
-                  {inMonth && (
-                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-2">
-                      <button
-                        className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
-                        onClick={() => openCreateOnDay(d)}
-                        title="Nuevo evento"
-                      >
-                        +
-                      </button>
-                      {allEvents.length > 0 && (
-                         <button
-                         className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
-                         onClick={() => setOpenDayModal(d)}
-                         title="Ver detalles"
-                       >
-                         👁
-                       </button>
+                      <div className="flex-1" />
+
+                      {inMonth && (
+                        <div className="hidden lg:flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-2">
+                          <button
+                            className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                            onClick={() => openCreateOnDay(d)}
+                            title="Nuevo evento"
+                          >
+                            +
+                          </button>
+                          {allEvents.length > 0 && (
+                             <button
+                             className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                             onClick={() => setOpenDayModal(d)}
+                             title="Ver detalles"
+                           >
+                             👁
+                           </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
       
       {openDayModal && (
@@ -612,16 +611,35 @@ function ModalShell({
   }, []);
 
   return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl overflow-hidden text-base-clr max-h-[90vh] flex flex-col`}>
+      
+      <div 
+        className={`relative w-full ${maxWidth} bg-[var(--bg-body)] border border-soft rounded-2xl shadow-2xl flex flex-col`}
+        style={{ maxHeight: '90vh' }}
+        onClick={(e) => e.stopPropagation()} 
+      >
         {title && (
-          <div className="px-6 py-4 border-b border-soft flex justify-between items-center bg-[var(--bg-body)] shrink-0">
+          <div className="px-5 py-4 border-b border-soft flex justify-between items-center bg-[var(--bg-body)] rounded-t-2xl shrink-0">
             <h3 className="text-lg font-bold text-base-clr tracking-wide">{title}</h3>
-            <button onClick={onClose} className="text-muted-clr hover:text-base-clr">✕</button>
+            
+            <button 
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation(); 
+                onClose();
+              }} 
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer active:scale-95"
+              title="Cerrar"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 pointer-events-none">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         )}
-        <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
+        <div className="p-5 overflow-y-auto custom-scrollbar flex-1">{children}</div>
       </div>
     </div>,
     document.body
@@ -648,60 +666,63 @@ function DayEventsModal({
   return (
     <ModalShell title={`Eventos del ${formatDate(date, { year: "numeric" })}`} onClose={onClose}>
       <div className="flex flex-wrap gap-2 mb-6 text-sm">
-        <span className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+        <span className="px-2 py-1 rounded bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30">
           {resumen.r} {plural(resumen.r, "Reunión", "Reuniones")}
         </span>
-        <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+        <span className="px-2 py-1 rounded bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30">
           {resumen.l} {plural(resumen.l, "Llamada", "Llamadas")}
         </span>
-        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
           {resumen.v} {plural(resumen.v, "Visita", "Visitas")}
         </span>
       </div>
 
       {eventos.length === 0 ? (
-        <div className="py-8 text-center text-gray-500 border border-dashed border-white/10 rounded-xl">
+        <div className="py-8 text-center text-[var(--muted)] border border-dashed border-[var(--border)] rounded-xl">
             No hay eventos agendados.
         </div>
       ) : (
         <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
           {eventos.map((ev) => (
-            <li key={ev.id} className="group flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+            <li key={ev.id} className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                     <span className={`w-2 h-2 rounded-full ${
                         ev.tipo === 'Reunion' ? 'bg-blue-500' : 
                         ev.tipo === 'Llamada' ? 'bg-amber-500' : 'bg-emerald-500'
                     }`}></span>
-                    <span className="font-semibold text-white">{formatHour(ev.fecha_hora)}</span>
-                    <span className="text-gray-400 text-sm">· {ev.tipo}</span>
+                    
+                    <span className="font-semibold text-gray-900 dark:text-white">{formatHour(ev.fecha_hora)}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">· {ev.tipo}</span>
                 </div>
                 
-                <div className="text-sm text-gray-300 truncate">
+                {/* PROPIEDAD */}
+                <div className="text-sm text-gray-800 dark:text-gray-300 truncate font-medium">
                   {typeof (ev as any).propiedad_titulo === "string"
                     ? (ev as any).propiedad_titulo
                     : ev.propiedad ? `Propiedad #${ev.propiedad}` : "—"}
                 </div>
-                <div className="text-xs text-gray-500 truncate mt-0.5">
+                {/* CONTACTO */}
+                <div className="text-xs text-gray-600 dark:text-gray-500 truncate mt-0.5">
                    {(ev as any).contacto_nombre
                     ? `👤 ${(ev as any).contacto_nombre}`
                     : ev.contacto ? `👤 Lead #${ev.contacto}` : "Sin contacto asignado"}
                 </div>
-                {ev.notas && <div className="text-xs text-gray-400 mt-2 italic border-l-2 border-white/20 pl-2">"{ev.notas}"</div>}
+                {ev.notas && <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic border-l-2 border-gray-300 dark:border-white/20 pl-2">"{ev.notas}"</div>}
               </div>
               
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white" onClick={() => onEdit(ev)} title="Editar">✏️</button>
-                <button className="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-400" onClick={() => onDelete(ev)} title="Eliminar">🗑️</button>
+              <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="p-2 rounded-lg bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white" onClick={() => onEdit(ev)} title="Editar">✏️</button>
+                <button className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 hover:bg-rose-200 dark:hover:bg-rose-500/40 text-rose-600 dark:text-rose-400" onClick={() => onDelete(ev)} title="Eliminar">🗑️</button>
               </div>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-white/10">
-        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm transition-colors" onClick={onClose}>Cerrar</button>
-        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20 transition-all" onClick={onCreate}>+ Agregar Evento</button>
+      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:text-white text-sm font-medium transition-colors" onClick={onClose}>Cerrar</button>
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition-all" onClick={onCreate}>+ Agregar Evento</button>
       </div>
     </ModalShell>
   );
@@ -968,7 +989,7 @@ function ContactAutocomplete({
   const [highlight, setHighlight] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  // Debounce simple
+  
   useEffect(() => {
     const t = setTimeout(async () => {
         if (!localStorage.getItem('rc_token')) {
@@ -1085,16 +1106,16 @@ function ConfirmModal({
   }
   return (
     <ModalShell title={title} onClose={onCancel} maxWidth="max-w-lg">
-      <div className="text-gray-300">{message}</div>
-      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3">
-        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors" onClick={onCancel} disabled={working}>
+      <div className="text-gray-800 dark:text-gray-300">{message}</div>
+      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:text-white text-sm transition-colors" onClick={onCancel} disabled={working}>
           Cancelar
         </button>
         <button
           className={
             confirmType === "danger"
-              ? "w-full sm:w-auto h-10 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium shadow-lg shadow-rose-900/20 transition-all"
-              : "w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-900/20 transition-all"
+              ? "w-full sm:w-auto h-10 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium shadow-sm dark:shadow-rose-900/20 transition-all"
+              : "w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-sm dark:shadow-blue-900/20 transition-all"
           }
           onClick={go}
           disabled={working}
@@ -1109,11 +1130,11 @@ function ConfirmModal({
 function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; onClose: () => void }) {
   return (
     <ModalShell title={ok ? "Éxito" : "Error"} onClose={onClose} maxWidth="max-w-sm">
-      <div className={`rounded-xl p-4 border ${ok ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-rose-500/10 border-rose-500/20 text-rose-300"}`}>
-        <div className="text-sm">{message}</div>
+      <div className={`rounded-xl p-4 border ${ok ? "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-300" : "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-300"}`}>
+        <div className="text-sm font-medium">{message}</div>
       </div>
-      <div className="mt-4 text-right">
-        <button className="h-9 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm" onClick={onClose}>
+      <div className="mt-5 flex justify-end">
+        <button className="h-9 px-4 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 dark:bg-white/10 dark:border-transparent dark:hover:bg-white/20 dark:text-white text-sm transition-colors" onClick={onClose}>
           Cerrar
         </button>
       </div>
@@ -1124,7 +1145,7 @@ function ResultModal({ ok, message, onClose }: { ok: boolean; message: string; o
 function Field({ label, children }: any) {
   return (
     <div>
-      <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1.5 ml-1">{label}</label>
+      <label className="block text-xs font-bold text-gray-500 dark:text-muted-clr uppercase tracking-wider mb-1.5 ml-1">{label}</label>
       {children}
     </div>
   );
