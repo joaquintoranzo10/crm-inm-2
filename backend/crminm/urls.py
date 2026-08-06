@@ -6,16 +6,15 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
-# ViewSets existentes
 from avisos.views import AvisoViewSet
 from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
 from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-# Usuarios
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
+    ChangePasswordView, DeleteAccountView,
 )
 from django.core.management import call_command
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -55,43 +54,30 @@ router.register(r"avisos", AvisoViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # API base (routers)
+    
     path("api/", include(router.urls)),
 
-    
-    
-
-    # Usuarios CRUD + perfil
     path("api/usuarios/", ListaYCreaUsuario.as_view(), name="usuarios-lista"),
     path("api/usuarios/<int:pk>/", DetalleUsuario.as_view(), name="usuario-detalle"),
     path("api/usuarios/me/", MeUsuarioView.as_view(), name="usuarios-me"),
+    path("api/usuarios/me/change_password/", ChangePasswordView.as_view(), name="usuarios-change-password"),
+    path("api/usuarios/me/delete/", DeleteAccountView.as_view(), name="usuarios-delete-account"),
 
-    #  Auth (JWT)
+    # Autenticación y registro
     path("api/auth/register/", RegisterView.as_view(), name="auth-register"),
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    # Healthcheck
+   
     path("api/health", health, name="api-health"),
     
-    #  INCLUSIÓN DE DASHBOARD (SOLUCIÓN DEL 404)
+
     path("api/", include("dashboard.urls")),
 
-    #para que uptime lo encuentre y de ok en el servidor
+    
     path('api/health/', health_check),
     path('api/cron/enviar-recordatorios/', disparar_recordatorios_view),
 ]
-
-#Cambio de contraseña y eliminación de cuenta
-try:
-    from usuarios.views import ChangePasswordView, DeleteAccountView
-    urlpatterns += [
-        path("api/usuarios/me/change_password/", ChangePasswordView.as_view(), name="usuarios-change-password"),
-        path("api/usuarios/me/delete/", DeleteAccountView.as_view(), name="usuarios-delete-account"),
-    ]
-except Exception:
-    
-    pass
 
 #reseteo de contraseña
 try:
@@ -110,6 +96,5 @@ except Exception:
     pass
 
 
-# Media en dev
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
