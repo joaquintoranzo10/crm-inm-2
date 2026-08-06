@@ -105,7 +105,7 @@ class Evento(models.Model):
 
     nombre = models.CharField(max_length=120, blank=True, default="")
     apellido = models.CharField(max_length=120, blank=True, default="")
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True, default=None)
     contacto = models.ForeignKey(
         Contacto, null=True, blank=True, on_delete=models.SET_NULL, related_name="eventos"
     )
