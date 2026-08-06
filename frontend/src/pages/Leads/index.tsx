@@ -150,30 +150,52 @@ export default function LeadsPage() {
     }
   }
 
+  const getMinDateTimeLocal = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   // Guardar Edición
   async function handleSaveEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!editTarget) return;
-    setIsProcessing(true);
 
     const formData = new FormData(e.currentTarget);
+    const nextContactAtStr = formData.get('next_contact_at') as string;
+
+    if (nextContactAtStr) {
+      const selectedDate = new Date(nextContactAtStr);
+      const now = new Date();
+      if (selectedDate < now) {
+        alert("La fecha de próximo contacto no puede ser una fecha pasada. Por favor, seleccioná la fecha/hora actual o una futura.");
+        return;
+      }
+    }
+
+    setIsProcessing(true);
+
     const payload = {
         nombre: formData.get('nombre'),
         apellido: formData.get('apellido'),
         email: formData.get('email'),
         telefono: formData.get('telefono'),
         estado: formData.get('estado') ? Number(formData.get('estado')) : null,
-        next_contact_at: formData.get('next_contact_at') || null,
-        
+        next_contact_at: nextContactAtStr ? new Date(nextContactAtStr).toISOString() : null,
     };
 
     try {
       await api.patch(`contactos/${editTarget.id}/`, payload);
       await fetchContactos(); 
       setEditTarget(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al editar", error);
-      alert("Error al guardar los cambios");
+      const msg = error?.response?.data?.next_contact_at || "Error al guardar los cambios";
+      alert(Array.isArray(msg) ? msg[0] : msg);
     } finally {
       setIsProcessing(false);
     }
@@ -650,6 +672,7 @@ export default function LeadsPage() {
                         <input 
                             type="datetime-local"
                             name="next_contact_at" 
+                            min={getMinDateTimeLocal()}
                             defaultValue={editTarget.next_contact_at ? editTarget.next_contact_at.slice(0, 16) : ""}
                             className="rc-input w-full h-10"
                         />
