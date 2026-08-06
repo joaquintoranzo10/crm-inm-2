@@ -74,7 +74,7 @@ function Alert({ kind = "info", children }: any) {
     };
     return <div className={`rounded-xl border px-4 py-3 text-sm ${styles[kind]}`}>{children}</div>;
 }
--
+
 function thisYearMonth() { const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() + 1 }; }
 
 
