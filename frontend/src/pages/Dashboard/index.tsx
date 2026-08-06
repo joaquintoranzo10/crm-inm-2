@@ -320,7 +320,19 @@ export default function DashboardPage() {
 
     const payload: any = {};
     (["nombre", "apellido", "email", "tipo", "fecha_hora", "notas", "propiedad", "contacto"] as const)
-      .forEach((k) => { const v = (data as any)[k]; if (v !== undefined) payload[k] = v; });
+      .forEach((k) => { 
+        const v = (data as any)[k]; 
+        if (v !== undefined) payload[k] = v; 
+      });
+
+    // Limpieza de campos opcionales vacíos para evitar errores 500 en el backend
+    if (!payload.contacto) payload.contacto = null;
+    if (!payload.email || payload.email.trim() === "") {
+      payload.email = null;
+    }
+    if (!payload.nombre) payload.nombre = "";
+    if (!payload.apellido) payload.apellido = "";
+    if (!payload.notas) payload.notas = "";
 
     const ignoreId = mode === "edit" ? id : undefined;
     const valid = validateEventoNoSolapa(payload, eventos, { ignoreId });
@@ -349,8 +361,9 @@ export default function DashboardPage() {
       setOpenDayModal(null);
       toast.success("Evento guardado correctamente.");
     } catch (e: any) {
-      console.error(e);
-      toast.error(e?.response?.data?.detail || "No se pudo guardar el evento.");
+      console.error("Error al guardar evento:", e?.response?.data || e);
+      const serverMsg = e?.response?.data?.non_field_errors?.[0] || e?.response?.data?.detail || JSON.stringify(e?.response?.data) || "No se pudo guardar el evento.";
+      toast.error(serverMsg);
     }
   }
 
