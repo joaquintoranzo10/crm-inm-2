@@ -74,8 +74,9 @@ function Alert({ kind = "info", children }: any) {
     };
     return <div className={`rounded-xl border px-4 py-3 text-sm ${styles[kind]}`}>{children}</div>;
 }
-
+-
 function thisYearMonth() { const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() + 1 }; }
+
 
 export default function ConfiguracionPage() {
   const now = thisYearMonth();
@@ -85,9 +86,10 @@ export default function ConfiguracionPage() {
   const [prefSaving, setPrefSaving] = useState(false);
   const [format, setFormat] = useState<"csv"|"json">("csv");
   const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<any>(null); 
   const [metricsLoading, setMetricsLoading] = useState(false);
-  const [importResource, setImportResource] = useState("propiedades");
+  const [importResource] = useState("leads");
   const [dryRun, setDryRun] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
   const [importLoading, setImportLoading] = useState(false);
@@ -131,14 +133,29 @@ export default function ConfiguracionPage() {
     }
   };
 
-  const handleExport = async () => { 
-    setExportLoading(true); 
-    try { 
-      await new Promise(r => setTimeout(r, 500)); 
-      alert("Simulación de exportación"); 
-    } finally { 
-      setExportLoading(false); 
-    } 
+  const handleExport = async () => {
+    setExportLoading(true);
+    setExportError(null);
+    try {
+      const res = await api.post(
+        "/api/exportacion/export/",
+        { format, resources: ["leads", "propiedades", "eventos"], filters: { year, month } },
+        { responseType: "blob" }
+      );
+      const blob = new Blob([res.data], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `export_${year}_${String(month).padStart(2, "0")}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setExportError("No se pudo generar la exportación. Probá de nuevo.");
+    } finally {
+      setExportLoading(false);
+    }
   };
   const handleMetrics = async () => { setMetricsLoading(true); try{ const {data} = await api.get("/api/exportacion/metrics/", {params:{year,month}}); setMetrics(data); }catch{ }finally{ setMetricsLoading(false); } };
   const handleImport = async () => { setImportLoading(true); try{ const f = fileRef.current?.files?.[0]; if(!f) return alert("Seleccionar archivo"); const fd=new FormData(); fd.append("file",f); fd.append("resource",importResource); fd.append("dry_run",String(dryRun)); const {data} = await api.post("/api/exportacion/import/", fd); setImportRes(data); }catch(e:any){ alert(e.message||"Error"); }finally{ setImportLoading(false); } };
@@ -223,7 +240,7 @@ export default function ConfiguracionPage() {
                 <Label>Periodo</Label>
                 <div className="flex gap-2">
                   <Select value={year} onChange={(e:any)=>setYear(Number(e.target.value))}>
-                    {[2023,2024,2025].map(y=> (
+                    {[2023,2024,2025,2026].map(y=> (
                       <option key={y} value={y} style={optionStyle}>{y}</option>
                     ))}
                   </Select>
@@ -244,8 +261,9 @@ export default function ConfiguracionPage() {
         </div>
         <div className="mt-6 pt-4 border-t border-gray-300 dark:border-white/10 flex justify-end gap-3">
              <Button variant="ghost" onClick={handleMetrics} disabled={metricsLoading}>Ver métricas</Button>
-             <Button onClick={handleExport} disabled={exportLoading}>Exportar</Button>
+             <Button onClick={handleExport} disabled={exportLoading}>{exportLoading ? "Exportando..." : "Exportar"}</Button>
         </div>
+        {exportError && <div className="mt-4"><Alert kind="error">{exportError}</Alert></div>}
         {metrics && (
              <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                 <div className="p-3 rounded-lg card-base">
@@ -268,10 +286,9 @@ export default function ConfiguracionPage() {
          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <Label>Recurso</Label>
-                <Select value={importResource} onChange={(e:any)=>setImportResource(e.target.value)}>
-                    <option value="leads" style={optionStyle}>Leads</option>
-                    <option value="propiedades" style={optionStyle}>Propiedades</option>
-                </Select>
+                <div className="rc-input flex items-center opacity-80 cursor-not-allowed select-none">
+                  Leads
+                </div>
             </div>
             <div>
                 <Label>Archivo CSV/JSON</Label>
@@ -311,7 +328,7 @@ export default function ConfiguracionPage() {
         </form>
       </Section>
 
-     
+      {/* Zona de Peligro  */}
       <div className="rounded-2xl border p-6 transition-all duration-200
                       bg-rose-50 border-rose-300 font-medium text-black
                       dark:bg-transparent dark:border-rose-500 dark:font-normal dark:text-white">
