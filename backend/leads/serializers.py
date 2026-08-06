@@ -159,8 +159,8 @@ class EventoSerializer(serializers.ModelSerializer):
         queryset=Propiedad.objects.all()
     )
 
-    contacto_detalle = ContactoSerializer(source="contacto", read_only=True)
-    propiedad_detalle = serializers.StringRelatedField(source="propiedad", read_only=True)
+    contacto_nombre = serializers.SerializerMethodField(read_only=True)
+    propiedad_titulo = serializers.SerializerMethodField(read_only=True)
     tipo = serializers.ChoiceField(choices=Evento.TIPO_EVENTO_CHOICES)
 
     class Meta:
@@ -172,16 +172,28 @@ class EventoSerializer(serializers.ModelSerializer):
             "apellido",
             "email",
             "contacto",
-            "contacto_detalle",
+            "contacto_nombre",
             "propiedad",
-            "propiedad_detalle",
+            "propiedad_titulo",
             "tipo",
             "fecha_hora",
             "notas",
             "creado_en",
         ]
-        read_only_fields = ["id", "creado_en"]
+        read_only_fields = ["id", "creado_en", "contacto_nombre", "propiedad_titulo"]
 
+    def get_contacto_nombre(self, obj):
+        if obj.contacto:
+            nombre_completo = f"{obj.contacto.nombre or ''} {obj.contacto.apellido or ''}".strip()
+            return nombre_completo if nombre_completo else f"Lead #{obj.contacto.id}"
+        if obj.nombre or obj.apellido:
+            return f"{obj.nombre or ''} {obj.apellido or ''}".strip()
+        return None
+
+    def get_propiedad_titulo(self, obj):
+        if obj.propiedad:
+            return obj.propiedad.titulo or f"Propiedad #{obj.propiedad.id}"
+        return None
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
