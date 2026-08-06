@@ -75,8 +75,8 @@ function Alert({ kind = "info", children }: any) {
     return <div className={`rounded-xl border px-4 py-3 text-sm ${styles[kind]}`}>{children}</div>;
 }
 
-function thisYearMonth() { const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() + 1 }; }
 
+function thisYearMonth() { const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() + 1 }; }
 
 export default function ConfiguracionPage() {
   const now = thisYearMonth();
@@ -87,6 +87,7 @@ export default function ConfiguracionPage() {
   const [format, setFormat] = useState<"csv"|"json">("csv");
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [exportResources, setExportResources] = useState<string[]>(["leads", "propiedades", "eventos"]);
   const [metrics, setMetrics] = useState<any>(null); 
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [importResource] = useState("leads");
@@ -133,13 +134,22 @@ export default function ConfiguracionPage() {
     }
   };
 
+  const toggleExportResource = (r: string) => {
+    setExportResources((prev) => prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]);
+  };
+
   const handleExport = async () => {
     setExportLoading(true);
     setExportError(null);
+    if (exportResources.length === 0) {
+      setExportError("Elegí al menos un recurso para exportar");
+      setExportLoading(false);
+      return;
+    }
     try {
       const res = await api.post(
         "/api/exportacion/export/",
-        { format, resources: ["leads", "propiedades", "eventos"], filters: { year, month } },
+        { format, resources: exportResources, filters: { year, month } },
         { responseType: "blob" }
       );
       const blob = new Blob([res.data], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
@@ -158,7 +168,27 @@ export default function ConfiguracionPage() {
     }
   };
   const handleMetrics = async () => { setMetricsLoading(true); try{ const {data} = await api.get("/api/exportacion/metrics/", {params:{year,month}}); setMetrics(data); }catch{ }finally{ setMetricsLoading(false); } };
-  const handleImport = async () => { setImportLoading(true); try{ const f = fileRef.current?.files?.[0]; if(!f) return alert("Seleccionar archivo"); const fd=new FormData(); fd.append("file",f); fd.append("resource",importResource); fd.append("dry_run",String(dryRun)); const {data} = await api.post("/api/exportacion/import/", fd); setImportRes(data); }catch(e:any){ alert(e.message||"Error"); }finally{ setImportLoading(false); } };
+  const [importError, setImportError] = useState<string | null>(null);
+  const handleImport = async () => {
+    setImportLoading(true);
+    setImportError(null);
+    try {
+      const f = fileRef.current?.files?.[0];
+      if (!f) { setImportError("Seleccioná un archivo primero"); return; }
+      const fd = new FormData();
+      fd.append("file", f);
+      fd.append("resource", importResource);
+      fd.append("dry_run", String(dryRun));
+      const { data } = await api.post("/api/exportacion/import/", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setImportRes(data);
+    } catch (e: any) {
+      setImportError(e?.response?.data?.detail || "No se pudo importar el archivo");
+    } finally {
+      setImportLoading(false);
+    }
+  };
   const handleChangePassword = async (e:any) => {
     e.preventDefault();
     setPwdLoading(true);
@@ -259,6 +289,28 @@ export default function ConfiguracionPage() {
                 </div>
             </div>
         </div>
+        <div className="mt-5">
+            <Label>Qué exportar</Label>
+            <div className="flex flex-wrap gap-4 pt-2 text-sm font-bold">
+                <label className="flex gap-2 items-center">
+                    <input type="checkbox" className="accent-blue-600" checked={exportResources.includes("leads")} onChange={()=>toggleExportResource("leads")} /> Leads
+                </label>
+                <label className="flex gap-2 items-center">
+                    <input type="checkbox" className="accent-blue-600" checked={exportResources.includes("propiedades")} onChange={()=>toggleExportResource("propiedades")} /> Propiedades
+                </label>
+                <label className="flex gap-2 items-center">
+                    <input type="checkbox" className="accent-blue-600" checked={exportResources.includes("eventos")} onChange={()=>toggleExportResource("eventos")} /> Eventos
+                </label>
+                <label className="flex gap-2 items-center ml-auto opacity-70">
+                    <input
+                      type="checkbox"
+                      className="accent-blue-600"
+                      checked={exportResources.length === 3}
+                      onChange={()=>setExportResources(exportResources.length === 3 ? [] : ["leads","propiedades","eventos"])}
+                    /> Todos
+                </label>
+            </div>
+        </div>
         <div className="mt-6 pt-4 border-t border-gray-300 dark:border-white/10 flex justify-end gap-3">
              <Button variant="ghost" onClick={handleMetrics} disabled={metricsLoading}>Ver métricas</Button>
              <Button onClick={handleExport} disabled={exportLoading}>{exportLoading ? "Exportando..." : "Exportar"}</Button>
@@ -304,7 +356,24 @@ export default function ConfiguracionPage() {
             </label>
             <Button onClick={handleImport} disabled={importLoading}>Importar</Button>
          </div>
-         {importRes && <div className="mt-4"><Alert kind={importRes.errors.length?"info":"success"}>Procesados: {importRes.created} creados, {importRes.updated} actualizados.</Alert></div>}
+         {importError && <div className="mt-4"><Alert kind="error">{importError}</Alert></div>}
+         {importRes && (
+           <div className="mt-4 space-y-2">
+             <Alert kind={importRes.errors.length?"info":"success"}>
+               Procesados: {importRes.created} creados, {importRes.updated} actualizados.
+               {importRes.dry_run && " (simulación — no se guardó nada)"}
+             </Alert>
+             {importRes.errors.length > 0 && (
+               <Alert kind="error">
+                 <ul className="list-disc pl-4 space-y-1">
+                   {importRes.errors.map((err: any, i: number) => (
+                     <li key={i}>Fila {err.row}: {err.error}</li>
+                   ))}
+                 </ul>
+               </Alert>
+             )}
+           </div>
+         )}
       </Section>
 
       <Section title="Seguridad">
