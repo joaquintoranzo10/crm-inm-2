@@ -11,7 +11,7 @@ from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial,HistorialL
 from propiedades.models import Propiedad
 
 # Duración por defecto de un evento (minutos)
-DEFAULT_EVENT_DURATION_MIN = 60
+DEFAULT_EVENT_DURATION_MIN = 30
 
 class EstadoLeadSerializer(serializers.ModelSerializer):
     class Meta:
