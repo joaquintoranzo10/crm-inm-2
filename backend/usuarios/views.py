@@ -73,7 +73,7 @@ class DetalleUsuario(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ChangePasswordView(APIView):
-    
+ 
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -81,7 +81,7 @@ class ChangePasswordView(APIView):
         new_password = request.data.get("new_password") or ""
         re_new_password = request.data.get("re_new_password") or ""
 
-        user = request.user  
+        user = request.user  # auth user
 
         if not current_password or not new_password or not re_new_password:
             return Response({"detail": "Faltan campos obligatorios"}, status=400)
@@ -98,7 +98,6 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save(update_fields=["password"])
 
-      
         UsuarioModel.objects.filter(email__iexact=user.email).update(
             password_hash=make_password(new_password)
         )
