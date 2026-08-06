@@ -214,10 +214,12 @@ class EventoSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs):
         
+        if "email" in attrs and not attrs["email"]:
+            attrs["email"] = None
+
         fecha_hora = attrs.get("fecha_hora", getattr(self.instance, "fecha_hora", None))
         propiedad = attrs.get("propiedad", getattr(self.instance, "propiedad", None))
         if not fecha_hora or not propiedad:
-
             return attrs
 
         fecha_hora_local = timezone.localtime(fecha_hora)
@@ -233,10 +235,8 @@ class EventoSerializer(serializers.ModelSerializer):
         if self.instance and getattr(self.instance, "id", None):
             base_qs = base_qs.exclude(id=self.instance.id)
 
-     
         if base_qs.filter(fecha_hora=fecha_hora).exists():
             raise serializers.ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
-
 
         existing_end_expr = ExpressionWrapper(
             F("fecha_hora") + Value(timedelta(minutes=duration_min)),
