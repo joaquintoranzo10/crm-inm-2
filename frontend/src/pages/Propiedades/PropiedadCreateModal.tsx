@@ -90,7 +90,7 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
 }
 
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void };
-type Estado = "disponible" | "vendido" | "reservado";
+type Estado = "disponible" | "vendido" | "reservado" | "alquilado";
 type TipoProp = "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local" | "oficina" | "consultorio" | "quinta" | "chacra" | "galpon" | "deposito" | "campo" | "hotel" | "fondo de comercio" | "edificio" | "otro";
 type Moneda = "USD" | "ARS";
 type Disponibilidad = "venta" | "alquiler";
@@ -276,7 +276,19 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
             </div>
             <div className="col-span-6 sm:col-span-4">
               <Row label="Estado *">
-                <SelectScroll value={estado} onChange={(v) => setEstado(v as Estado)} options={["disponible", "reservado", "vendido"]} />
+                <select
+                  className={inputClass}
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value as Estado)}
+                  required
+                >
+                  <option value="disponible">Disponible</option>
+                  <option value="reservado">Reservado</option>
+                 
+                  <option value={disponibilidad === "alquiler" ? "alquilado" : "vendido"}>
+                    {disponibilidad === "alquiler" ? "Alquilado" : "Vendido"}
+                  </option>
+                </select>
               </Row>
             </div>
 
