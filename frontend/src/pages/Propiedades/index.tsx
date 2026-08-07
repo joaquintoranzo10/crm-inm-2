@@ -443,8 +443,8 @@ export default function PropiedadesPage() {
   }, [items, q]);
 
   const cardStyles = `
-    .card_box { width: 100%; border-radius: 20px; background: linear-gradient(170deg, rgba(58, 56, 56, 0.623) 0%, rgb(31, 31, 31) 100%); position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.55); transition: all .3s; cursor: pointer; }
-    .card_box:hover { transform: scale(0.95); box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
+    .card_box { width: 100%; border-radius: 20px; position: relative; transition: all .3s; cursor: pointer; }
+    .card_box:hover { transform: scale(0.97); }
     .ribbon-wrapper { position: absolute; overflow: hidden; width: 120px; height: 120px; top: -10px; left: -10px; display: flex; align-items: center; justify-content: center; z-index: 20; pointer-events: none; }
     .ribbon-content { position: absolute; width: 150%; height: 30px; background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%); transform: rotate(-45deg) translateY(-15px); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 0 5px 10px rgba(0,0,0,0.23); }
     @media (max-width: 639px) {
@@ -511,7 +511,7 @@ export default function PropiedadesPage() {
             return (
               <article
                 key={p.id}
-                className="card_box flex flex-col"
+                className="card_box flex flex-col bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:shadow-[0_15px_30px_rgb(0,0,0,0.12)] dark:bg-gradient-to-br dark:from-[#3a38389f] dark:to-[#1f1f1f] dark:border-none dark:shadow-[0_25px_50px_rgba(0,0,0,0.55)] dark:hover:shadow-[0_15px_30px_rgba(0,0,0,0.7)]"
                 onClick={() => setDetail(p)}
               >
 
@@ -531,22 +531,26 @@ export default function PropiedadesPage() {
                 </div>
 
                 {/* Cuerpo de la tarjeta */}
-                <div className="p-3 sm:p-5 space-y-1 sm:space-y-2 flex-1 text-gray-200">
+                <div className="p-3 sm:p-5 space-y-1 sm:space-y-2 flex-1">
                   <div className="flex justify-between items-start">
-                    <div className="text-[11px] sm:text-xs text-gray-400">{p.ubicacion}</div>
-                    {!!p.disponibilidad && <div className="text-[9px] sm:text-[10px] uppercase font-bold text-orange-400 border border-orange-400/30 px-1.5 py-0.5 rounded">{p.disponibilidad}</div>}
+                    <div className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">{p.ubicacion}</div>
+                    {!!p.disponibilidad && (
+                      <div className="text-[9px] sm:text-[10px] uppercase font-bold text-orange-600 bg-orange-50 border border-orange-200 dark:bg-transparent dark:text-orange-400 dark:border-orange-400/30 px-1.5 py-0.5 rounded">
+                        {p.disponibilidad}
+                      </div>
+                    )}
                   </div>
 
-                  <h3 className="font-bold text-base sm:text-lg leading-tight text-white">{p.titulo}</h3>
-                  <div className="text-lg sm:text-xl font-medium text-white">{money(p.precio, p.moneda)}</div>
+                  <h3 className="font-bold text-base sm:text-lg leading-tight text-gray-900 dark:text-white">{p.titulo}</h3>
+                  <div className="text-lg sm:text-xl font-medium text-gray-900 dark:text-white">{money(p.precio, p.moneda)}</div>
 
                   {!!p.descripcion && (
-                    <p className="hidden sm:block text-xs text-gray-400 line-clamp-2">{p.descripcion}</p>
+                    <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{p.descripcion}</p>
                   )}
                 </div>
 
                 {/* Footer de la card */}
-                <div className="mt-auto px-3 py-2.5 sm:px-5 sm:py-4 border-t border-white/10">
+                <div className="mt-auto px-3 py-2.5 sm:px-5 sm:py-4 border-t border-gray-100 dark:border-white/10">
                   <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2.5 sm:mb-4">
                     {[
                       { k: "Amb", v: p.ambiente ?? "-" },
@@ -555,9 +559,9 @@ export default function PropiedadesPage() {
                       { k: "Sup", v: `${p.superficie} m²` },
                       { k: "Cod", v: p.codigo },
                     ].map((it) => (
-                      <div key={it.k} className="bg-white/5 rounded-lg px-1 py-1 sm:py-1.5 text-center border border-white/5">
+                      <div key={it.k} className="bg-gray-50 dark:bg-white/5 rounded-lg px-1 py-1 sm:py-1.5 text-center border border-gray-100 dark:border-white/5">
                         <div className="text-[8px] sm:text-[9px] text-gray-500 uppercase">{it.k}</div>
-                        <div className="text-[11px] sm:text-xs font-bold text-gray-200 truncate">{it.v}</div>
+                        <div className="text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{it.v}</div>
                       </div>
                     ))}
                   </div>
@@ -566,19 +570,19 @@ export default function PropiedadesPage() {
                   <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                     <button
                       className="flex-1 cursor-pointer transition-all bg-gray-600 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-gray-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
-                      onClick={(e) => { e.stopPropagation(); setDetail(p); }} // stopPropagation para evitar doble evento, aunque es la misma acción
+                      onClick={(e) => { e.stopPropagation(); setDetail(p); }}
                     >
                       VER
                     </button>
                     <button
                       className="flex-1 cursor-pointer transition-all bg-blue-500 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-blue-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
-                      onClick={(e) => { e.stopPropagation(); setEditTarget(p); }} // stopPropagation IMPORTANTE: Evita que se abra el "Ver" al querer editar
+                      onClick={(e) => { e.stopPropagation(); setEditTarget(p); }}
                     >
                       EDITAR
                     </button>
                     <button
                       className="flex-1 cursor-pointer transition-all bg-rose-500 text-white px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border-rose-700 border-b-[3px] sm:border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] text-[10px] sm:text-[11px] font-bold text-center"
-                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} // stopPropagation IMPORTANTE: Evita que se abra el "Ver" al querer borrar
+                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }}
                     >
                       BORRAR
                     </button>
