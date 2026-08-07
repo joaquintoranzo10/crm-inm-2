@@ -136,13 +136,22 @@ class EstadoLeadHistorial(models.Model):
 
 @receiver(post_save, sender=Contacto)
 def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **kwargs):
-   
     if kwargs.get('raw', False):
         return
-
     if created and not instance.next_contact_at:
+        dias_recordatorio = 3
+        if instance.owner and getattr(instance.owner, 'email', None):
+            try:
+                from usuarios.models import Usuario
+                u = Usuario.objects.filter(email__iexact=instance.owner.email).first()
+                if u and u.reminder_every_days:
+                    dias_recordatorio = u.reminder_every_days
+            except Exception:
+                pass
+
+        
         Contacto.objects.filter(pk=instance.pk).update(
-            next_contact_at=timezone.now() + timezone.timedelta(days=3),
+            next_contact_at=timezone.now() + timezone.timedelta(days=dias_recordatorio),
             next_contact_note="Primer seguimiento (automático)"
         )
 
@@ -177,7 +186,19 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         )
 
         if is_relevant_event:
-            contacto.next_contact_at = now + timezone.timedelta(days=3)
+            
+            dias_recordatorio = 3
+            if contacto.owner and getattr(contacto.owner, 'email', None):
+                try:
+                    from usuarios.models import Usuario
+                    u = Usuario.objects.filter(email__iexact=contacto.owner.email).first()
+                    if u and u.reminder_every_days:
+                        dias_recordatorio = u.reminder_every_days
+                except Exception:
+                    pass
+
+            
+            contacto.next_contact_at = now + timezone.timedelta(days=dias_recordatorio)
             contacto.next_contact_note = "Programar próximo seguimiento"
             update_fields_list.extend(["next_contact_at", "next_contact_note"])
 
