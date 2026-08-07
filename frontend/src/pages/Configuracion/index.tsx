@@ -317,21 +317,25 @@ export default function ConfiguracionPage() {
         </div>
         {exportError && <div className="mt-4"><Alert kind="error">{exportError}</Alert></div>}
         {metrics && (
-             <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                <div className="p-3 rounded-lg card-base">
-                    <div className="text-xs font-black uppercase opacity-70">Leads</div>
-                    <div className="text-xl font-black">{metrics.leads_mes}</div>
-                </div>
-                <div className="p-3 rounded-lg card-base">
-                    <div className="text-xs font-black uppercase opacity-70">Ventas</div>
-                    <div className="text-xl font-black">{metrics.ventas_mes}</div>
-                </div>
-                <div className="p-3 rounded-lg card-base">
-                    <div className="text-xs font-black uppercase opacity-70">Conv.</div>
-                    <div className="text-xl font-black">{metrics.conversion_pct}%</div>
-                </div>
+             <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                 <div className="p-4 rounded-xl card-base border-t-2 border-t-blue-500 shadow-sm">
+                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Eventos (Mes)</div>
+                     <div className="text-3xl font-black text-blue-600 dark:text-blue-400">{metrics.eventos_mes}</div>
+                 </div>
+                 <div className="p-4 rounded-xl card-base border-t-2 border-t-emerald-500 shadow-sm">
+                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Propiedades (Mes)</div>
+                     <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{metrics.propiedades_mes}</div>
+                 </div>
+                 <div className="p-4 rounded-xl card-base border-t-2 border-t-amber-500 shadow-sm">
+                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Leads Pendientes</div>
+                     <div className="text-3xl font-black text-amber-600 dark:text-amber-400">{metrics.leads_pendientes}</div>
+                 </div>
+                 <div className="p-4 rounded-xl card-base border-t-2 border-t-purple-500 shadow-sm">
+                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Ventas (Mes)</div>
+                     <div className="text-3xl font-black text-purple-600 dark:text-purple-400">{metrics.ventas_mes}</div>
+                 </div>
              </div>
-        )}
+         )}
       </Section>
 
       <Section title="Importar datos">

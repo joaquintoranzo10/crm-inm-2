@@ -2,7 +2,6 @@ import csv
 import io
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.utils.timezone import make_aware
@@ -133,7 +132,7 @@ class ExportView(APIView):
                 )
             )
 
-        # salida
+       
         if fmt == "json":
             return JsonResponse(data, safe=False)
 
@@ -160,9 +159,7 @@ class ExportView(APIView):
 
 
 class MetricsView(APIView):
-    """
-    GET /api/exportacion/metrics/?year=2025&month=9
-    """
+    
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -178,21 +175,30 @@ class MetricsView(APIView):
 
         user = request.user
 
-        leads_mes = Contacto.objects.filter(owner=user, creado_en__range=(start_dt, end_dt)).count()
-
+       
         ventas_qs = Propiedad.objects.filter(owner=user, estado="vendido")
         ventas_mes = ventas_qs.filter(vendida_en__range=(start_dt, end_dt)).count()
         if ventas_mes == 0:
             ventas_mes = ventas_qs.filter(fecha_alta__range=(start_dt, end_dt)).count()
 
-        conversion_pct = round((ventas_mes / leads_mes * 100.0), 2) if leads_mes else 0.0
+    
+        propiedades_mes = Propiedad.objects.filter(owner=user, fecha_alta__range=(start_dt, end_dt)).count()
+
+      
+        eventos_mes = Evento.objects.filter(owner=user, fecha_hora__range=(start_dt, end_dt)).count()
+
+        
+        leads_pendientes = Contacto.objects.filter(owner=user).exclude(
+            estado__fase__in=['Vendido', 'Rechazado', 'Lead Vendido', 'Lead Rechazado']
+        ).count()
 
         return JsonResponse({
             "year": year,
             "month": month,
-            "leads_mes": leads_mes,
             "ventas_mes": ventas_mes,
-            "conversion_pct": conversion_pct,
+            "propiedades_mes": propiedades_mes,
+            "eventos_mes": eventos_mes,
+            "leads_pendientes": leads_pendientes,
         })
 
 
