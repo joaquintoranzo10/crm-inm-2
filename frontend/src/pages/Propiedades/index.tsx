@@ -774,8 +774,16 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
 
 function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   type FormState = Omit<Propiedad, "disponibilidad"> & { disponibilidad: "venta" | "alquiler" };
+
   const [form, setForm] = useState<FormState>({
     ...propiedad,
+    localidad: propiedad.localidad || "",
+    barrio: propiedad.barrio || "",
+    direccion: propiedad.direccion || "",
+    cocheras: propiedad.cocheras ?? 0,
+    tiene_patio: !!propiedad.tiene_patio,
+    tiene_pileta: !!propiedad.tiene_pileta,
+    tiene_quincho: !!propiedad.tiene_quincho,
     disponibilidad: (propiedad.disponibilidad?.toLowerCase() as "venta" | "alquiler") ?? "venta",
   } as FormState);
 
@@ -841,6 +849,13 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
         titulo: form.titulo,
         descripcion: form.descripcion,
         ubicacion: form.ubicacion,
+        localidad: form.localidad,
+        barrio: form.barrio,
+        direccion: form.direccion,
+        cocheras: Number(form.cocheras || 0),
+        tiene_patio: form.tiene_patio,
+        tiene_pileta: form.tiene_pileta,
+        tiene_quincho: form.tiene_quincho,
         tipo_de_propiedad: form.tipo_de_propiedad,
         disponibilidad: asDisponibilidad(form.disponibilidad),
         precio: Number(form.precio),
@@ -851,6 +866,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
         superficie: Number(form.superficie),
         estado: form.estado,
       };
+
       await axios.patch(`/api/propiedades/${form.id}/`, payload);
       await subirNuevasImagenes(form.id);
       onSaved();
@@ -873,7 +889,10 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
+<<<<<<< HEAD
 
+=======
+>>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
           {/* Formulario */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
@@ -886,11 +905,47 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 <input className={inputClass} value={form.titulo} onChange={(e) => set("titulo", e.target.value)} />
               </Row>
             </div>
+
+            {/* Buscador  Ubicación */}
             <div className="col-span-12">
-              <Row label="Ubicación">
-                <input className={inputClass} value={form.ubicacion} onChange={(e) => set("ubicacion", e.target.value)} />
+              <Row label="Buscador Inteligente de Ubicación">
+                <Select
+                  options={opcionesUbicacion}
+                  placeholder="Empezá a escribir (Ej: Marcos Juárez)..."
+                  noOptionsMessage={() => "No se encontraron localidades"}
+                  onChange={(selectedItem: any) => {
+                    if (selectedItem) {
+                      set("ubicacion", selectedItem.value.ubicacionGeneral);
+                      set("localidad", selectedItem.value.localidad);
+                    }
+                  }}
+                  isClearable
+                  styles={customSelectStyles}
+                />
               </Row>
             </div>
+
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Ubicación General *">
+                <input className={inputClass} value={form.ubicacion} onChange={(e) => set("ubicacion", e.target.value)} placeholder="Provincia, Departamento" />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Localidad">
+                <input className={inputClass} value={form.localidad || ""} onChange={(e) => set("localidad", e.target.value)} placeholder="Ej: Marcos Juárez" />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Barrio">
+                <input className={inputClass} value={form.barrio || ""} onChange={(e) => set("barrio", e.target.value)} />
+              </Row>
+            </div>
+            <div className="col-span-12 sm:col-span-6">
+              <Row label="Dirección exacta">
+                <input className={inputClass} value={form.direccion || ""} onChange={(e) => set("direccion", e.target.value)} placeholder="Ej: San Martín 123" />
+              </Row>
+            </div>
+
             <div className="col-span-12 sm:col-span-6">
               <Row label="Tipo de propiedad">
                 <SelectScroll
@@ -913,6 +968,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 />
               </Row>
             </div>
+
             <div className="col-span-12 sm:col-span-5">
               <Row label="Precio">
                 <input type="number" min={0} className={`${inputClass} font-medium`}
@@ -941,6 +997,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 </select>
               </Row>
             </div>
+
             <div className="col-span-6 sm:col-span-3">
               <Row label="Ambientes">
                 <select
@@ -948,7 +1005,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                   value={form.ambiente}
                   onChange={(e) => set("ambiente", e.target.value === "" ? 0 : Number(e.target.value))}
                 >
-                  <option value="">0</option>
+                  <option value="0">0</option>
                   {[1, 2, 3, 4, 5].map((num) => (
                     <option key={num} value={num}>
                       {num === 5 ? "5+" : num}
@@ -964,7 +1021,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                   value={form.banos}
                   onChange={(e) => set("banos", e.target.value === "" ? 0 : Number(e.target.value))}
                 >
-                  <option value="">0</option>
+                  <option value="0">0</option>
                   {[1, 2, 3, 4, 5].map((num) => (
                     <option key={num} value={num}>
                       {num === 5 ? "5+" : num}
@@ -989,6 +1046,40 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 />
               </Row>
             </div>
+
+            <div className="col-span-6 sm:col-span-3">
+              <Row label="Cocheras">
+                <select
+                  className={inputClass}
+                  value={form.cocheras ?? 0}
+                  onChange={(e) => set("cocheras", Number(e.target.value))}
+                >
+                  <option value="0">0</option>
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <option key={num} value={num}>
+                      {num === 5 ? "5+" : num}
+                    </option>
+                  ))}
+                </select>
+              </Row>
+            </div>
+
+            {/* Checkboxes  */}
+            <div className="col-span-12 flex flex-wrap gap-6 mt-1 p-3 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-gray-200 dark:border-zinc-800">
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={!!form.tiene_patio} onChange={e => set("tiene_patio", e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Patio
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={!!form.tiene_pileta} onChange={e => set("tiene_pileta", e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Pileta
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" checked={!!form.tiene_quincho} onChange={e => set("tiene_quincho", e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />
+                Tiene Quincho
+              </label>
+            </div>
+
             <div className="col-span-12">
               <Row label="Descripción">
                 <textarea rows={4} className={`${inputClass} h-auto resize-none`} value={form.descripcion} onChange={e => set("descripcion", e.target.value)} />
@@ -998,7 +1089,10 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
           {/* Imágenes */}
           <div className="col-span-12 md:col-span-3 space-y-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-4 md:pt-0 pl-0 md:pl-3">
+<<<<<<< HEAD
 
+=======
+>>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
             <div>
               <h3 className="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500">Agregar Imágenes</h3>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
@@ -1008,7 +1102,10 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 </label>
               </div>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
               {filesToUpload.length > 0 && (
                 <div className="mt-3">
                   <div className="text-xs font-medium text-blue-600 mb-2">Nuevas ({filesToUpload.length})</div>
@@ -1037,7 +1134,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 <ul className="grid grid-cols-3 md:grid-cols-2 gap-3 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
                   {galeriaExistente.map((img) => (
                     <li key={img.id} className="relative group rounded-lg overflow-hidden aspect-square border border-gray-200 dark:border-gray-800 shadow-sm">
-                      <img src={img.imagen} alt={`Galeria ${img.id}`} className="w-full h-full object-cover" />
+                      <img src={absMedia(img.imagen) || ""} alt={`Galeria ${img.id}`} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20 flex items-start justify-end p-1">
                         <button
                           type="button"
@@ -1056,7 +1153,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
               )}
             </div>
           </div>
-
         </div>
       </div>
 
@@ -1079,7 +1175,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
       {imageToDelete !== null && (
         <ConfirmModal
           title="Eliminar imagen"
-          message="¿Está seguro de borrar esta imagen guardada? Esta acción es inmediata."
+          message="¿Seguro de borrar esta imagen guardada? Esta acción es inmediata."
           confirmLabel="Eliminar"
           confirmType="danger"
           onCancel={() => setImageToDelete(null)}
