@@ -80,6 +80,16 @@ class ContactoSerializer(serializers.ModelSerializer):
         note = attrs.get("next_contact_note", getattr(self.instance, "next_contact_note", ""))
         if note and len(note) > 255:
             raise serializers.ValidationError({"next_contact_note": "Máximo 255 caracteres."})
+
+        next_contact = attrs.get("next_contact_at")
+        if next_contact:
+            now_local = timezone.localtime(timezone.now())
+            next_contact_local = timezone.localtime(next_contact)
+            if next_contact_local < now_local:
+                raise serializers.ValidationError(
+                    {"next_contact_at": "La fecha de próximo contacto debe ser la fecha y hora actual o una futura."}
+                )
+            
         return attrs
 
    
