@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { FiCheckCircle } from "react-icons/fi";
-// --- UI Components ---
+
 
 function Section({ title, children }: any) {
   return (
@@ -43,7 +43,7 @@ function Select(props: any) {
   );
 }
 
-function Button({ children, onClick, variant = "primary", disabled }: any) {
+function Button({ children, onClick, variant = "primary", disabled, type = "button" }: any) {
   const baseClass = "h-10 px-4 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
 
   const variants: any = {
@@ -59,7 +59,7 @@ function Button({ children, onClick, variant = "primary", disabled }: any) {
     <button 
       onClick={onClick} 
       disabled={disabled} 
-      type="button" 
+      type={type} 
       className={`${baseClass} ${variants[variant] || variants.primary}`}
     >
       {children}
@@ -267,7 +267,7 @@ export default function ConfiguracionPage() {
         </form>
       </Section>
 
-      {/* Zona de Peligro  */}
+  
       <div className="rounded-2xl border p-6 transition-all duration-200
                       bg-rose-50 border-rose-300 font-medium text-black
                       dark:bg-transparent dark:border-rose-500 dark:font-normal dark:text-white">
