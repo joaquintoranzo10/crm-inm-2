@@ -893,10 +893,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-<<<<<<< HEAD
-
-=======
->>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
           {/* Formulario */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
@@ -997,7 +993,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 >
                   <option value="disponible">Disponible</option>
                   <option value="reservado">Reservado</option>
-                  
+
                   <option value={form.disponibilidad === "alquiler" ? "alquilado" : "vendido"}>
                     {form.disponibilidad === "alquiler" ? "Alquilado" : "Vendido"}
                   </option>
@@ -1096,10 +1092,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
           {/* Imágenes */}
           <div className="col-span-12 md:col-span-3 space-y-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-4 md:pt-0 pl-0 md:pl-3">
-<<<<<<< HEAD
-
-=======
->>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
             <div>
               <h3 className="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500">Agregar Imágenes</h3>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
@@ -1109,10 +1101,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 </label>
               </div>
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 313a20962fe0ac006ad6102616cd8b32eb87e53e
               {filesToUpload.length > 0 && (
                 <div className="mt-3">
                   <div className="text-xs font-medium text-blue-600 mb-2">Nuevas ({filesToUpload.length})</div>
