@@ -14,9 +14,6 @@ from leads.models import Contacto, Evento
 from propiedades.models import Propiedad
 
 
-# =======================
-# Utilidades de fechas
-# =======================
 
 def _month_range(year: int, month: int):
     from calendar import monthrange
@@ -37,7 +34,7 @@ def _parse_dt(val):
         return None
     if isinstance(val, datetime):
         return _to_aware(val)
-    # Acepta ISO extendido u otros formatos comunes
+    
     for fmt in (
         "%Y-%m-%dT%H:%M:%S%z",
         "%Y-%m-%dT%H:%M:%S",
@@ -49,7 +46,7 @@ def _parse_dt(val):
             return _to_aware(dt)
         except Exception:
             continue
-    # último intento: fromisoformat
+   
     try:
         dt = datetime.fromisoformat(str(val))
         return _to_aware(dt)
@@ -66,26 +63,10 @@ def _to_decimal(x):
         return None
 
 
-# =======================
-# Export & Métricas
-# =======================
+
 
 class ExportView(APIView):
-    """
-    POST /api/exportacion/export/
-    Body JSON:
-    {
-      "format": "csv" | "json",
-      "resources": ["leads","propiedades","eventos"],
-      "filters": {
-        "year": 2025,
-        "month": 9,
-        "date_from": "2025-09-01",
-        "date_to": "2025-09-30",
-        "estado_propiedad": ["vendido","reservado"]
-      }
-    }
-    """
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -99,7 +80,7 @@ class ExportView(APIView):
         date_to = filters.get("date_to")
         estado_propiedad = filters.get("estado_propiedad")
 
-        # rango temporal
+
         start_dt = end_dt = None
         if year and month:
             start_dt, end_dt = _month_range(int(year), int(month))
@@ -107,13 +88,13 @@ class ExportView(APIView):
             start_dt = _parse_dt(date_from)
             end_dt = _parse_dt(date_to)
 
-        # ⚠️ Normalizar a aware (evita vacíos por naive vs aware)
+      
         start_dt = _to_aware(start_dt)
         end_dt = _to_aware(end_dt)
 
         user = request.user
 
-        # ==== Querys ====
+
         qs_contactos = Contacto.objects.filter(owner=user)
         if start_dt and end_dt:
             qs_contactos = qs_contactos.filter(creado_en__range=(start_dt, end_dt))
@@ -215,40 +196,17 @@ class MetricsView(APIView):
         })
 
 
-# =======================
-# Import
-# =======================
+
 
 class ImportView(APIView):
-    """
-    POST /api/exportacion/import/
-    Acepta:
-    - multipart/form-data:
-        file: (CSV o JSON)
-        resource: "leads" | "propiedades" | "eventos"
-        dry_run: "true" | "false" (opcional, default false)
-    - application/json:
-        {
-          "resource": "...",
-          "dry_run": true,
-          "rows": [ {...}, {...} ]    # lista de objetos a importar (JSON)
-        }
-
-    CSV esperado (campos más comunes):
-    - leads (Contacto): email*, nombre, apellido, telefono, estado_fase, creado_en
-    - propiedades: codigo*, titulo, ubicacion, tipo_de_propiedad, disponibilidad,
-                   precio, moneda, ambiente, antiguedad, banos, superficie,
-                   estado, fecha_alta, vendida_en
-    - eventos: id(opcional), tipo*, fecha_hora*, propiedad_id|propiedad_codigo,
-               contacto_id|contacto_email, nombre, apellido, email, notas
-    """
+    
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def post(self, request):
         user = request.user
 
-        # Detectar fuente de datos: archivo (multipart) o JSON "rows"
+        
         resource = (request.data.get("resource") or "").strip().lower()
         dry_run = str(request.data.get("dry_run") or "false").lower() in ("1", "true", "yes")
 
@@ -262,7 +220,7 @@ class ImportView(APIView):
             # CSV o JSON subido como archivo
             name = (file_obj.name or "").lower()
             content = file_obj.read()
-            # Intentar decode con BOM seguro
+           
             try:
                 text = content.decode("utf-8-sig")
             except UnicodeDecodeError:
@@ -280,12 +238,12 @@ class ImportView(APIView):
                 if not isinstance(rows, list):
                     return JsonResponse({"detail": "El JSON debe ser una lista de objetos."}, status=400)
             else:
-                # asumimos CSV
+                
                 buff = io.StringIO(text)
                 reader = csv.DictReader(buff)
                 rows = list(reader)
         else:
-            # application/json con "rows"
+            
             rows = request.data.get("rows")
             if not isinstance(rows, list):
                 return JsonResponse({"detail": "Debe enviar 'file' (CSV/JSON) o 'rows' (lista JSON)."}, status=400)
@@ -294,10 +252,7 @@ class ImportView(APIView):
         updated = 0
         errors = []
 
-        # Transacción solo si no es dry_run
-        ctx = transaction.atomic() if not dry_run else _NullCtx()
-
-        with ctx:
+        with transaction.atomic():
             for idx, raw in enumerate(rows, start=1):
                 try:
                     if resource == "leads":
@@ -313,8 +268,8 @@ class ImportView(APIView):
                     errors.append({"row": idx, "error": str(e)})
 
             if dry_run:
-                # no persistimos
-                pass
+                
+                transaction.set_rollback(True)
 
         return JsonResponse({
             "resource": resource,
@@ -324,7 +279,7 @@ class ImportView(APIView):
             "errors": errors,
         }, status=200 if not errors else 207)
 
-    # ---------- upserts ----------
+    
 
     def _upsert_contacto(self, user, raw: dict):
         email = (raw.get("email") or "").strip()
@@ -336,7 +291,7 @@ class ImportView(APIView):
         telefono = (raw.get("telefono") or "").strip()
         creado_en = _parse_dt(raw.get("creado_en"))
 
-        # estado por descripción/fase opcional
+       
         estado_fase = (raw.get("estado_fase") or raw.get("estado") or "").strip() or None
         estado_obj = None
         if estado_fase:
@@ -348,7 +303,7 @@ class ImportView(APIView):
             defaults={"owner": user, "email": email}
         )
 
-        # get_or_create con filtro case-insensitive necesita doble paso
+        
         if not created and obj.email.lower() != email.lower():
             obj = Contacto.objects.filter(owner=user, email__iexact=email).first()
 
@@ -376,14 +331,14 @@ class ImportView(APIView):
             raise ValueError("Propiedad requiere 'codigo' como clave.")
 
         defaults = {"owner": user}
-        # campos opcionales
+        
         for key in ("titulo", "descripcion", "ubicacion", "tipo_de_propiedad",
                     "disponibilidad", "moneda", "estado"):
             val = raw.get(key)
             if val is not None and val != "":
                 defaults[key] = val
 
-        # numéricos
+  
         precio = _to_decimal(raw.get("precio"))
         if precio is not None:
             defaults["precio"] = precio
@@ -396,12 +351,12 @@ class ImportView(APIView):
             except Exception:
                 pass
 
-        # decimales
+       
         superficie = _to_decimal(raw.get("superficie"))
         if superficie is not None:
             defaults["superficie"] = superficie
 
-        # fechas
+       
         fecha_alta = _parse_dt(raw.get("fecha_alta"))
         if fecha_alta:
             defaults["fecha_alta"] = fecha_alta
@@ -433,7 +388,7 @@ class ImportView(APIView):
         if not fecha_hora:
             raise ValueError("Evento requiere 'fecha_hora' válida.")
 
-        # Resolver propiedad
+       
         prop = None
         prop_id = raw.get("propiedad_id")
         prop_codigo = raw.get("propiedad_codigo")
@@ -444,7 +399,7 @@ class ImportView(APIView):
         if not prop:
             raise ValueError("No se encontró la propiedad (propiedad_id o propiedad_codigo).")
 
-        # Resolver contacto
+       
         ct = None
         contacto_id = raw.get("contacto_id")
         contacto_email = (raw.get("contacto_email") or "").strip()
@@ -458,12 +413,12 @@ class ImportView(APIView):
         email = (raw.get("email") or "").strip()
         notas = (raw.get("notas") or "").strip()
 
-        # Upsert por id si viene
+      
         ev_id = raw.get("id")
         if ev_id:
             ev = Evento.objects.filter(owner=user, id=ev_id).first()
             if not ev:
-                # crear con id específico no es trivial; creamos normal
+               
                 ev = Evento.objects.create(
                     owner=user, tipo=tipo, fecha_hora=fecha_hora,
                     propiedad=prop, contacto=ct, nombre=nombre, apellido=apellido,
@@ -484,7 +439,7 @@ class ImportView(APIView):
             after = (ev.tipo, ev.fecha_hora, ev.propiedad_id, ev.contacto_id, ev.nombre, ev.apellido, ev.email, ev.notas)
             return False, before != after
 
-        # Crear
+   
         Evento.objects.create(
             owner=user, tipo=tipo, fecha_hora=fecha_hora,
             propiedad=prop, contacto=ct, nombre=nombre, apellido=apellido,
@@ -492,8 +447,3 @@ class ImportView(APIView):
         )
         return True, False
 
-
-class _NullCtx:
-    """Context manager nulo para dry_run."""
-    def __enter__(self): return self
-    def __exit__(self, exc_type, exc, tb): return False
