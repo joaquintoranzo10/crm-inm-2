@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { FiCheckCircle } from "react-icons/fi";
 
-
 function Section({ title, children }: any) {
   return (
     <section className="rounded-2xl p-6 shadow-sm transition-all duration-200 card-base"> 
@@ -76,10 +75,8 @@ function Alert({ kind = "info", children }: any) {
     return <div className={`rounded-xl border px-4 py-3 text-sm ${styles[kind]}`}>{children}</div>;
 }
 
-// --- Helpers ---
 function thisYearMonth() { const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() + 1 }; }
 
-// --- Page ---
 export default function ConfiguracionPage() {
   const now = thisYearMonth();
   const [year, setYear] = useState(now.year);
@@ -99,9 +96,13 @@ export default function ConfiguracionPage() {
   const [pwdNew, setPwdNew] = useState("");
   const [pwdNew2, setPwdNew2] = useState("");
   const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState(false);
+  const [pwdError, setPwdError] = useState<string | null>(null);
   const [confirmText, setConfirmText] = useState("");
   const [delPwd, setDelPwd] = useState("");
   const [delLoading, setDelLoading] = useState(false);
+  const [delError, setDelError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const optionStyle = { backgroundColor: "var(--surface)", color: "var(--text-main)" };
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -141,8 +142,41 @@ export default function ConfiguracionPage() {
   };
   const handleMetrics = async () => { setMetricsLoading(true); try{ const {data} = await api.get("/api/exportacion/metrics/", {params:{year,month}}); setMetrics(data); }catch{ }finally{ setMetricsLoading(false); } };
   const handleImport = async () => { setImportLoading(true); try{ const f = fileRef.current?.files?.[0]; if(!f) return alert("Seleccionar archivo"); const fd=new FormData(); fd.append("file",f); fd.append("resource",importResource); fd.append("dry_run",String(dryRun)); const {data} = await api.post("/api/exportacion/import/", fd); setImportRes(data); }catch(e:any){ alert(e.message||"Error"); }finally{ setImportLoading(false); } };
-  const handleChangePassword = async (e:any) => { e.preventDefault(); setPwdLoading(true); try{ await api.post("/api/usuarios/me/change_password/",{current_password:pwdCur,new_password:pwdNew,re_new_password:pwdNew2}); alert("Contraseña cambiada"); setPwdCur(""); setPwdNew(""); setPwdNew2(""); }catch{ alert("Error"); }finally{ setPwdLoading(false); } };
-  const handleDeleteAccount = async (e:any) => { e.preventDefault(); setDelLoading(true); try{ await api.post("/api/usuarios/me/delete/",{current_password:delPwd,confirm_text:confirmText}); window.location.href="/"; }catch{ alert("Error"); }finally{ setDelLoading(false); } };
+  const handleChangePassword = async (e:any) => {
+    e.preventDefault();
+    setPwdLoading(true);
+    setPwdError(null);
+    try {
+      await api.post("/api/usuarios/me/change_password/", { current_password: pwdCur, new_password: pwdNew, re_new_password: pwdNew2 });
+      setPwdCur(""); setPwdNew(""); setPwdNew2("");
+      setPwdSuccess(true);
+      setTimeout(() => setPwdSuccess(false), 3000);
+    } catch (err: any) {
+      setPwdError(err?.response?.data?.detail || "No se pudo cambiar la contraseña");
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
+  const handleDeleteSubmit = (e: any) => {
+    e.preventDefault();
+    setDelError(null);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    setDelLoading(true);
+    setDelError(null);
+    try {
+      await api.post("/api/usuarios/me/delete/", { current_password: delPwd, confirm_text: confirmText });
+      window.location.href = "/";
+    } catch (err: any) {
+      setDelError(err?.response?.data?.detail || "No se pudo eliminar la cuenta");
+      setShowDeleteConfirm(false);
+    } finally {
+      setDelLoading(false);
+    }
+  };
 
    return (
     <div className="max-w-5xl mx-auto space-y-8 pb-10">
@@ -261,18 +295,28 @@ export default function ConfiguracionPage() {
             <div><Label>Actual</Label><Input type="password" value={pwdCur} onChange={(e:any)=>setPwdCur(e.target.value)} /></div>
             <div><Label>Nueva</Label><Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} /></div>
             <div><Label>Repetir</Label><Input type="password" value={pwdNew2} onChange={(e:any)=>setPwdNew2(e.target.value)} /></div>
-            <div className="md:col-span-3 flex justify-end">
-                <Button type="submit" disabled={pwdLoading}>Cambiar Contraseña</Button>
+            {pwdError && <div className="md:col-span-3"><Alert kind="error">{pwdError}</Alert></div>}
+            <div className="md:col-span-3 flex items-center justify-end gap-3">
+                {pwdSuccess && (
+                  <div className="animate-in fade-in slide-in-from-right-5 duration-300 flex items-center gap-2 px-3 py-2 rounded-lg border shadow-sm
+                    bg-emerald-50 border-emerald-200 text-emerald-700 
+                    dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
+                  >
+                    <FiCheckCircle className="text-lg shrink-0" />
+                    <span className="text-sm font-medium">Contraseña actualizada</span>
+                  </div>
+                )}
+                <Button type="submit" disabled={pwdLoading}>{pwdLoading ? "Cambiando..." : "Cambiar Contraseña"}</Button>
             </div>
         </form>
       </Section>
 
-  
+     
       <div className="rounded-2xl border p-6 transition-all duration-200
                       bg-rose-50 border-rose-300 font-medium text-black
                       dark:bg-transparent dark:border-rose-500 dark:font-normal dark:text-white">
         <h2 className="text-lg font-black mb-2 text-rose-900 dark:text-rose-400">Eliminar Cuenta</h2>
-        <form onSubmit={handleDeleteAccount} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+        <form onSubmit={handleDeleteSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
         <div>
             
             <Label>
@@ -304,8 +348,34 @@ export default function ConfiguracionPage() {
                 Eliminar
             </Button>
         </div>
+        {delError && <div className="md:col-span-3"><Alert kind="error">{delError}</Alert></div>}
     </form>
       </div>
+
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => !delLoading && setShowDeleteConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-rose-500 bg-white dark:bg-[#1a1a1a] p-6 shadow-xl"
+            onClick={(e:any) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black text-rose-900 dark:text-rose-400 mb-2">¿Estás seguro?</h3>
+            <p className="text-sm opacity-80 mb-6">
+              Esta acción elimina tu cuenta y todos tus datos de forma permanente. No se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} disabled={delLoading}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={confirmDeleteAccount} disabled={delLoading}>
+                {delLoading ? "Eliminando..." : "Sí, eliminar mi cuenta"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
