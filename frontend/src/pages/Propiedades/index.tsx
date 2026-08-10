@@ -165,7 +165,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
           className="w-full h-full object-contain"
         />
 
-        
+
         {valid.length > 1 && (
           <>
             <button
@@ -249,8 +249,8 @@ function Select4<T extends string>({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const ITEM_H = 36;                
-  const maxH = ITEM_H * 4;        
+  const ITEM_H = 36;
+  const maxH = ITEM_H * 4;
 
   return (
     <div ref={rootRef} className="relative">
@@ -334,7 +334,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
         loading="lazy"
       />
 
-   
+
       {len > 1 && (
         <>
           {/* Flecha Izquierda */}
@@ -470,22 +470,11 @@ export default function PropiedadesPage() {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 md:mt-0">
           <div className="relative w-full sm:w-auto">
-<<<<<<< HEAD
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar..."
-              className="h-10 w-full sm:w-64 px-3 rounded-lg border text-sm outline-none transition-all 
-                bg-white border-gray-300 text-black 
-                dark:bg-zinc-900 dark:border-zinc-700 dark:text-white 
-                focus:ring-2 focus:ring-blue-500/50"
-=======
-            <input 
-              value={q} 
-              onChange={(e) => setQ(e.target.value)} 
-              placeholder="Buscar..." 
               className="bg-[var(--surface)] text-[var(--text-main)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors w-full md:w-64 placeholder-[var(--muted)] shadow-sm"
->>>>>>> dfa66734b8c4f09acee884d11795499449fca207
             />
             {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => setQ("")}>Limpiar</button>}
           </div>
@@ -639,40 +628,25 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
               <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm
                         bg-blue-600 text-white border border-blue-700
                         dark:bg-blue-500 dark:text-white dark:border-blue-400">
-<<<<<<< HEAD
                 {propiedad.tipo_de_propiedad}
               </span>
-=======
-                        {propiedad.tipo_de_propiedad}
-                    </span>
-                </div>
-                {/* Título y Ubicación combinada */}
-                <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
-                  {propiedad.titulo}
-                </h2>
-                <p className="text-sm font-black text-[var(--text-main)] leading-tight mt-1">
-                  {propiedad.ubicacion}
-                  
-                  {(propiedad.localidad || propiedad.barrio || propiedad.direccion) && (
-                    <span className="block text-xs font-normal text-[var(--muted)] mt-1">
-                      {[propiedad.direccion, propiedad.barrio, propiedad.localidad].filter(Boolean).join(", ")}
-                    </span>
-                  )}
-                </p>
             </div>
-            <div className="text-right">
-                <div className="text-xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
-                <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
->>>>>>> 09b885ba4bc4388722a2f0122541101b95c8eaea
-            </div>
-            {/* Título adaptable */}
-            <h2 className="text-lg font-black text-[var(--text-main)] leading-tight">
+            {/* Título y Ubicación combinada */}
+            <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
               {propiedad.titulo}
             </h2>
-            <p className="text-sm font-black text-[var(--text-main)] leading-tight">{propiedad.ubicacion}</p>
+            <p className="text-sm font-black text-[var(--text-main)] leading-tight mt-1">
+              {propiedad.ubicacion}
+
+              {(propiedad.localidad || propiedad.barrio || propiedad.direccion) && (
+                <span className="block text-xs font-normal text-[var(--muted)] mt-1">
+                  {[propiedad.direccion, propiedad.barrio, propiedad.localidad].filter(Boolean).join(", ")}
+                </span>
+              )}
+            </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
+            <div className="text-xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{money(propiedad.precio, propiedad.moneda)}</div>
             <button onClick={onCopyTag} className="text-[10px] font-mono font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors mt-1">#{propiedad.codigo}</button>
           </div>
         </div>
@@ -682,38 +656,27 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag 
           <div className="w-full h-[140px] sm:h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
           </div>
-          
+
           <div className="flex flex-col gap-2">
-<<<<<<< HEAD
-            <div className="grid grid-cols-2 gap-2">
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
               <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
+              <InfoBox label="Cocheras" value={propiedad.cocheras || 0} icon="🚗" />
               <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏" />
               <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
             </div>
+
+            {(propiedad.tiene_patio || propiedad.tiene_pileta || propiedad.tiene_quincho) && (
+              <div className="flex flex-wrap gap-2 py-1">
+                {propiedad.tiene_patio && <span className="px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🌿 Patio</span>}
+                {propiedad.tiene_pileta && <span className="px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🏊 Pileta</span>}
+                {propiedad.tiene_quincho && <span className="px-2 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🍖 Quincho</span>}
+              </div>
+            )}
+
             {/* Caja descripción */}
             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
-=======
-            
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <InfoBox label="Ambientes" value={propiedad.ambiente} icon="🏠" />
-                <InfoBox label="Baños" value={propiedad.banos} icon="🚿" />
-                <InfoBox label="Cocheras" value={propiedad.cocheras || 0} icon="🚗" />
-                <InfoBox label="Superficie" value={`${propiedad.superficie} m²`} icon="📏"/>
-                <InfoBox label="Antigüedad" value={`${propiedad.antiguedad} años`} icon="⏳" />
-             </div>
-
-             {(propiedad.tiene_patio || propiedad.tiene_pileta || propiedad.tiene_quincho) && (
-               <div className="flex flex-wrap gap-2 py-1">
-                 {propiedad.tiene_patio && <span className="px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🌿 Patio</span>}
-                 {propiedad.tiene_pileta && <span className="px-2 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🏊 Pileta</span>}
-                 {propiedad.tiene_quincho && <span className="px-2 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 rounded-md text-[10px] font-bold uppercase flex items-center gap-1">🍖 Quincho</span>}
-               </div>
-             )}
-
-             {/* Caja descripción */}
-             <div className="flex-1 rounded-xl p-3 overflow-y-auto max-h-[120px] custom-scrollbar border
->>>>>>> 09b885ba4bc4388722a2f0122541101b95c8eaea
                 bg-[var(--surface)] border-[var(--border)] text-[var(--text-main)]"
             >
               <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">Descripción</h4>
@@ -788,7 +751,7 @@ function SelectScroll<T extends string>({ value, onChange, options }: { value: T
         <span className="truncate capitalize">{value || "Seleccionar..."}</span>
         <span className="text-gray-400 text-xs">▼</span>
       </button>
-      
+
       {open && (
         <ul className="absolute z-50 mt-1 w-full rounded-lg shadow-xl overflow-hidden border rc-border bg-[var(--surface)] text-[var(--text-main)] max-h-[200px] overflow-y-auto">
           {options.map((opt) => (
@@ -860,20 +823,12 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
     }
   }
 
-  async function subirNuevasImagenes(id: number, imagenes: File[]) {
-    if (imagenes.length === 0) return;
-
-    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
-    const formData = new FormData();
-    imagenes.forEach((file) => {
-      formData.append("imagenes", file);
-    });
-
-    await axios.post(`http://127.0.0.1:8000/api/propiedades/${id}/subir-imagenes/`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
+  async function subirNuevasImagenes(propId: number) {
+    if (filesToUpload.length === 0) return;
+    const fd = new FormData();
+    filesToUpload.forEach((f) => fd.append("imagenes", f));
+    await axios.post(`/api/propiedades/${propId}/subir-imagenes/`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
   }
 
@@ -897,7 +852,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
         estado: form.estado,
       };
       await axios.patch(`/api/propiedades/${form.id}/`, payload);
-      await subirNuevasImagenes(form.id, filesToUpload);
+      await subirNuevasImagenes(form.id);
       onSaved();
     } catch (e) {
       setError("No se pudo actualizar la propiedad. Verificá los datos.");
@@ -918,7 +873,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-          
+
           {/* Formulario */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
@@ -1043,7 +998,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
           {/* Imágenes */}
           <div className="col-span-12 md:col-span-3 space-y-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-4 md:pt-0 pl-0 md:pl-3">
-            
+
             <div>
               <h3 className="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500">Agregar Imágenes</h3>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-dashed border-blue-200 dark:border-blue-800 text-center transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30">
@@ -1052,8 +1007,8 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                   <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
                 </label>
               </div>
-              
-          
+
+
               {filesToUpload.length > 0 && (
                 <div className="mt-3">
                   <div className="text-xs font-medium text-blue-600 mb-2">Nuevas ({filesToUpload.length})</div>
