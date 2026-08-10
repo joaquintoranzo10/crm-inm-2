@@ -14,19 +14,18 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [showPwd, setShowPwd] = useState(false);
 
-  // Token inválido o ausente
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-body)] px-4 transition-colors duration-300">
+        <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl p-8 text-center transition-colors">
           
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Enlace inválido</h2>
-          <p className="text-gray-500 mb-6">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-2">Enlace inválido</h2>
+          <p className="text-[var(--muted)] mb-6 text-sm">
             El enlace de restablecimiento es inválido o ya expiró. Solicitá uno nuevo.
           </p>
           <Link
             to="/forgot-password"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm"
           >
             Solicitar nuevo enlace
           </Link>
@@ -69,15 +68,15 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-body)] px-4 transition-colors duration-300">
+        <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl p-8 text-center transition-colors">
           
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Contraseña actualizada!</h2>
-          <p className="text-gray-500 mb-2">Tu contraseña fue restablecida correctamente.</p>
-          <p className="text-sm text-gray-400 mb-6">Redirigiendo al login en 3 segundos...</p>
+          <h2 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">¡Contraseña actualizada!</h2>
+          <p className="text-[var(--text-main)] mb-2 text-sm font-medium">Tu contraseña fue restablecida correctamente.</p>
+          <p className="text-xs text-[var(--muted)] opacity-70 mb-6">Redirigiendo al login en 3 segundos...</p>
           <Link
             to="/login"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm"
           >
             Ir al login ahora
           </Link>
@@ -87,17 +86,24 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-body)] px-4 transition-colors duration-300">
+      
+      <div className="fixed inset-0 -z-10 bg-[var(--bg-body)]">
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+              style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+        </div>
+      </div>
+
+      <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 relative z-10 transition-colors">
         <div className="text-center mb-8">
           
-          <h2 className="text-2xl font-bold text-gray-800">Nueva contraseña</h2>
-          <p className="text-gray-500 mt-2 text-sm">Ingresá tu nueva contraseña para continuar.</p>
+          <h2 className="text-2xl font-bold text-[var(--text-main)]">Nueva contraseña</h2>
+          <p className="text-[var(--muted)] mt-2 text-sm">Ingresá tu nueva contraseña para continuar.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="new_password" className="block text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5">
               Nueva contraseña
             </label>
             <div className="relative">
@@ -108,12 +114,12 @@ export default function ResetPassword() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-12 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
               />
               <button
                 type="button"
                 onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-sm font-medium transition-colors"
               >
                 {showPwd ? "Ocultar" : "Ver"}
               </button>
@@ -121,7 +127,7 @@ export default function ResetPassword() {
           </div>
 
           <div>
-            <label htmlFor="re_new_password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="re_new_password" className="block text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5">
               Repetir contraseña
             </label>
             <input
@@ -131,12 +137,12 @@ export default function ResetPassword() {
               value={reNewPassword}
               onChange={(e) => setReNewPassword(e.target.value)}
               placeholder="Repetí la contraseña"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-200 rounded-lg px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -144,15 +150,15 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2.5 rounded-lg transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2.5 rounded-xl transition-colors shadow-sm"
           >
             {loading ? "Guardando..." : "Guardar nueva contraseña"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-400 mt-6">
+        <p className="text-center text-sm text-[var(--muted)] mt-6 pt-6 border-t border-[var(--border)]">
           ¿Necesitás un nuevo enlace?{" "}
-          <Link to="/forgot-password" className="text-blue-600 hover:underline font-medium">
+          <Link to="/forgot-password" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium">
             Solicitarlo aquí
           </Link>
         </p>
