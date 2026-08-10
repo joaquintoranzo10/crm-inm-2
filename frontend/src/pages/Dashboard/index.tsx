@@ -700,7 +700,7 @@ function DayEventsModal({
         </div>
       ) : (
         <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-          {eventos.map((ev) => (
+          {eventos.map((ev: any) => (
             <li key={ev.id} className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -712,19 +712,16 @@ function DayEventsModal({
                     <span className="font-semibold text-gray-900 dark:text-white">{formatHour(ev.fecha_hora)}</span>
                     <span className="text-gray-500 dark:text-gray-400 text-sm">· {ev.tipo}</span>
                 </div>
-                
-                {/* PROPIEDAD */}
+              
                 <div className="text-sm text-gray-800 dark:text-gray-300 truncate font-medium">
-                  {typeof (ev as any).propiedad_titulo === "string"
-                    ? (ev as any).propiedad_titulo
-                    : ev.propiedad ? `Propiedad #${ev.propiedad}` : "—"}
+                  🏠 {ev.propiedad_titulo || (ev.propiedad ? `Propiedad #${ev.propiedad}` : "—")}
                 </div>
-                {/* CONTACTO */}
-                <div className="text-xs text-gray-600 dark:text-gray-500 truncate mt-0.5">
-                   {(ev as any).contacto_nombre
-                    ? `👤 ${(ev as any).contacto_nombre}`
-                    : ev.contacto ? `👤 Lead #${ev.contacto}` : "Sin contacto asignado"}
+
+               
+                <div className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">
+                   👤 {ev.contacto_nombre || (ev.contacto ? `Lead #${ev.contacto}` : "Sin contacto asignado")}
                 </div>
+
                 {ev.notas && <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic border-l-2 border-gray-300 dark:border-white/20 pl-2">"{ev.notas}"</div>}
               </div>
               
