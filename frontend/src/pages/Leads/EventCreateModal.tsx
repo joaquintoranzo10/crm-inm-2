@@ -73,12 +73,11 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     setMode(mode === "select" ? "new" : "select");
   }
 
-  // Lógica de envío actualizada
+  // Lógica de envío
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!propiedadId || !fechaHora || !tipo) return;
-    
-    // Validar que haya un contacto (nuevo o existente)
+
     if (mode === 'select' && !contactoId) {
         alert("Por favor, seleccioná un contacto existente.");
         return;
@@ -89,37 +88,36 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     }
 
     setSubmitting(true);
-
     const payload: any = {
       propiedad: propiedadId,
       fecha_hora: new Date(fechaHora).toISOString(),
       tipo,
     };
-    
+
     if (mode === 'select' && contactoId) {
-      // Envía el ID del contacto existente
       payload.contacto = contactoId;
+      payload.email = null; 
+      payload.nombre = "";
+      payload.apellido = "";
     } else if (mode === 'new') {
-      // Envía los datos del nuevo visitante (el backend lo creará)
-      payload.nombre = nombre;
-      payload.apellido = apellido;
-      payload.email = email;
+      payload.contacto = null;
+      payload.nombre = nombre.trim() || "";
+      payload.apellido = apellido.trim() || "";
+      payload.email = email.trim() || null; 
     }
 
-
     try {
-      await api.post("/api/eventos/", payload); // Usamos 'api' para el token
-      
-      // Disparamos el evento global para refrescar el dashboard
+      await api.post("/api/eventos/", payload);
       window.dispatchEvent(new CustomEvent("calendar:refresh"));
-      
       onCreated?.();
       onClose();
-      // reset
       setNombre(""); setApellido(""); setEmail(""); setPropiedadId("");
       setFechaHora(""); setTipo(""); setContactoId(null); setMode("select");
-    } catch (err) {
-      alert("No se pudo crear el evento. Revisá el mapeo de campos del backend.");
+    } catch (err: any) {
+      console.error(err);
+      const errorMsg = err?.response?.data;
+      const cleanMsg = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : "No se pudo crear el evento.";
+      alert(cleanMsg);
     } finally {
       setSubmitting(false);
     }
