@@ -244,10 +244,33 @@ class ImportView(APIView):
                 if not isinstance(rows, list):
                     return JsonResponse({"detail": "El JSON debe ser una lista de objetos."}, status=400)
             else:
-                
-                buff = io.StringIO(text)
-                reader = csv.DictReader(buff)
-                rows = list(reader)
+                   
+                    lines = text.splitlines()
+                    target_section = f"=== {resource.upper()} ==="
+                    section_lines = []
+                    in_section = False
+                    
+                    
+                    if not any(l.startswith("===") for l in lines):
+                        section_lines = lines
+                    else:
+                        for line in lines:
+                            line_strip = line.strip()
+                            if line_strip == target_section:
+                                in_section = True
+                                continue
+                            elif in_section and line_strip.startswith("==="):
+                                break
+                            
+                            if in_section and line_strip:
+                                section_lines.append(line)
+
+                    if not section_lines:
+                        return JsonResponse({"detail": f"No se encontró información para el recurso '{resource}' en el CSV."}, status=400)
+
+                    buff = io.StringIO("\n".join(section_lines))
+                    reader = csv.DictReader(buff)
+                    rows = list(reader)
         else:
             
             rows = request.data.get("rows")
