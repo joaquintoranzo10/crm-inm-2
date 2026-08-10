@@ -11,6 +11,7 @@ from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
 from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+# Usuarios
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
@@ -54,7 +55,6 @@ router.register(r"avisos", AvisoViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    
     path("api/", include(router.urls)),
 
 <<<<<<< HEAD
@@ -71,18 +71,18 @@ urlpatterns = [
     path("api/usuarios/me/change_password/", ChangePasswordView.as_view(), name="usuarios-change-password"),
     path("api/usuarios/me/delete/", DeleteAccountView.as_view(), name="usuarios-delete-account"),
 
-    # Autenticación y registro
+    
     path("api/auth/register/", RegisterView.as_view(), name="auth-register"),
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-   
+    
     path("api/health", health, name="api-health"),
     
-
+    
     path("api/", include("dashboard.urls")),
 
-    
+    #para que uptime lo encuentre y de ok en el servidor
     path('api/health/', health_check),
     path('api/cron/enviar-recordatorios/', disparar_recordatorios_view),
 ]
@@ -97,11 +97,12 @@ try:
 except Exception:
     pass
 
-#exportación y metricas
+
 try:
     urlpatterns += [path("api/exportacion/", include("exportacion.urls"))]
 except Exception:
     pass
+
 
 
 if settings.DEBUG:
