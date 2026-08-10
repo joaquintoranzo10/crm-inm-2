@@ -2,9 +2,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
-# Importá SIEMPRE tu modelo de dominio con otro alias para no pisar auth.User
 from .models import Usuario as UsuarioModel
 from .serializers import UsuarioSerializer, RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -24,11 +23,7 @@ class RegisterView(APIView):
 
 
 class MeUsuarioView(APIView):
-    """
-    GET  /api/usuarios/me/            -> perfil propio (tabla usuarios_usuario)
-    PUT  /api/usuarios/me/            -> update parcial o total (partial=True)
-    PATCH /api/usuarios/me/           -> update parcial (alias del PUT)
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def _get_usuario_by_request(self, request):
@@ -48,10 +43,7 @@ class MeUsuarioView(APIView):
         return Response(UsuarioSerializer(usuario).data)
 
     def put(self, request):
-        """
-        Actualiza datos del perfil en TU tabla `usuarios_usuario` (no contraseña).
-        Acepta actualización parcial (partial=True) para simplificar front.
-        """
+       
         usuario, error = self._get_usuario_by_request(request)
         if error:
             return error
@@ -62,9 +54,7 @@ class MeUsuarioView(APIView):
         return Response(UsuarioSerializer(obj).data, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        """
-        Alias de PUT con partial update para permitir método PATCH desde el front.
-        """
+        
         return self.put(request)
 
 
@@ -80,20 +70,10 @@ class DetalleUsuario(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# ======================
-#  Extras para Settings
-# ======================
+
 
 class ChangePasswordView(APIView):
-    """
-    POST /api/usuarios/me/change_password/
-    Body:
-    {
-      "current_password": "xxx",
-      "new_password": "xxxxxxx",
-      "re_new_password": "xxxxxxx"
-    }
-    """
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -101,7 +81,7 @@ class ChangePasswordView(APIView):
         new_password = request.data.get("new_password") or ""
         re_new_password = request.data.get("re_new_password") or ""
 
-        user = request.user  # auth user
+        user = request.user  
 
         if not current_password or not new_password or not re_new_password:
             return Response({"detail": "Faltan campos obligatorios"}, status=400)
@@ -118,25 +98,23 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save(update_fields=["password"])
 
+      
+        UsuarioModel.objects.filter(email__iexact=user.email).update(
+            password_hash=make_password(new_password)
+        )
+
         return Response({"detail": "Contraseña actualizada correctamente"}, status=200)
 
 
 class DeleteAccountView(APIView):
-    """
-    POST /api/usuarios/me/delete/
-    Body:
-    {
-      "current_password": "xxx",
-      "confirm_text": "ELIMINAR"
-    }
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         current_password = request.data.get("current_password") or ""
         confirm_text = (request.data.get("confirm_text") or "").strip()
 
-        user = request.user  # auth user
+        user = request.user  
 
         if confirm_text != "ELIMINAR":
             return Response({"detail": "Debes escribir 'ELIMINAR' para confirmar"}, status=400)
@@ -144,14 +122,14 @@ class DeleteAccountView(APIView):
         if not user.check_password(current_password):
             return Response({"detail": "La contraseña actual es incorrecta"}, status=400)
 
-        # Borrar también el registro en TU tabla, si existe
+        
         try:
             u2 = UsuarioModel.objects.get(email__iexact=user.email)
             u2.delete()
         except UsuarioModel.DoesNotExist:
             pass
 
-        user.delete()  # borra auth user
+        user.delete()  
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
