@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.conf import settings  
-
+from django.utils import timezone
 
 class Propiedad(models.Model):
     TIPO_DE_PROPIEDAD_CHOICES = [
@@ -27,6 +27,7 @@ class Propiedad(models.Model):
     ESTADO_CHOICES = [
         ("disponible", "Disponible"),
         ("vendido", "Vendido"),
+        ("alquilado", "Alquilado"),
         ("reservado", "Reservado"),
     ]
 
@@ -98,8 +99,19 @@ class Propiedad(models.Model):
             models.Index(fields=["estado"]),
             models.Index(fields=["disponibilidad"]),
             models.Index(fields=["moneda", "precio"]),
-            models.Index(fields=["vendida_en"]),  #ayuda para reportes por mes
+            models.Index(fields=["vendida_en"]),  
         ]
+
+
+    def save(self, *args, **kwargs):
+       
+        if self.estado in ["vendido", "alquilado"] and not self.vendida_en:
+            self.vendida_en = timezone.now()
+        
+        elif self.estado not in ["vendido", "alquilado"]:
+            self.vendida_en = None
+            
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (

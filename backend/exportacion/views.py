@@ -8,7 +8,7 @@ from django.utils.timezone import make_aware
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-
+from django.db.models import Q
 from leads.models import Contacto, Evento
 from propiedades.models import Propiedad
 
@@ -177,7 +177,13 @@ class MetricsView(APIView):
 
        
         ventas_qs = Propiedad.objects.filter(owner=user, estado="vendido")
-        ventas_mes = ventas_qs.filter(vendida_en__range=(start_dt, end_dt)).count()
+        ventas_mes = Propiedad.objects.filter(
+            owner=user, 
+            estado__in=["vendido", "alquilado"] 
+        ).filter(
+            Q(vendida_en__range=(start_dt, end_dt)) | 
+            Q(vendida_en__isnull=True, fecha_alta__range=(start_dt, end_dt))
+        ).count()
         if ventas_mes == 0:
             ventas_mes = ventas_qs.filter(fecha_alta__range=(start_dt, end_dt)).count()
 

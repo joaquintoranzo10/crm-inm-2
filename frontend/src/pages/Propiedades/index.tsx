@@ -993,7 +993,10 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
                 >
                   <option value="disponible">Disponible</option>
                   <option value="reservado">Reservado</option>
-                  <option value="vendido">Vendido</option>
+                  
+                  <option value={form.disponibilidad === "alquiler" ? "alquilado" : "vendido"}>
+                    {form.disponibilidad === "alquiler" ? "Alquilado" : "Vendido"}
+                  </option>
                 </select>
               </Row>
             </div>

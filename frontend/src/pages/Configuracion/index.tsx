@@ -331,7 +331,7 @@ export default function ConfiguracionPage() {
                      <div className="text-3xl font-black text-amber-600 dark:text-amber-400">{metrics.leads_pendientes}</div>
                  </div>
                  <div className="p-4 rounded-xl card-base border-t-2 border-t-purple-500 shadow-sm">
-                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Ventas (Mes)</div>
+                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Cierres (Mes)</div>
                      <div className="text-3xl font-black text-purple-600 dark:text-purple-400">{metrics.ventas_mes}</div>
                  </div>
              </div>
