@@ -213,9 +213,9 @@ class EventoSerializer(serializers.ModelSerializer):
 
     
     def validate(self, attrs):
-        # Evita que un string vacío rompa el EmailField de la base de datos
+        
         if "email" in attrs and not attrs["email"]:
-            attrs["email"] = None
+            attrs.pop("email", None)
 
         fecha_hora = attrs.get("fecha_hora", getattr(self.instance, "fecha_hora", None))
         propiedad = attrs.get("propiedad", getattr(self.instance, "propiedad", None))
@@ -235,22 +235,16 @@ class EventoSerializer(serializers.ModelSerializer):
         if self.instance and getattr(self.instance, "id", None):
             base_qs = base_qs.exclude(id=self.instance.id)
 
-        if base_qs.filter(fecha_hora=fecha_hora).exists():
-            raise serializers.ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
+        for ev in base_qs:
+            ev_start = timezone.localtime(ev.fecha_hora)
+            ev_end = ev_start + timedelta(minutes=duration_min)
 
-        existing_end_expr = ExpressionWrapper(
-            F("fecha_hora") + Value(timedelta(minutes=duration_min)),
-            output_field=DateTimeField(),
-        )
-        overlap_qs = base_qs.annotate(existing_end=existing_end_expr).filter(
-            fecha_hora__lt=new_end,
-            existing_end__gt=new_start,
-        )
-
-        if overlap_qs.exists():
-            first = overlap_qs.order_by("fecha_hora").first()
-            raise serializers.ValidationError(
-                f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
-            )
+            if new_start == ev_start:
+                raise serializers.ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
+            
+            if new_start < ev_end and new_end > ev_start:
+                raise serializers.ValidationError(
+                    f"El horario solapa con otro evento en la misma propiedad (desde {ev_start.isoformat()})."
+                )
 
         return attrs

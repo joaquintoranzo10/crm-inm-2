@@ -420,24 +420,22 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         return qs
 
-    def _events_overlapping(self, owner, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
+    def _events_overlapping(self, propiedad, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
         new_start = timezone.localtime(new_start)
         new_end = new_start + timedelta(minutes=duration_minutes)
 
-        
-        base_qs = Evento.objects.filter(owner=owner)
+        base_qs = Evento.objects.filter(propiedad=propiedad)
         if ignore_id:
             base_qs = base_qs.exclude(id=ignore_id)
 
-        existing_end_expr = ExpressionWrapper(
-            F("fecha_hora") + Value(timedelta(minutes=duration_minutes)),
-            output_field=DateTimeField(),
-        )
-        qs = base_qs.annotate(existing_end=existing_end_expr).filter(
-            fecha_hora__lt=new_end,
-            existing_end__gt=new_start,
-        )
-        return qs
+        
+        for ev in base_qs:
+            ev_start = timezone.localtime(ev.fecha_hora)
+            ev_end = ev_start + timedelta(minutes=duration_minutes)
+            if new_start < ev_end and new_end > ev_start:
+                return base_qs.filter(pk=ev.pk) 
+
+        return Evento.objects.none()
 
     def perform_create(self, serializer):
         validated_data = serializer.validated_data
