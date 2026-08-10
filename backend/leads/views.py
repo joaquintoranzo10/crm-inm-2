@@ -86,7 +86,7 @@ def _notificar_evento_por_email(evento, auth_user) -> None:
         )
 
 
-DEFAULT_EVENT_DURATION_MIN = 60
+DEFAULT_EVENT_DURATION_MIN = 30
 
 def _to_local_aware(dt: datetime) -> datetime:
     
@@ -420,16 +420,15 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         return qs
 
-    def _events_overlapping(self, propiedad, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
-        
+    def _events_overlapping(self, owner, new_start, duration_minutes=DEFAULT_EVENT_DURATION_MIN, ignore_id=None):
         new_start = timezone.localtime(new_start)
         new_end = new_start + timedelta(minutes=duration_minutes)
 
-        base_qs = Evento.objects.filter(propiedad=propiedad)
+        
+        base_qs = Evento.objects.filter(owner=owner)
         if ignore_id:
             base_qs = base_qs.exclude(id=ignore_id)
 
-    
         existing_end_expr = ExpressionWrapper(
             F("fecha_hora") + Value(timedelta(minutes=duration_minutes)),
             output_field=DateTimeField(),
@@ -484,11 +483,11 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
                 
-                overlap_qs = self._events_overlapping(propiedad, fecha_hora)
+                overlap_qs = self._events_overlapping(self.request.user, fecha_hora, ignore_id=ignore_id)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(
-                        f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
+                        f"El horario solapa con otro evento en tu agenda (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
                 
                 super().perform_create(serializer)
@@ -537,23 +536,23 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 raise ValidationError("No se puede actualizar un evento a una fecha en el pasado.")
 
             with transaction.atomic():
-                # duplicado exacto
+                
                 dup = Evento.objects.filter(propiedad=propiedad, fecha_hora=fecha_hora).exclude(id=ignore_id).exists()
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
                 # solapamientos
-                overlap_qs = self._events_overlapping(propiedad, fecha_hora, ignore_id=ignore_id)
+                overlap_qs = self._events_overlapping(self.request.user, fecha_hora, ignore_id=ignore_id)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(
-                        f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
+                        f"El horario solapa con otro evento en tu agenda (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
                 super().perform_update(serializer)
-                # — Notificación por email —
+                
                 _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
             super().perform_update(serializer)
-            # — Notificación por email (fallback) —
+            
             if serializer.instance:
                 _notificar_evento_por_email(serializer.instance, self.request.user)
 

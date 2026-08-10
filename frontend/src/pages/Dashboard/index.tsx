@@ -87,7 +87,7 @@ function monthRange(d: Date) {
 }
 
 
-const DEFAULT_DURATION_MS = 60 * 60 * 1000;
+const DEFAULT_DURATION_MS = 30 * 60 * 1000;
 function parseFechaHoraRange(ev: Partial<Evento>, durationMs = DEFAULT_DURATION_MS): { start: Date; end: Date } | null {
   if (!ev || !ev.fecha_hora) return null;
   const d = new Date(ev.fecha_hora);
@@ -108,28 +108,22 @@ function validateEventoNoSolapa(
   const newRange = parseFechaHoraRange(newEv, dur);
   if (!newRange) return { ok: false, msg: "Fecha/hora inválida." };
 
-  const newProp = (newEv as any).propiedad ?? (newEv as any).propiedad_id ?? null;
-
   for (const ev of existing) {
     if (opts?.ignoreId && ev.id === opts.ignoreId) continue;
     const evRange = parseFechaHoraRange(ev as Partial<Evento>, dur);
     if (!evRange) continue;
 
-    const evProp = (ev as any).propiedad ?? (ev as any).propiedad_id ?? null;
-
-    if (newProp === evProp) {
-      if (newRange.start.getTime() === evRange.start.getTime()) {
-        return {
-          ok: false,
-          msg: "Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.",
-        };
-      }
-      if (rangesOverlap(newRange.start, newRange.end, evRange.start, evRange.end)) {
-        return {
-          ok: false,
-          msg: `El horario solapa con otro evento en la misma propiedad.`,
-        };
-      }
+    if (newRange.start.getTime() === evRange.start.getTime()) {
+      return {
+        ok: false,
+        msg: "Ya tenés un evento agendado exactamente en esa fecha y hora.",
+      };
+    }
+    if (rangesOverlap(newRange.start, newRange.end, evRange.start, evRange.end)) {
+      return {
+        ok: false,
+        msg: "El horario se solapa con otro evento agendado en tu agenda.",
+      };
     }
   }
 
