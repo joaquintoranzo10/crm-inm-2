@@ -213,7 +213,7 @@ class EventoSerializer(serializers.ModelSerializer):
 
     
     def validate(self, attrs):
-        
+        # Evita que un string vacío rompa el EmailField de la base de datos
         if "email" in attrs and not attrs["email"]:
             attrs["email"] = None
 
