@@ -561,6 +561,27 @@ export default function LeadsPage() {
                     </div>
                 )
             })}
+            {!loading && pageRows.length > 0 && (
+                <div className="flex items-center justify-between pt-4 pb-2">
+                    <button
+                        className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                    >
+                        Anterior
+                    </button>
+                    <div className="text-xs text-muted-clr font-medium">
+                        Página {page} de {totalPages}
+                    </div>
+                    <button
+                        className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            )}
         </div>
 
       </div>
