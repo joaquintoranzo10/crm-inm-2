@@ -440,33 +440,26 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-       
-       
         validated_data = serializer.validated_data
         contacto = validated_data.get("contacto")
         email = validated_data.get("email")
         
-       
         if email and not contacto:
             nombre = validated_data.get("nombre", "")
             apellido = validated_data.get("apellido", "")
-            owner = self.request.user # El 'owner' es el usuario que crea el evento
+            owner = self.request.user
+            email_clean = email.strip()
             
-           
-            lead, created = Contacto.objects.get_or_create(
-                owner=owner,
-                email__iexact=email.strip(), 
-                defaults={
-                    'nombre': nombre,
-                    'apellido': apellido,
-                    'email': email.strip(),
-                    'owner': owner,
-                    
-                }
-            )
+            lead = Contacto.objects.filter(owner=owner, email__iexact=email_clean).first()
+            if not lead:
+                lead = Contacto.objects.create(
+                    owner=owner,
+                    nombre=nombre,
+                    apellido=apellido,
+                    email=email_clean,
+                )
             
             serializer.validated_data['contacto'] = lead
-        
         
         fecha_hora = serializer.validated_data.get("fecha_hora")
         propiedad = serializer.validated_data.get("propiedad")
@@ -478,33 +471,26 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 raise ValidationError("No se puede crear un evento en el pasado.")
 
             with transaction.atomic():
-               
                 dup = Evento.objects.filter(propiedad=propiedad, fecha_hora=fecha_hora).exists()
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
                 
-                overlap_qs = self._events_overlapping(self.request.user, fecha_hora, ignore_id=ignore_id)
+                overlap_qs = self._events_overlapping(propiedad, fecha_hora)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(
-                        f"El horario solapa con otro evento en tu agenda (desde {timezone.localtime(first.fecha_hora).isoformat()})."
+                        f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
                 
                 super().perform_create(serializer)
-             
                 _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
-            
             super().perform_create(serializer)
-       
             if serializer.instance:
                 _notificar_evento_por_email(serializer.instance, self.request.user)
 
     def perform_update(self, serializer):
-        
-        
         validated_data = serializer.validated_data
-      
         contacto = validated_data.get("contacto", getattr(serializer.instance, "contacto", None))
         email = validated_data.get("email", getattr(serializer.instance, "email", None))
 
@@ -512,19 +498,18 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             nombre = validated_data.get("nombre", getattr(serializer.instance, "nombre", ""))
             apellido = validated_data.get("apellido", getattr(serializer.instance, "apellido", ""))
             owner = self.request.user
+            email_clean = email.strip()
             
-            lead, created = Contacto.objects.get_or_create(
-                owner=owner,
-                email__iexact=email.strip(),
-                defaults={
-                    'nombre': nombre,
-                    'apellido': apellido,
-                    'email': email.strip(),
-                    'owner': owner,
-                }
-            )
+            lead = Contacto.objects.filter(owner=owner, email__iexact=email_clean).first()
+            if not lead:
+                lead = Contacto.objects.create(
+                    owner=owner,
+                    nombre=nombre,
+                    apellido=apellido,
+                    email=email_clean,
+                )
             serializer.validated_data['contacto'] = lead
-       
+        
         fecha_hora = serializer.validated_data.get("fecha_hora", getattr(serializer.instance, "fecha_hora", None))
         propiedad = serializer.validated_data.get("propiedad", getattr(serializer.instance, "propiedad", None))
         ignore_id = getattr(serializer.instance, "id", None)
@@ -536,23 +521,20 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 raise ValidationError("No se puede actualizar un evento a una fecha en el pasado.")
 
             with transaction.atomic():
-                
                 dup = Evento.objects.filter(propiedad=propiedad, fecha_hora=fecha_hora).exclude(id=ignore_id).exists()
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
-                # solapamientos
-                overlap_qs = self._events_overlapping(self.request.user, fecha_hora, ignore_id=ignore_id)
+                
+                overlap_qs = self._events_overlapping(propiedad, fecha_hora, ignore_id=ignore_id)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(
-                        f"El horario solapa con otro evento en tu agenda (desde {timezone.localtime(first.fecha_hora).isoformat()})."
+                        f"El horario solapa con otro evento en la misma propiedad (desde {timezone.localtime(first.fecha_hora).isoformat()})."
                     )
                 super().perform_update(serializer)
-                
                 _notificar_evento_por_email(serializer.instance, self.request.user)
         else:
             super().perform_update(serializer)
-            
             if serializer.instance:
                 _notificar_evento_por_email(serializer.instance, self.request.user)
 
