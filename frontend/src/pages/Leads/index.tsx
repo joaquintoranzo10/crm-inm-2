@@ -732,8 +732,8 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
   const [nuevaNota, setNuevaNota] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
- 
   const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
+  const [editingNote, setEditingNote] = useState<{ id: number; nota: string } | null>(null);
 
   useEffect(() => {
     api.get(`contactos/${contacto.id}/historial/`)
@@ -778,6 +778,27 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
     } catch (error) {
       console.error("Error al eliminar la nota:", error);
       alert("No se pudo eliminar la nota.");
+    }
+  }
+
+  async function handleEditNote(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingNote || !editingNote.nota.trim()) return;
+    setSaving(true);
+    try {
+      const res = await api.patch(`contactos/${contacto.id}/historial/`, {
+        nota_id: editingNote.id,
+        nota: editingNote.nota,
+        contacto: contacto.id
+      });
+      
+      setNotas(prev => prev.map(n => n.id === editingNote.id ? res.data : n));
+      setEditingNote(null);
+    } catch (error) {
+      console.error("Error al editar la nota:", error);
+      alert("No se pudo editar la nota.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -839,6 +860,14 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
                           </time>
                           <button
                             type="button"
+                            onClick={() => setEditingNote({ id: n.id, nota: n.nota })}
+                            className="text-xs p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-500 transition-colors border border-transparent hover:border-blue-500/20"
+                            title="Editar nota"
+                          >
+                           ✏️
+                          </button>
+                          <button
+                            type="button"
                             
                             onClick={() => setNoteToDelete(n.id)}
                             className="text-xs p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-500 transition-colors border border-transparent hover:border-rose-500/20"
@@ -857,6 +886,38 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
           )}
         </div>
 
+        {editingNote !== null && (
+          <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm rounded-2xl">
+            <div className="w-full max-w-md bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">
+              <h3 className="text-lg font-bold mb-2">Editar Nota</h3>
+              <form onSubmit={handleEditNote} className="space-y-4">
+                <textarea
+                  className="rc-input w-full h-28 p-3 resize-none text-sm"
+                  value={editingNote.nota}
+                  onChange={(e) => setEditingNote({ ...editingNote, nota: e.target.value })}
+                  required
+                />
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setEditingNote(null)}
+                    className="px-4 py-2 rounded-xl text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+                    disabled={saving}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="h-10 px-5 rounded-lg text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all disabled:opacity-50"
+                    disabled={saving || !editingNote.nota.trim()}
+                  >
+                    {saving ? "Guardando..." : "Guardar Cambios"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {noteToDelete !== null && (
           <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm rounded-2xl">
