@@ -616,7 +616,7 @@ export default function DashboardPage() {
 type ModalShellProps = {
   title?: string;
   children: ReactNode;
-  maxWidth?: "max-w-sm" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
+  maxWidth?: "max-w-sm" | "max-w-md" | "max-w-lg" | "max-w-3xl" | "max-w-4xl";
   onClose: () => void;
 };
 
