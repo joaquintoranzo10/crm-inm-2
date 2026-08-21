@@ -1215,22 +1215,29 @@ function AvisoCreateModal({
         fechaISO = d.toISOString();
       }
       
+      const userId = localStorage.getItem("rc_user_id");
+
       
       await api.post("avisos/", {
         titulo,
         descripcion,
         fecha: fechaISO,
-        lead: null,
-        propiedad: null,
-        evento: null
+        estado: "pendiente",
+        owner: userId ? Number(userId) : null
       });
       
-      toast.success("¡Recordatorio programado con éxito!"); 
+      toast.success("¡Recordatorio programado con éxito!");
       onCreated();
       onClose();
     } catch (error: any) {
-      console.error("Error creando aviso:", error);
-      toast.error("No se pudo programar el recordatorio.");
+      console.error("Error creando aviso:", error?.response?.data || error);
+      
+   
+      const errMsg = error?.response?.data 
+        ? JSON.stringify(error.response.data) 
+        : "No se pudo programar el recordatorio.";
+        
+      toast.error(errMsg);
     } finally {
       setSaving(false);
     }
