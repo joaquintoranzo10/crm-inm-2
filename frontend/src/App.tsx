@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PublicLayout from "./layouts/PublicLayout";
 import AppLayout from "./layouts/AppLayout";
-
+import { getInitialTheme, applyTheme } from "./lib/theme";
 import Landing from "./pages/Landing";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
@@ -15,13 +16,16 @@ import PropiedadesPage from "./pages/Propiedades";
 import UsuariosPage from "./pages/Usuarios";
 import ConfiguracionPage from "./pages/Configuracion";
 import AvisosPage from "./pages/Avisos";
-
+import MetricasPage from "./pages/Metricas";
 
 
 
 
 
 export default function App() {
+  useEffect(() => {
+    applyTheme(getInitialTheme());
+  }, []);
   return (
     <>
       <Routes>
@@ -42,6 +46,7 @@ export default function App() {
           <Route path="usuarios" element={<UsuariosPage />} />
           <Route path="avisos" element={<AvisosPage />} />
           <Route path="configuracion" element={<ConfiguracionPage />} />
+          <Route path="metricas" element={<MetricasPage />} />
         </Route>
 
         {/* Fallback */}

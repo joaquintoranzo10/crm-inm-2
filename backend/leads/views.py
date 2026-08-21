@@ -473,7 +473,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
                 
-                overlap_qs = self._events_overlapping(propiedad, fecha_hora)
+                overlap_qs = self._events_overlapping(self.request.user, fecha_hora)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(
@@ -523,7 +523,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 if dup:
                     raise ValidationError("Ya existe un evento exactamente en esa fecha y hora para la misma propiedad.")
                 
-                overlap_qs = self._events_overlapping(propiedad, fecha_hora, ignore_id=ignore_id)
+                overlap_qs = self._events_overlapping(self.request.user, fecha_hora, ignore_id=ignore_id)
                 if overlap_qs.exists():
                     first = overlap_qs.order_by("fecha_hora").first()
                     raise ValidationError(

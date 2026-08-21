@@ -15,7 +15,7 @@
     
     --surface: #ffffff; 
     --bg-surface: #ffffff;       
-    
+    --surface-2: #f3f4f6;
     --border: #e5e7eb;
     --muted: #6b7280;
   }
@@ -32,7 +32,7 @@
     
     --surface: #18181b;  
     --bg-surface: #18181b; 
-    
+    --surface-2: #232326;
     --border: #27272a;   
     --muted: #a1a1aa;
   }

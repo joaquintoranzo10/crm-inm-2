@@ -8,7 +8,7 @@ from django.utils.timezone import make_aware
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from django.db.models import Q
+from django.db.models import Q, Count
 from leads.models import Contacto, Evento
 from propiedades.models import Propiedad
 
@@ -157,6 +157,83 @@ class ExportView(APIView):
         resp["Content-Disposition"] = f'attachment; filename="{filename}"'
         return resp
 
+class ChartMetricsView(APIView):
+    
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        year = request.GET.get("year")
+        month = request.GET.get("month")
+        date_filter_prop = Q()
+        date_filter_evt = Q()
+        period = None
+        if year and month:
+            try:
+                start_dt, end_dt = _month_range(int(year), int(month))
+                start_dt, end_dt = _to_aware(start_dt), _to_aware(end_dt)
+                date_filter_prop = Q(fecha_alta__range=(start_dt, end_dt))
+                date_filter_evt = Q(fecha_hora__range=(start_dt, end_dt))
+                period = {"year": int(year), "month": int(month)}
+            except (TypeError, ValueError):
+                return JsonResponse({"detail": "year y month deben ser numéricos"}, status=400)
+
+        leads_por_estado = list(
+            Contacto.objects.filter(owner=user)
+            .values("estado__fase")
+            .annotate(total=Count("id"))
+            .order_by("-total")
+        )
+        leads_por_estado = [
+            {"estado": r["estado__fase"] or "Sin estado", "total": r["total"]}
+            for r in leads_por_estado
+        ]
+        leads_vendidos = next(
+            (r["total"] for r in leads_por_estado if r["estado"] == "Vendido"), 0
+        )
+
+        propiedades_vendidas = Propiedad.objects.filter(
+            owner=user, estado="vendido"
+        ).filter(date_filter_prop).count()
+        propiedades_alquiladas = Propiedad.objects.filter(
+            owner=user, estado="alquilado"
+        ).filter(date_filter_prop).count()
+
+        def _top_propiedades(disponibilidad, limit=5):
+            qs = (
+                Propiedad.objects.filter(owner=user, disponibilidad__iexact=disponibilidad)
+                .annotate(
+                    total_eventos=Count(
+                        "eventos", filter=date_filter_evt, distinct=True
+                    )
+                )
+                .filter(total_eventos__gt=0)
+                .order_by("-total_eventos")[:limit]
+            )
+            return [
+                {
+                    "id": p.id,
+                    "codigo": p.codigo,
+                    "titulo": p.titulo,
+                    "total_eventos": p.total_eventos,
+                }
+                for p in qs
+            ]
+
+        top_venta = _top_propiedades("venta")
+        top_alquiler = _top_propiedades("alquiler")
+
+        return JsonResponse({
+            "period": period,
+            "leads_por_estado": leads_por_estado,
+            "leads_vendidos": leads_vendidos,
+            "propiedades_vendidas": propiedades_vendidas,
+            "propiedades_alquiladas": propiedades_alquiladas,
+            "top_propiedades_venta": top_venta,
+            "top_propiedades_alquiler": top_alquiler,
+        })
 
 class MetricsView(APIView):
     
@@ -206,6 +283,7 @@ class MetricsView(APIView):
             "eventos_mes": eventos_mes,
             "leads_pendientes": leads_pendientes,
         })
+    
 
 
 

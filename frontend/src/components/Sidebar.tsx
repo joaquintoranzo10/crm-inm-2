@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Settings,
   Bell,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -26,6 +27,7 @@ const items: Item[] = [
   { to: "/app/leads", label: "Leads", icon: Contact },
   { to: "/app/propiedades", label: "Propiedades", icon: Building2 },
   { to: "/app/avisos", label: "Recordatorios", icon: Bell },
+  { to: "/app/metricas", label: "Métricas", icon: BarChart3 },
   { to: "/app/configuracion", label: "Configuración", icon: Settings },
 ];
 
