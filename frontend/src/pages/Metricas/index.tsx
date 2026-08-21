@@ -91,6 +91,7 @@ export default function MetricasPage() {
       setData(data);
     } catch {
       setError("No se pudieron cargar las métricas.");
+      setData(null);
     } finally {
       setLoading(false);
     }

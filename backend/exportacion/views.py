@@ -175,11 +175,23 @@ class ChartMetricsView(APIView):
                 start_dt, end_dt = _month_range(int(year), int(month))
                 start_dt, end_dt = _to_aware(start_dt), _to_aware(end_dt)
                 date_filter_prop = Q(fecha_alta__range=(start_dt, end_dt))
-                date_filter_evt = Q(fecha_hora__range=(start_dt, end_dt))
+                date_filter_evt = Q(eventos__fecha_hora__range=(start_dt, end_dt))
                 period = {"year": int(year), "month": int(month)}
             except (TypeError, ValueError):
                 return JsonResponse({"detail": "year y month deben ser numéricos"}, status=400)
 
+        qs_leads = Contacto.objects.filter(owner=user)
+
+        if period:
+            qs_leads = qs_leads.filter(creado_en__range=(start_dt, end_dt))
+
+    
+        leads_por_estado = list(
+            qs_leads.values("estado__fase")
+            .annotate(total=Count("id"))
+            .order_by("-total")
+        )
+        
         leads_por_estado = list(
             Contacto.objects.filter(owner=user)
             .values("estado__fase")
