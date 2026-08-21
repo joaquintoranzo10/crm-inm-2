@@ -516,7 +516,7 @@ export default function DashboardPage() {
                   const key = toKey(d);
                   const isToday = sameDay(d, today);
                   const allEvents = inMonth ? (eventsByDay.get(key) || []) : [];
-                  const sum = summaryByDay.get(key) || { r: 0, l: 0, v: 0, total: 0 };
+                  const sum = summaryByDay.get(key) || { r: 0, l: 0, v: 0, a: 0, total: 0 };
 
                   const dd = String(d.getDate()).padStart(2, "0");
 
