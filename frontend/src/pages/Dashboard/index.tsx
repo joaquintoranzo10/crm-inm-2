@@ -743,66 +743,73 @@ function DayEventsModal({
         </span>
       </div>
 
-      {eventos.length === 0 ? (
-        <div className="py-8 text-center text-[var(--muted)] border border-dashed border-[var(--border)] rounded-xl">
-            No hay eventos agendados.
-        </div>
-      ) : (
-        <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-          {eventos.map((ev: any) => (
-            <li key={ev.id} className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                    <span className={`w-2 h-2 rounded-full ${
-                        ev.tipo === 'Reunion' ? 'bg-blue-500' : 
-                        ev.tipo === 'Llamada' ? 'bg-amber-500' : 'bg-emerald-500'
-                    }`}></span>
+      <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+        {eventos.length === 0 && avisos.length === 0 ? (
+          <div className="py-8 text-center text-[var(--muted)] border border-dashed border-[var(--border)] rounded-xl">
+              No hay eventos ni avisos agendados para este día.
+          </div>
+        ) : (
+          <>
+            {eventos.length > 0 && (
+              <ul className="space-y-3 mb-6">
+                {eventos.map((ev: any) => (
+                  <li key={`ev-${ev.id}`} className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                          <span className={`w-2 h-2 rounded-full ${
+                              ev.tipo === 'Reunion' ? 'bg-blue-500' : 
+                              ev.tipo === 'Llamada' ? 'bg-amber-500' : 'bg-emerald-500'
+                          }`}></span>
+                          
+                          <span className="font-semibold text-gray-900 dark:text-white">{formatHour(ev.fecha_hora)}</span>
+                          <span className="text-gray-500 dark:text-gray-400 text-sm">· {ev.tipo}</span>
+                      </div>
                     
-                    <span className="font-semibold text-gray-900 dark:text-white">{formatHour(ev.fecha_hora)}</span>
-                    <span className="text-gray-500 dark:text-gray-400 text-sm">· {ev.tipo}</span>
-                </div>
-              
-                <div className="text-sm text-gray-800 dark:text-gray-300 truncate font-medium">
-                  🏠 {ev.propiedad_titulo || (ev.propiedad ? `Propiedad #${ev.propiedad}` : "—")}
-                </div>
+                      <div className="text-sm text-gray-800 dark:text-gray-300 truncate font-medium">
+                        🏠 {ev.propiedad_titulo || (ev.propiedad ? `Propiedad #${ev.propiedad}` : "—")}
+                      </div>
 
-               
-                <div className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">
-                   👤 {ev.contacto_nombre || (ev.contacto ? `Lead #${ev.contacto}` : "Sin contacto asignado")}
-                </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">
+                        👤 {ev.contacto_nombre || (ev.contacto ? `Lead #${ev.contacto}` : "Sin contacto asignado")}
+                      </div>
 
-                {ev.notas && <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic border-l-2 border-gray-300 dark:border-white/20 pl-2">"{ev.notas}"</div>}
+                      {ev.notas && <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic border-l-2 border-gray-300 dark:border-white/20 pl-2">"{ev.notas}"</div>}
+                    </div>
+                    
+                    <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button className="p-2 rounded-lg bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white" onClick={() => onEdit(ev)} title="Editar">✏️</button>
+                      <button className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 hover:bg-rose-200 dark:hover:bg-rose-500/40 text-rose-600 dark:text-rose-400" onClick={() => onDelete(ev)} title="Eliminar">🗑️</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {avisos.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-muted-clr uppercase tracking-wider mb-3 ml-1">Recordatorios Libres</h4>
+                <ul className="space-y-3">
+                  {avisos.map((av) => (
+                    <li key={`av-${av.id}`} className="group flex items-center justify-between p-4 rounded-xl bg-purple-50/50 dark:bg-purple-500/5 border border-purple-200 dark:border-purple-500/20 shadow-sm">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span className="font-semibold text-gray-900 dark:text-white">{formatHour(av.fecha)}</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm">— Aviso</span>
+                        </div>
+                        <div className="text-sm text-gray-800 dark:text-gray-300 font-medium">
+                            {av.titulo}
+                        </div>
+                        {av.descripcion && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{av.descripcion}</div>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              
-              <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-2 rounded-lg bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white" onClick={() => onEdit(ev)} title="Editar">✏️</button>
-                <button className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 hover:bg-rose-200 dark:hover:bg-rose-500/40 text-rose-600 dark:text-rose-400" onClick={() => onDelete(ev)} title="Eliminar">🗑️</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {avisos.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-xs font-bold text-muted-clr uppercase tracking-wider mb-2 ml-1">Recordatorios Libres</h4>
-          <ul className="space-y-3">
-            {avisos.map((av) => (
-              <li key={`av-${av.id}`} className="group flex items-center justify-between p-4 rounded-xl bg-purple-50/50 dark:bg-purple-500/5 border border-purple-200 dark:border-purple-500/20 shadow-sm">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatHour(av.fecha)}</span>
-                      <span className="text-gray-500 dark:text-gray-400 text-sm">— Aviso</span>
-                  </div>
-                  <div className="text-sm text-gray-800 dark:text-gray-300 font-medium">
-                      {av.titulo}
-                  </div>
-                  {av.descripcion && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{av.descripcion}</div>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+            )}
+          </>
+        )}
+      </div>
 
       <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
         <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:text-white text-sm font-medium transition-colors" onClick={onClose}>Cerrar</button>
