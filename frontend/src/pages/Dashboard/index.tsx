@@ -17,7 +17,7 @@ import {
 type Contacto = ContactoApi;
 type Propiedad = PropiedadApi;
 type Evento = EventoApi;
-
+type Aviso = { id: number; titulo: string; descripcion?: string; fecha: string; estado: string; };
 type Filters = { date?: string; from?: string; to?: string; types?: string };
 
 type DashboardData = {
@@ -142,7 +142,7 @@ export default function DashboardPage() {
   const [cursor, setCursor] = useState(new Date()); 
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [activeFilters, setActiveFilters] = useState<Filters | null>(null);
-
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
   
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [openEventModal, setOpenEventModal] = useState<{
@@ -162,15 +162,17 @@ export default function DashboardPage() {
     }
 
     try {
-      const [cRes, pRes, dRes] = await Promise.all([
+      const [cRes, pRes, dRes, aRes] = await Promise.all([
         api.get("contactos/"),
         api.get("propiedades/"),
         api.get("dashboard/data/"),
+        api.get("avisos/") 
       ]);
       const toArr = (d: any) => Array.isArray(d) ? d : Array.isArray(d?.results) ? d.results : [];
       setContactos(toArr(cRes.data));
       setPropiedades(toArr(pRes.data));
       setDashboardData(dRes.data);
+      setAvisos(toArr(aRes.data));
     } catch (e: any) {
       console.error(e);
       setContactos([]); setPropiedades([]);
@@ -268,20 +270,39 @@ export default function DashboardPage() {
     for (const list of map.values()) list.sort(sortByDateAsc);
     return map;
   }, [eventos]);
+ 
+  const avisosByDay = useMemo(() => {
+    const map = new Map<string, Aviso[]>();
+    for (const av of avisos) {
+      if (!av.fecha) continue;
+      const key = toKey(new Date(av.fecha));
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(av);
+    }
+    return map;
+  }, [avisos]);
 
   const summaryByDay = useMemo(() => {
-    const m = new Map<string, { r: number; l: number; v: number; total: number }>();
-    for (const [k, list] of eventsByDay.entries()) {
+    const m = new Map<string, { r: number; l: number; v: number; a: number; total: number }>();
+    
+    for (const d of monthGrid.days) {
+      const key = toKey(d);
+      const evs = eventsByDay.get(key) || [];
+      const avs = avisosByDay.get(key) || [];
+      
       let r = 0, l = 0, v = 0;
-      for (const ev of list) {
+      for (const ev of evs) {
         if (ev.tipo === "Reunion") r++;
         else if (ev.tipo === "Llamada") l++;
         else if (ev.tipo === "Visita") v++;
       }
-      m.set(k, { r, l, v, total: list.length });
+      
+      if (evs.length > 0 || avs.length > 0) {
+        m.set(key, { r, l, v, a: avs.length, total: evs.length + avs.length });
+      }
     }
     return m;
-  }, [eventsByDay]);
+  }, [eventsByDay, avisosByDay, monthGrid.days]);
 
 
 
@@ -526,6 +547,7 @@ export default function DashboardPage() {
                                 {sum.r > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-center" title="Reuniones"><span className="xl:hidden">R:</span>{sum.r} <span className="hidden xl:inline">Reun.</span></span>}
                                 {sum.l > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-center" title="Llamadas"><span className="xl:hidden">L:</span>{sum.l} <span className="hidden xl:inline">Llam.</span></span>}
                                 {sum.v > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center" title="Visitas"><span className="xl:hidden">V:</span>{sum.v} <span className="hidden xl:inline">Visit.</span></span>}
+                                {sum.a > 0 && <span className="text-[9px] md:text-[10px] px-1 md:px-1.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-center" title="Recordatorios"><span className="xl:hidden">A:</span>{sum.a} <span className="hidden xl:inline">Avisos</span></span>}
                             </div>
                         </button>
                       )}
@@ -567,7 +589,8 @@ export default function DashboardPage() {
         <DayEventsModal
           date={openDayModal}
           eventos={(eventsByDay.get(toKey(openDayModal)) || []).slice().sort(sortByDateAsc)}
-          resumen={summaryByDay.get(toKey(openDayModal)) || { r: 0, l: 0, v: 0, total: 0 }}
+          avisos={avisosByDay.get(toKey(openDayModal)) || []} 
+          resumen={summaryByDay.get(toKey(openDayModal)) || { r: 0, l: 0, v: 0, a: 0, total: 0 }}
           onClose={() => setOpenDayModal(null)}
           onEdit={(ev) => setOpenEventModal({ mode: "edit", evento: ev })}
           onDelete={(ev) => setDeleting(ev)}
@@ -687,6 +710,7 @@ function ModalShell({
 function DayEventsModal({
   date,
   eventos,
+  avisos,
   resumen,
   onClose,
   onEdit,
@@ -695,7 +719,8 @@ function DayEventsModal({
 }: {
   date: Date;
   eventos: Evento[];
-  resumen: { r: number; l: number; v: number; total: number };
+  avisos: Aviso[];
+  resumen: { r: number; l: number; v: number; a: number; total: number };
   onClose: () => void;
   onEdit: (ev: Evento) => void;
   onDelete: (ev: Evento) => void;
@@ -712,6 +737,9 @@ function DayEventsModal({
         </span>
         <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
           {resumen.v} {plural(resumen.v, "Visita", "Visitas")}
+        </span>
+        <span className="px-2 py-1 rounded bg-purple-50 text-purple-600 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30">
+          {resumen.a} {plural(resumen.a, "Aviso", "Avisos")}
         </span>
       </div>
 
@@ -753,6 +781,27 @@ function DayEventsModal({
             </li>
           ))}
         </ul>
+        {avisos.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-xs font-bold text-muted-clr uppercase tracking-wider mb-2 ml-1">Recordatorios Libres</h4>
+          <ul className="space-y-3">
+            {avisos.map((av) => (
+              <li key={`av-${av.id}`} className="group flex items-center justify-between p-4 rounded-xl bg-purple-50/50 dark:bg-purple-500/5 border border-purple-200 dark:border-purple-500/20 shadow-sm">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                      <span className="font-semibold text-gray-900 dark:text-white">{formatHour(av.fecha)}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">— Aviso</span>
+                  </div>
+                  <div className="text-sm text-gray-800 dark:text-gray-300 font-medium">
+                      {av.titulo}
+                  </div>
+                  {av.descripcion && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{av.descripcion}</div>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
