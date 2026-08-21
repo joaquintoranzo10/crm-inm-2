@@ -196,7 +196,7 @@ export default function MetricasPage() {
 
             {/* Sección Propiedades */}
             <div>
-              <h3 className="text-lg font-bold mb-3 px-1 text-gray-800 dark:text-gray-200">Inventario y Cierres</h3>
+              <h3 className="text-lg font-bold mb-3 px-1 text-gray-800 dark:text-gray-200">Inventario de propiedades y Cierres</h3>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 <StatCard label="Total en Catálogo" value={data.propiedades_totales} accent="#6b7280" />
                 <StatCard label="Total Vendidas" value={data.propiedades_vendidas} accent="#10b981" />

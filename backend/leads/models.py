@@ -256,9 +256,7 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
 
 @receiver(post_delete, sender=Evento)
 def delete_aviso_on_evento_delete(sender, instance, **kwargs):
-    """
-    Elimina el aviso asociado cuando se elimina el evento.
-    """
+    
     if kwargs.get('raw', False):
         return
     

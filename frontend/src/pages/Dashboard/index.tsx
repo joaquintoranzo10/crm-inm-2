@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
-import { CalendarPlus,BarChart3 } from "lucide-react";
+import { CalendarPlus,BarChart3,Bell } from "lucide-react";
 import { toast } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import {
@@ -152,6 +152,7 @@ export default function DashboardPage() {
   } | null>(null);
   const [openDayModal, setOpenDayModal] = useState<Date | null>(null);
   const [deleting, setDeleting] = useState<Evento | null>(null);
+  const [openAvisoModal, setOpenAvisoModal] = useState(false);
 
   async function fetchStatic() {
     if (!localStorage.getItem('rc_token')) {
@@ -327,7 +328,7 @@ export default function DashboardPage() {
         if (v !== undefined) payload[k] = v; 
       });
 
-    // Limpieza de campos opcionales vacíos para evitar errores 500 en el backend
+    
     if (!payload.contacto) payload.contacto = null;
     if (!payload.email || payload.email.trim() === "") {
       payload.email = null;
@@ -400,6 +401,14 @@ export default function DashboardPage() {
           <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-base-clr text-center md:text-left">
             Bienvenido a Real Connect
           </h2>
+
+          <button
+            className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
+            onClick={() => setOpenAvisoModal(true)}
+          >
+            <Bell className="w-5 h-5" />
+            <span>Recordatorio</span>
+          </button>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-end gap-2.5 sm:gap-3">
             <button
@@ -590,7 +599,7 @@ export default function DashboardPage() {
       )}
 
       {result && <ResultModal ok={result.ok} message={result.msg} onClose={() => setResult(null)} />}
-      
+      {openAvisoModal && <AvisoCreateModal onClose={() => setOpenAvisoModal(false)} onCreated={() => {}} />}
       {loading && (
           <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
               <div className="text-white animate-pulse">Cargando datos...</div>
@@ -1174,5 +1183,111 @@ function Field({ label, children }: any) {
       <label className="block text-xs font-bold text-gray-500 dark:text-muted-clr uppercase tracking-wider mb-1.5 ml-1">{label}</label>
       {children}
     </div>
+  );
+}
+
+function AvisoCreateModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const getTodayMin = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!titulo || !fecha) return;
+    setSaving(true);
+    try {
+      let fechaISO = String(fecha);
+      if (fechaISO.length <= 16 && fechaISO.includes("T")) {
+        const d = new Date(fechaISO);
+        fechaISO = d.toISOString();
+      }
+      
+      
+      await api.post("avisos/", {
+        titulo,
+        descripcion,
+        fecha: fechaISO,
+        lead: null,
+        propiedad: null,
+        evento: null
+      });
+      
+      toast.success("¡Recordatorio programado con éxito!"); 
+      onCreated();
+      onClose();
+    } catch (error: any) {
+      console.error("Error creando aviso:", error);
+      toast.error("No se pudo programar el recordatorio.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <ModalShell title="Nuevo Recordatorio " onClose={onClose} maxWidth="max-w-md">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1">Título</label>
+          <input
+            autoFocus
+            className="rc-input w-full h-10 text-sm"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            placeholder=" "
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1">Fecha y hora</label>
+          <input
+            type="datetime-local"
+            className="rc-input w-full h-10 text-sm"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            min={getTodayMin()}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1">Descripción (Opcional)</label>
+          <textarea
+            className="rc-input w-full resize-none p-3 h-24 text-sm"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            placeholder="Detalles adicionales..."
+          />
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-soft mt-2">
+          <button
+            type="button"
+            className="h-10 px-4 rounded-lg text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-500 dark:hover:text-white shadow-sm"
+            disabled={saving || !titulo || !fecha}
+          >
+            {saving ? "Guardando..." : "Programar"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }
