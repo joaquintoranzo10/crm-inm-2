@@ -88,8 +88,6 @@ export default function ConfiguracionPage() {
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [exportResources, setExportResources] = useState<string[]>(["leads", "propiedades", "eventos"]);
-  const [metrics, setMetrics] = useState<any>(null); 
-  const [metricsLoading, setMetricsLoading] = useState(false);
   const [importResource] = useState("leads");
   const [dryRun, setDryRun] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -167,7 +165,6 @@ export default function ConfiguracionPage() {
       setExportLoading(false);
     }
   };
-  const handleMetrics = async () => { setMetricsLoading(true); try{ const {data} = await api.get("/api/exportacion/metrics/", {params:{year,month}}); setMetrics(data); }catch{ }finally{ setMetricsLoading(false); } };
   const [importError, setImportError] = useState<string | null>(null);
   const handleImport = async () => {
     setImportLoading(true);
@@ -312,30 +309,10 @@ export default function ConfiguracionPage() {
             </div>
         </div>
         <div className="mt-6 pt-4 border-t border-gray-300 dark:border-white/10 flex justify-end gap-3">
-             <Button variant="ghost" onClick={handleMetrics} disabled={metricsLoading}>Ver métricas</Button>
              <Button onClick={handleExport} disabled={exportLoading}>{exportLoading ? "Exportando..." : "Exportar"}</Button>
         </div>
         {exportError && <div className="mt-4"><Alert kind="error">{exportError}</Alert></div>}
-        {metrics && (
-             <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                 <div className="p-4 rounded-xl card-base border-t-2 border-t-blue-500 shadow-sm">
-                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Eventos (Mes)</div>
-                     <div className="text-3xl font-black text-blue-600 dark:text-blue-400">{metrics.eventos_mes}</div>
-                 </div>
-                 <div className="p-4 rounded-xl card-base border-t-2 border-t-emerald-500 shadow-sm">
-                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Propiedades (Mes)</div>
-                     <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{metrics.propiedades_mes}</div>
-                 </div>
-                 <div className="p-4 rounded-xl card-base border-t-2 border-t-amber-500 shadow-sm">
-                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Leads Pendientes</div>
-                     <div className="text-3xl font-black text-amber-600 dark:text-amber-400">{metrics.leads_pendientes}</div>
-                 </div>
-                 <div className="p-4 rounded-xl card-base border-t-2 border-t-purple-500 shadow-sm">
-                     <div className="text-[10px] font-black uppercase opacity-70 mb-1">Cierres (Mes)</div>
-                     <div className="text-3xl font-black text-purple-600 dark:text-purple-400">{metrics.ventas_mes}</div>
-                 </div>
-             </div>
-         )}
+        
       </Section>
 
       <Section title="Importar datos">

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
-import { CalendarPlus } from "lucide-react";
+import { CalendarPlus,BarChart3 } from "lucide-react";
 import { toast } from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 import {
   api,
   fetchEventos,
@@ -132,6 +133,7 @@ function validateEventoNoSolapa(
 
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [contactos, setContactos] = useState<Contacto[]>([]);
@@ -400,6 +402,14 @@ export default function DashboardPage() {
           </h2>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-end gap-2.5 sm:gap-3">
+            <button
+              className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
+              onClick={() => navigate("/app/metricas")}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Ver métricas</span>
+            </button>
+
             <button
               className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
               onClick={() => setOpenEventModal({ mode: "create", baseDate: new Date() })}
