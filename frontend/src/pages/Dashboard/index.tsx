@@ -152,7 +152,8 @@ export default function DashboardPage() {
   } | null>(null);
   const [openDayModal, setOpenDayModal] = useState<Date | null>(null);
   const [deleting, setDeleting] = useState<Evento | null>(null);
-  const [openAvisoModal, setOpenAvisoModal] = useState(false);
+  const [openAvisoModal, setOpenAvisoModal] = useState<{ aviso?: Aviso; baseDate?: Date } | null>(null);
+  const [deletingAviso, setDeletingAviso] = useState<Aviso | null>(null);
 
   async function fetchStatic() {
     if (!localStorage.getItem('rc_token')) {
@@ -411,6 +412,18 @@ export default function DashboardPage() {
     }
   }
 
+  async function deleteAviso(av: Aviso) {
+    if (!localStorage.getItem('rc_token')) return;
+    try {
+      await api.delete(`avisos/${av.id}/`);
+      await fetchStatic(); 
+      setDeletingAviso(null);
+      toast.success("Recordatorio eliminado.");
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo eliminar el recordatorio.");
+    }
+  }
   
  return (
     <div className="relative w-full h-full">
@@ -425,7 +438,7 @@ export default function DashboardPage() {
 
           <button
             className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
-            onClick={() => setOpenAvisoModal(true)}
+            onClick={() => setOpenAvisoModal({})}
           >
             <Bell className="w-5 h-5" />
             <span>Recordatorio</span>
@@ -595,6 +608,9 @@ export default function DashboardPage() {
           onEdit={(ev) => setOpenEventModal({ mode: "edit", evento: ev })}
           onDelete={(ev) => setDeleting(ev)}
           onCreate={() => setOpenEventModal({ mode: "create", baseDate: openDayModal })}
+          onEditAviso={(av) => setOpenAvisoModal({ aviso: av })}
+          onDeleteAviso={(av) => setDeletingAviso(av)}
+          onCreateAviso={() => setOpenAvisoModal({ baseDate: openDayModal })}
         />
       )}
 
@@ -618,6 +634,26 @@ export default function DashboardPage() {
           confirmType="danger"
           onCancel={() => setDeleting(null)}
           onConfirm={() => deleteEvento(deleting)}
+        />
+      )}
+
+      {deletingAviso && (
+        <ConfirmModal
+          title="Eliminar recordatorio"
+          message={`¿Seguro que querés eliminar el recordatorio "${deletingAviso.titulo}"?`}
+          confirmLabel="Eliminar"
+          confirmType="danger"
+          onCancel={() => setDeletingAviso(null)}
+          onConfirm={() => deleteAviso(deletingAviso)}
+        />
+      )}
+
+      {openAvisoModal && (
+        <AvisoCreateModal 
+          aviso={openAvisoModal.aviso} 
+          baseDate={openAvisoModal.baseDate}
+          onClose={() => setOpenAvisoModal(null)} 
+          onCreated={() => fetchStatic()} 
         />
       )}
 
@@ -716,6 +752,9 @@ function DayEventsModal({
   onEdit,
   onDelete,
   onCreate,
+  onEditAviso,
+  onDeleteAviso,
+  onCreateAviso,
 }: {
   date: Date;
   eventos: Evento[];
@@ -725,6 +764,9 @@ function DayEventsModal({
   onEdit: (ev: Evento) => void;
   onDelete: (ev: Evento) => void;
   onCreate: () => void;
+  onEditAviso: (av: Aviso) => void;
+  onDeleteAviso: (av: Aviso) => void;
+  onCreateAviso: () => void;
 }) {
   return (
     <ModalShell title={`Eventos del ${formatDate(date, { year: "numeric" })}`} onClose={onClose}>
@@ -760,19 +802,15 @@ function DayEventsModal({
                               ev.tipo === 'Reunion' ? 'bg-blue-500' : 
                               ev.tipo === 'Llamada' ? 'bg-amber-500' : 'bg-emerald-500'
                           }`}></span>
-                          
                           <span className="font-semibold text-gray-900 dark:text-white">{formatHour(ev.fecha_hora)}</span>
                           <span className="text-gray-500 dark:text-gray-400 text-sm">· {ev.tipo}</span>
                       </div>
-                    
                       <div className="text-sm text-gray-800 dark:text-gray-300 truncate font-medium">
                         🏠 {ev.propiedad_titulo || (ev.propiedad ? `Propiedad #${ev.propiedad}` : "—")}
                       </div>
-
                       <div className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">
                         👤 {ev.contacto_nombre || (ev.contacto ? `Lead #${ev.contacto}` : "Sin contacto asignado")}
                       </div>
-
                       {ev.notas && <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic border-l-2 border-gray-300 dark:border-white/20 pl-2">"{ev.notas}"</div>}
                     </div>
                     
@@ -802,6 +840,12 @@ function DayEventsModal({
                         </div>
                         {av.descripcion && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{av.descripcion}</div>}
                       </div>
+
+                      <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 rounded-lg bg-purple-200/50 dark:bg-white/10 hover:bg-purple-300/50 dark:hover:bg-white/20 text-purple-700 dark:text-white" onClick={() => onEditAviso(av)} title="Editar">✏️</button>
+                        <button className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 hover:bg-rose-200 dark:hover:bg-rose-500/40 text-rose-600 dark:text-rose-400" onClick={() => onDeleteAviso(av)} title="Eliminar">🗑️</button>
+                      </div>
+
                     </li>
                   ))}
                 </ul>
@@ -811,8 +855,9 @@ function DayEventsModal({
         )}
       </div>
 
-      <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
+      <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
         <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 dark:text-white text-sm font-medium transition-colors" onClick={onClose}>Cerrar</button>
+        <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium shadow-sm transition-all" onClick={onCreateAviso}>+ Agregar Recordatorio</button>
         <button className="w-full sm:w-auto h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition-all" onClick={onCreate}>+ Agregar Evento</button>
       </div>
     </ModalShell>
@@ -1243,15 +1288,26 @@ function Field({ label, children }: any) {
 }
 
 function AvisoCreateModal({
+  aviso,
+  baseDate,
   onClose,
   onCreated,
 }: {
+  aviso?: Aviso;
+  baseDate?: Date;
   onClose: () => void;
   onCreated: () => void;
 }) {
-  const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [fecha, setFecha] = useState("");
+  const [titulo, setTitulo] = useState(aviso?.titulo || "");
+  const [descripcion, setDescripcion] = useState(aviso?.descripcion || "");
+  
+  const initFecha = aviso?.fecha 
+    ? aviso.fecha.slice(0, 16) 
+    : baseDate 
+      ? toLocalInputValue(baseDate) 
+      : "";
+      
+  const [fecha, setFecha] = useState(initFecha);
   const [saving, setSaving] = useState(false);
 
   const getTodayMin = () => {
@@ -1272,27 +1328,29 @@ function AvisoCreateModal({
       }
       
       const userId = localStorage.getItem("rc_user_id");
-
-      
-      await api.post("avisos/", {
+      const payload = {
         titulo,
         descripcion,
         fecha: fechaISO,
-        estado: "pendiente",
+        estado: aviso?.estado || "pendiente",
         owner: userId ? Number(userId) : null
-      });
+      };
+
+      if (aviso?.id) {
+        await api.patch(`avisos/${aviso.id}/`, payload);
+        toast.success("¡Recordatorio actualizado!");
+      } else {
+        await api.post("avisos/", payload);
+        toast.success("¡Recordatorio programado con éxito!");
+      }
       
-      toast.success("¡Recordatorio programado con éxito!");
       onCreated();
       onClose();
     } catch (error: any) {
-      console.error("Error creando aviso:", error?.response?.data || error);
-      
-   
+      console.error("Error al guardar aviso:", error?.response?.data || error);
       const errMsg = error?.response?.data 
         ? JSON.stringify(error.response.data) 
-        : "No se pudo programar el recordatorio.";
-        
+        : "No se pudo guardar el recordatorio.";
       toast.error(errMsg);
     } finally {
       setSaving(false);
@@ -1300,7 +1358,7 @@ function AvisoCreateModal({
   }
 
   return (
-    <ModalShell title="Nuevo Recordatorio " onClose={onClose} maxWidth="max-w-md">
+    <ModalShell title={aviso?.id ? "Editar Recordatorio" : "Nuevo Recordatorio"} onClose={onClose} maxWidth="max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-bold text-muted-clr uppercase tracking-wider mb-1">Título</label>
@@ -1347,7 +1405,7 @@ function AvisoCreateModal({
             className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-500 dark:hover:text-white shadow-sm"
             disabled={saving || !titulo || !fecha}
           >
-            {saving ? "Guardando..." : "Programar"}
+            {saving ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </form>
