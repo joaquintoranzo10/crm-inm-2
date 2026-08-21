@@ -159,7 +159,6 @@ class ExportView(APIView):
 
 class ChartMetricsView(APIView):
     
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -170,49 +169,72 @@ class ChartMetricsView(APIView):
         date_filter_prop = Q()
         date_filter_evt = Q()
         period = None
+        
         if year and month:
             try:
                 start_dt, end_dt = _month_range(int(year), int(month))
                 start_dt, end_dt = _to_aware(start_dt), _to_aware(end_dt)
+                
                 date_filter_prop = Q(fecha_alta__range=(start_dt, end_dt))
                 date_filter_evt = Q(eventos__fecha_hora__range=(start_dt, end_dt))
                 period = {"year": int(year), "month": int(month)}
             except (TypeError, ValueError):
                 return JsonResponse({"detail": "year y month deben ser numéricos"}, status=400)
 
+       
         qs_leads = Contacto.objects.filter(owner=user)
-
         if period:
+            
             qs_leads = qs_leads.filter(creado_en__range=(start_dt, end_dt))
 
-    
         leads_por_estado = list(
             qs_leads.values("estado__fase")
             .annotate(total=Count("id"))
             .order_by("-total")
         )
         
-        leads_por_estado = list(
-            Contacto.objects.filter(owner=user)
-            .values("estado__fase")
-            .annotate(total=Count("id"))
-            .order_by("-total")
-        )
-        leads_por_estado = [
+        leads_por_estado_formatted = [
             {"estado": r["estado__fase"] or "Sin estado", "total": r["total"]}
             for r in leads_por_estado
         ]
-        leads_vendidos = next(
-            (r["total"] for r in leads_por_estado if r["estado"] == "Vendido"), 0
-        )
 
-        propiedades_vendidas = Propiedad.objects.filter(
-            owner=user, estado="vendido"
-        ).filter(date_filter_prop).count()
-        propiedades_alquiladas = Propiedad.objects.filter(
-            owner=user, estado="alquilado"
-        ).filter(date_filter_prop).count()
+        def get_lead_count(fase):
+            return next((r["total"] for r in leads_por_estado_formatted if r["estado"].lower() == fase.lower()), 0)
 
+        leads_totales = sum(r["total"] for r in leads_por_estado_formatted)
+        leads_vendidos = get_lead_count("Vendido")
+        leads_nuevos = get_lead_count("Nuevo")
+        leads_negociacion = get_lead_count("En negociación")
+        leads_rechazados = get_lead_count("Rechazado")
+
+        def count_props(estado, disp=None):
+            q = Propiedad.objects.filter(owner=user, estado__iexact=estado)
+            if disp:
+                q = q.filter(disponibilidad__iexact=disp)
+            if period:
+                q = q.filter(date_filter_prop)
+            return q.count()
+
+        prop_disp_venta = count_props("disponible", "venta")
+        prop_disp_alq = count_props("disponible", "alquiler")
+        prop_res_venta = count_props("reservado", "venta")
+        prop_res_alq = count_props("reservado", "alquiler")
+        prop_vendidas = count_props("vendido")
+        prop_alquiladas = count_props("alquilado")
+
+        prop_totales = (prop_disp_venta + prop_disp_alq + prop_res_venta + 
+                        prop_res_alq + prop_vendidas + prop_alquiladas)
+
+        propiedades_stats = [
+            {"estado": "Disp. Venta", "total": prop_disp_venta},
+            {"estado": "Disp. Alquiler", "total": prop_disp_alq},
+            {"estado": "Res. Venta", "total": prop_res_venta},
+            {"estado": "Res. Alquiler", "total": prop_res_alq},
+            {"estado": "Vendidas", "total": prop_vendidas},
+            {"estado": "Alquiladas", "total": prop_alquiladas},
+        ]
+
+       
         def _top_propiedades(disponibilidad, limit=5):
             qs = (
                 Propiedad.objects.filter(owner=user, disponibilidad__iexact=disponibilidad)
@@ -239,10 +261,16 @@ class ChartMetricsView(APIView):
 
         return JsonResponse({
             "period": period,
-            "leads_por_estado": leads_por_estado,
+            "leads_por_estado": leads_por_estado_formatted,
+            "leads_totales": leads_totales,
             "leads_vendidos": leads_vendidos,
-            "propiedades_vendidas": propiedades_vendidas,
-            "propiedades_alquiladas": propiedades_alquiladas,
+            "leads_nuevos": leads_nuevos,
+            "leads_negociacion": leads_negociacion,
+            "leads_rechazados": leads_rechazados,
+            "propiedades_totales": prop_totales,
+            "propiedades_vendidas": prop_vendidas,
+            "propiedades_alquiladas": prop_alquiladas,
+            "propiedades_stats": propiedades_stats,
             "top_propiedades_venta": top_venta,
             "top_propiedades_alquiler": top_alquiler,
         })

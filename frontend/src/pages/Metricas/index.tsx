@@ -6,13 +6,21 @@ import {
 import { api } from "@/lib/api";
 
 type LeadsPorEstado = { estado: string; total: number };
+type PropiedadesStats = { estado: string; total: number };
 type TopPropiedad = { id: number; codigo: string; titulo: string; total_eventos: number };
+
 type ChartMetrics = {
   period: { year: number; month: number } | null;
   leads_por_estado: LeadsPorEstado[];
+  leads_totales: number;
   leads_vendidos: number;
+  leads_nuevos: number;
+  leads_negociacion: number;
+  leads_rechazados: number;
+  propiedades_totales: number;
   propiedades_vendidas: number;
   propiedades_alquiladas: number;
+  propiedades_stats: PropiedadesStats[];
   top_propiedades_venta: TopPropiedad[];
   top_propiedades_alquiler: TopPropiedad[];
 };
@@ -24,6 +32,16 @@ const ESTADO_COLORS: Record<string, string> = {
   "Vendido": "#10b981",
   "Sin estado": "#9ca3af",
 };
+
+const PROP_COLORS: Record<string, string> = {
+  "Disp. Venta": "#3b82f6",
+  "Disp. Alquiler": "#06b6d4",
+  "Res. Venta": "#f59e0b",
+  "Res. Alquiler": "#f97316",
+  "Vendidas": "#10b981",
+  "Alquiladas": "#8b5cf6",
+};
+
 const FALLBACK_COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#10b981", "#8b5cf6", "#ec4899"];
 
 function Card({ title, children }: any) {
@@ -41,8 +59,8 @@ function StatCard({ label, value, accent }: { label: string; value: number | str
   return (
     <div className="relative overflow-hidden rounded-2xl p-5 card-base">
       <div className="absolute top-0 left-0 w-1 h-full opacity-70" style={{ background: accent }} />
-      <div className="text-xs font-black uppercase tracking-wider opacity-70 mb-1">{label}</div>
-      <div className="text-3xl font-black">{value}</div>
+      <div className="text-[10px] md:text-xs font-black uppercase tracking-wider opacity-70 mb-1 truncate">{label}</div>
+      <div className="text-2xl md:text-3xl font-black">{value}</div>
     </div>
   );
 }
@@ -78,6 +96,7 @@ export default function MetricasPage() {
   const [data, setData] = useState<ChartMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState<number | "">("");
 
@@ -97,11 +116,16 @@ export default function MetricasPage() {
     }
   };
 
-  useEffect(() => { load(); }, []); 
+  useEffect(() => { load(); }, []);
 
   const pieData = useMemo(() => {
     if (!data) return [];
     return data.leads_por_estado.map((r) => ({ name: r.estado, value: r.total }));
+  }, [data]);
+
+  const propData = useMemo(() => {
+    if (!data) return [];
+    return data.propiedades_stats.filter(r => r.total > 0).map((r) => ({ name: r.estado, value: r.total }));
   }, [data]);
 
   const isDark = document.documentElement.classList.contains("dark");
@@ -157,47 +181,103 @@ export default function MetricasPage() {
 
       {!loading && data && (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <StatCard label="Leads vendidos" value={data.leads_vendidos} accent="#10b981" />
-            <StatCard label="Propiedades vendidas" value={data.propiedades_vendidas} accent="#3b82f6" />
-            <StatCard label="Propiedades alquiladas" value={data.propiedades_alquiladas} accent="#f59e0b" />
+          <div className="space-y-6">
+            {/* Sección Leads */}
+            <div>
+              <h3 className="text-lg font-bold mb-3 px-1 text-gray-800 dark:text-gray-200">Rendimiento de Leads</h3>
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <StatCard label="Totales" value={data.leads_totales} accent="#6b7280" />
+                <StatCard label="Nuevos" value={data.leads_nuevos} accent="#3b82f6" />
+                <StatCard label="En Negociación" value={data.leads_negociacion} accent="#f59e0b" />
+                <StatCard label="Vendidos" value={data.leads_vendidos} accent="#10b981" />
+                <StatCard label="Rechazados" value={data.leads_rechazados} accent="#ef4444" />
+              </div>
+            </div>
+
+            {/* Sección Propiedades */}
+            <div>
+              <h3 className="text-lg font-bold mb-3 px-1 text-gray-800 dark:text-gray-200">Inventario y Cierres</h3>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                <StatCard label="Total en Catálogo" value={data.propiedades_totales} accent="#6b7280" />
+                <StatCard label="Total Vendidas" value={data.propiedades_vendidas} accent="#10b981" />
+                <StatCard label="Total Alquiladas" value={data.propiedades_alquiladas} accent="#8b5cf6" />
+              </div>
+            </div>
           </div>
 
-          <Card title="Leads por estado">
-            {pieData.length === 0 ? (
-              <p className="text-sm opacity-60 py-10 text-center">Todavía no hay leads cargados.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                <div style={{ width: "100%", height: 260 }}>
-                  <ResponsiveContainer>
-                    <PieChart>
-                      <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={95} paddingAngle={2}>
-                        {pieData.map((entry, i) => (
-                          <Cell key={entry.name} fill={ESTADO_COLORS[entry.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card title="Leads por estado">
+              {pieData.length === 0 ? (
+                <p className="text-sm opacity-60 py-10 text-center">No hay leads en este periodo.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={95} paddingAngle={2}>
+                          {pieData.map((entry, i) => (
+                            <Cell key={entry.name} fill={ESTADO_COLORS[entry.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={data.leads_por_estado} layout="vertical" margin={{ left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+                        <XAxis type="number" allowDecimals={false} stroke={axisColor} fontSize={12} />
+                        <YAxis type="category" dataKey="estado" width={110} stroke={axisColor} fontSize={12} />
+                        <Tooltip />
+                        <Bar dataKey="total" radius={[0, 6, 6, 0]}>
+                          {data.leads_por_estado.map((entry, i) => (
+                            <Cell key={entry.estado} fill={ESTADO_COLORS[entry.estado] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-                <div style={{ width: "100%", height: 260 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={data.leads_por_estado} layout="vertical" margin={{ left: 10 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
-                      <XAxis type="number" allowDecimals={false} stroke={axisColor} fontSize={12} />
-                      <YAxis type="category" dataKey="estado" width={110} stroke={axisColor} fontSize={12} />
-                      <Tooltip />
-                      <Bar dataKey="total" radius={[0, 6, 6, 0]}>
-                        {data.leads_por_estado.map((entry, i) => (
-                          <Cell key={entry.estado} fill={ESTADO_COLORS[entry.estado] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+              )}
+            </Card>
+
+            <Card title="Estado de Propiedades">
+              {propData.length === 0 ? (
+                <p className="text-sm opacity-60 py-10 text-center">No hay propiedades en este periodo.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie data={propData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={95} paddingAngle={2}>
+                          {propData.map((entry, i) => (
+                            <Cell key={entry.name} fill={PROP_COLORS[entry.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={data.propiedades_stats} layout="vertical" margin={{ left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+                        <XAxis type="number" allowDecimals={false} stroke={axisColor} fontSize={12} />
+                        <YAxis type="category" dataKey="estado" width={110} stroke={axisColor} fontSize={12} />
+                        <Tooltip />
+                        <Bar dataKey="total" radius={[0, 6, 6, 0]}>
+                          {data.propiedades_stats.map((entry, i) => (
+                            <Cell key={entry.estado} fill={PROP_COLORS[entry.estado] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
-            )}
-          </Card>
+              )}
+            </Card>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card title="Propiedad más elegida — Venta">
