@@ -7,7 +7,7 @@ from datetime import timedelta
 
 # Importamos Aviso para gestionar el quick-contact
 from avisos.models import Aviso 
-from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial,HistorialLead
+from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial, HistorialLead, PreferenciaBusqueda
 from propiedades.models import Propiedad
 
 # Duración por defecto de un evento (minutos)
@@ -25,6 +25,11 @@ class HistorialLeadSerializer(serializers.ModelSerializer):
         fields = ['id', 'contacto', 'nota', 'creado_en']
         read_only_fields = ['creado_en']
 
+
+class PreferenciaBusquedaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreferenciaBusqueda
+        exclude = ["id", "contacto"]
 
 class ContactoSerializer(serializers.ModelSerializer):
    
@@ -45,6 +50,7 @@ class ContactoSerializer(serializers.ModelSerializer):
    
     proximo_contacto_estado = serializers.ReadOnlyField()
     dias_sin_seguimiento = serializers.ReadOnlyField()
+    preferencia = PreferenciaBusquedaSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Contacto
@@ -57,14 +63,12 @@ class ContactoSerializer(serializers.ModelSerializer):
             "telefono",
             "estado",
             "estado_detalle",
-            # seguimiento
+            "preferencia",
             "last_contact_at",
             "next_contact_at",
             "next_contact_note",
-            # derivados
             "proximo_contacto_estado",
             "dias_sin_seguimiento",
-            # metadatos
             "creado_en",
         ]
         read_only_fields = [
@@ -94,7 +98,13 @@ class ContactoSerializer(serializers.ModelSerializer):
 
    
     def create(self, validated_data):
+        preferencia_data = validated_data.pop("preferencia", None) 
+        
         contacto = Contacto.objects.create(**validated_data)
+        
+        if preferencia_data:
+            PreferenciaBusqueda.objects.create(contacto=contacto, **preferencia_data)
+
         nota_inicial = validated_data.get("next_contact_note")
         if nota_inicial:
             HistorialLead.objects.create(
@@ -105,21 +115,29 @@ class ContactoSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         
+        preferencia_data = validated_data.pop("preferencia", None)
+        
         for attr, val in validated_data.items():
             setattr(instance, attr, val)
         instance.save() 
 
-        
+        if preferencia_data is not None:
+            if not preferencia_data: 
+                PreferenciaBusqueda.objects.filter(contacto=instance).delete()
+            else:
+                pref, created = PreferenciaBusqueda.objects.get_or_create(contacto=instance)
+                for attr, val in preferencia_data.items():
+                    setattr(pref, attr, val)
+                pref.save()
+
+      
         if "next_contact_at" in validated_data or "next_contact_note" in validated_data:
-            
-           
             quick_aviso_qs = Aviso.objects.filter(lead=instance, evento__isnull=True)
             
             next_contact_at = validated_data.get("next_contact_at")
             next_contact_note = validated_data.get("next_contact_note")
             
             if next_contact_at is not None:
-                
                 titulo = f"Seguimiento programado con {instance.nombre} {instance.apellido}"
                 descripcion = next_contact_note or "Próximo contacto registrado manualmente."
                 
@@ -134,7 +152,6 @@ class ContactoSerializer(serializers.ModelSerializer):
                         'propiedad': None, 
                     }
                 )
-                
             else:
                 quick_aviso_qs.delete()
         

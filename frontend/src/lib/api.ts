@@ -11,22 +11,20 @@ export const api = axios.create({
   timeout: 15000,
 });
 
-/** Normaliza SOLO rutas relativas. Las absolutas (http/https) NO se tocan. */
+
 function normalizeUrl(u?: string) {
   if (!u) return u;
-  if (/^https?:\/\//i.test(u)) return u; // absoluta => no tocar
+  if (/^https?:\/\//i.test(u)) return u; 
 
   let url = u;
-  // quita prefijo /api/ o api/ para evitar /api/api
+  
   if (url.startsWith("/api/")) url = url.slice(5);
   else if (url.startsWith("api/")) url = url.slice(4);
 
-  // compacta slashes múltiples
   url = url.replace(/\/{2,}/g, "/");
   return url;
 }
 
-/* Bearer + normalización para el cliente dedicado  */
 api.interceptors.request.use((config) => {
   
   const token = localStorage.getItem("rc_token");
@@ -35,13 +33,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-/* Parche global para axios “crudo” (por si alguna vista lo usa)*/
 axios.defaults.baseURL = API_BASE;
 axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.timeout = 15000;
 
 axios.interceptors.request.use((config) => {
-  // AHORA BUSCAMOS 'rc_token' para estandarizar
   const token = localStorage.getItem("rc_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (config.url && !/^https?:\/\//i.test(config.url)) {
@@ -61,11 +57,52 @@ export type Contacto = {
   estado_fase?: string | null;
   proximo_contacto?: string | null;
   ultimo_contacto?: string | null;
+  preferencia?: PreferenciaBusqueda | null;
 };
 
 export async function fetchLeads(params: Record<string, any> = {}) {
   const { data } = await api.get("contactos/", { params });
   return data.results ?? data;
+}
+
+export type TipoPropiedad =
+  | "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local"
+  | "oficina" | "consultorio" | "quinta" | "chacra" | "galpon"
+  | "deposito" | "campo" | "hotel" | "fondo de comercio" | "edificio" | "otro";
+
+export type PreferenciaBusqueda = {
+  id?: number;
+  tipo_de_propiedad?: TipoPropiedad | "";
+  localidad?: string;
+  barrio?: string;
+  presupuesto_min?: string | number | null;
+  presupuesto_max?: string | number | null;
+  moneda?: "USD" | "ARS";
+  ambientes_min?: number | null;
+  actualizado_en?: string;
+};
+
+
+export async function updatePreferenciaLead(contactoId: number, preferencia: PreferenciaBusqueda) {
+  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencia });
+  return data as Contacto;
+}
+
+
+export async function clearPreferenciaLead(contactoId: number) {
+  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencia: null });
+  return data as Contacto;
+}
+
+export async function fetchMatchesForLead(contactoId: number): Promise<Propiedad[]> {
+  const { data } = await api.get(`contactos/${contactoId}/matches/`);
+  return Array.isArray(data) ? data : (data.resultados ?? []);
+}
+
+
+export async function fetchLeadsInteresados(propiedadId: number): Promise<Contacto[]> {
+  const { data } = await api.get(`propiedades/${propiedadId}/leads-interesados/`);
+  return Array.isArray(data) ? data : (data.results ?? []);
 }
 
 /* Propiedades */
@@ -111,7 +148,7 @@ export async function fetchUsuarios() {
 /*  Eventos  */
 export type Evento = {
   id: number;
-  owner?: number; // read-only (puede no venir en todas las vistas)
+  owner?: number; 
   nombre?: string;
   apellido?: string;
   email?: string | null;
@@ -147,19 +184,17 @@ export async function fetchEventos(params: EventoFilters = {}) {
   return data.results ?? data;
 }
 
-/** Crear evento (permite contacto opcional) */
 export async function createEvento(payload: EventoCreate): Promise<Evento> {
   const { data } = await api.post("eventos/", payload);
   return data;
 }
 
-/** Actualizar evento */
 export async function updateEvento(id: number, payload: EventoUpdate): Promise<Evento> {
   const { data } = await api.patch(`eventos/${id}/`, payload);
   return data;
 }
 
-/** Borrar evento */
+
 export async function deleteEvento(id: number): Promise<void> {
   await api.delete(`eventos/${id}/`);
 }

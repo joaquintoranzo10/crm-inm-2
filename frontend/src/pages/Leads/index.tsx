@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
+import type { PreferenciaBusqueda } from "@/lib/api";
+import PreferenciaModal from "./PreferenciaModal";
+import MatchesModal from "./MatchesModal";
 
 
 type EstadoLead = { id: number; fase: string; descripcion?: string };
@@ -18,6 +21,7 @@ type Contacto = {
   proximo_contacto_estado?: string;
   dias_sin_seguimiento?: number | null;
   creado_en?: string;
+  preferencia?: PreferenciaBusqueda | null;
 };
 
 
@@ -63,18 +67,17 @@ function statusChipClass(label?: string) {
   return STATUS_BADGE.pendiente;
 }
 
-/*  Page */
 export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [estados, setEstados] = useState<EstadoLead[]>([]);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
-  
-  // Estados para controlar Modales
   const [editTarget, setEditTarget] = useState<Contacto | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Contacto | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Contacto | null>(null);
+  const [preferenciaTarget, setPreferenciaTarget] = useState<Contacto | null>(null);
+  const [matchesTarget, setMatchesTarget] = useState<Contacto | null>(null);
   const [isProcessing, setIsProcessing] = useState(false); 
   const optionStyle = { backgroundColor: "var(--surface)", color: "var(--text-main)" }; 
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
@@ -131,8 +134,6 @@ export default function LeadsPage() {
     };
   }, []);
 
-  /* EDICION Y BORRADO  */
-
   // Confirmar Borrado
   async function handleConfirmDelete() {
     if (!deleteTarget) return;
@@ -160,7 +161,6 @@ export default function LeadsPage() {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  // Guardar Edición
   async function handleSaveEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!editTarget) return;
@@ -202,7 +202,6 @@ export default function LeadsPage() {
   }
 
 
-  /* CALCULOS DE TABLA */
   const estadoById = useMemo(() => {
     const m = new Map<number, EstadoLead>();
     estados.forEach((e) => m.set(e.id, e));
@@ -344,7 +343,6 @@ export default function LeadsPage() {
             ))}
         </section>
 
-        {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-3">
     
           
@@ -396,7 +394,6 @@ export default function LeadsPage() {
           </div>
       </div>
 
-        {/* Tabla (Desktop) */}
         <div className="hidden md:block rounded-2xl border border-soft bg-surface overflow-hidden shadow-sm">
             <table className="w-full text-sm">
                 <thead className="bg-surface-2 text-muted-clr uppercase text-xs tracking-wider font-semibold border-b border-soft">
@@ -467,6 +464,22 @@ export default function LeadsPage() {
                                             title="Ver Historial"
                                         >
                                             📝 Historial
+                                        </button>
+
+                                        <button
+                                            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-500 dark:hover:text-white shadow-sm"
+                                            onClick={() => setPreferenciaTarget(c)}
+                                            title="Qué busca"
+                                        >
+                                            🔍 Busca
+                                        </button>
+
+                                        <button
+                                            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-600 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-500 dark:hover:text-white shadow-sm"
+                                            onClick={() => setMatchesTarget(c)}
+                                            title="Ver propiedades sugeridas"
+                                        >
+                                            🏠 Sugerencias
                                         </button>
 
                                         <button 
@@ -551,6 +564,20 @@ export default function LeadsPage() {
                                 Historial
                             </button>
 
+                            <button
+                                className="px-3 py-1.5 rounded-lg border border-violet-200 text-xs text-violet-600 dark:border-violet-500/30 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10"
+                                onClick={() => setPreferenciaTarget(c)}
+                            >
+                                Busca
+                            </button>
+
+                            <button
+                                className="px-3 py-1.5 rounded-lg border border-amber-200 text-xs text-amber-600 dark:border-amber-500/30 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                                onClick={() => setMatchesTarget(c)}
+                            >
+                                Sugerencias
+                            </button>
+
                             <button 
                                 className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-500"
                                 onClick={() => setDeleteTarget(c)}
@@ -586,7 +613,6 @@ export default function LeadsPage() {
 
       </div>
 
-      {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">
@@ -622,7 +648,26 @@ export default function LeadsPage() {
        />
       )}
 
-      {/* MODAL DE EDICIÓN */}
+      {preferenciaTarget && (
+        <PreferenciaModal
+            contacto={preferenciaTarget}
+            onClose={() => setPreferenciaTarget(null)}
+            onSaved={fetchContactos}
+        />
+      )}
+
+      {matchesTarget && (
+        <MatchesModal
+            contacto={matchesTarget}
+            onClose={() => setMatchesTarget(null)}
+            onEditarPreferencia={() => {
+                setMatchesTarget(null);
+                setPreferenciaTarget(matchesTarget);
+            }}
+        />
+      )}
+
+     
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">

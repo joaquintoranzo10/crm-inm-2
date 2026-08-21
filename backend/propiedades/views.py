@@ -12,11 +12,7 @@ from .serializers import (
 )
 
 class OwnedQuerysetMixin:
-    """
-    - Exige autenticación
-    - Filtra el queryset por owner=request.user (salvo staff/súperuser)
-    - Setea owner automáticamente en create
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -35,14 +31,9 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     serializer_class = PropiedadSerializer
     permission_classes = [IsAuthenticated]
 
-    #Create para subida de imágenes 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        """
-        Crea la Propiedad y luego las PropiedadImagen asociadas
-        usando los archivos enviados en 'imagenes'.
-        """
-        # Crear propiedad
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -54,7 +45,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Crear imágenes
+
         imagenes_data = request.FILES.getlist("imagenes")
         for imagen_file in imagenes_data:
             PropiedadImagen.objects.create(
@@ -62,7 +53,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 imagen=imagen_file,
             )
 
-        # Respuesta
+       
         response_serializer = self.get_serializer(propiedad)
         headers = self.get_success_headers(response_serializer.data)
         return Response(
@@ -70,19 +61,12 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
-
-    #Subir imágenes extra a una propiedad existente 
+ 
     @action(detail=True, methods=["post"], url_path="subir-imagenes")
     def subir_imagenes(self, request, pk=None):
-        """
-        Permite subir una o varias imágenes para la propiedad {pk}.
-        Acepta:
-          - 'imagen' (una sola)  o
-          - 'imagenes' (lista de archivos)
-          - 'descripcion' (opcional, misma para todas)
-        """
+        
         try:
-            propiedad = self.get_queryset().get(pk=pk)  # respeta filtro de owner
+            propiedad = self.get_queryset().get(pk=pk) 
         except Propiedad.DoesNotExist:
             return Response(
                 {"detail": "Propiedad no encontrada"},
@@ -95,7 +79,6 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         imagenes_subidas = []
         descripcion = serializer.validated_data.get("descripcion", "")
 
-        # caso 1: una sola
         imagen = serializer.validated_data.get("imagen")
         if imagen:
             obj = PropiedadImagen.objects.create(
@@ -105,7 +88,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             )
             imagenes_subidas.append(obj)
 
-        # caso 2: lista
+       
         imagenes = serializer.validated_data.get("imagenes", [])
         for img in imagenes:
             obj = PropiedadImagen.objects.create(
@@ -121,8 +104,26 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+   
+    @action(detail=True, methods=["get"], url_path="leads-interesados")
+    def leads_interesados(self, request, pk=None):
+        
+        try:
+            propiedad = self.get_queryset().get(pk=pk)  
+        except Propiedad.DoesNotExist:
+            return Response(
+                {"detail": "Propiedad no encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-# ViewSet para borrar imágenes
+        from leads.matching import calcular_leads_interesados  
+        from leads.serializers import ContactoSerializer
+
+        leads = calcular_leads_interesados(propiedad)
+        ser = ContactoSerializer(leads, many=True)
+        return Response(ser.data)
+
+
 class PropiedadImagenViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = PropiedadImagen.objects.all()
     serializer_class = PropiedadImagenSerializer

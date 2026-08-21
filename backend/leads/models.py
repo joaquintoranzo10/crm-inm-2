@@ -134,6 +134,45 @@ class EstadoLeadHistorial(models.Model):
         return f"{self.contacto} -> {self.estado or '—'} @ {self.changed_at:%Y-%m-%d %H:%M}"
 
 
+class PreferenciaBusqueda(models.Model):
+    
+    contacto = models.OneToOneField(
+        Contacto, on_delete=models.CASCADE, related_name="preferencia"
+    )
+
+    tipo_de_propiedad = models.CharField(
+        max_length=50,
+        choices=Propiedad.TIPO_DE_PROPIEDAD_CHOICES,
+        blank=True,
+        default="",
+    )
+    localidad = models.CharField(max_length=100, blank=True, default="")
+    barrio = models.CharField(max_length=100, blank=True, default="")
+
+    presupuesto_min = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    presupuesto_max = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    moneda = models.CharField(
+        max_length=10,
+        choices=Propiedad.MONEDA_CHOICES,
+        default="USD",
+    )
+
+    ambientes_min = models.PositiveIntegerField(null=True, blank=True)
+
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Preferencia de búsqueda"
+        verbose_name_plural = "Preferencias de búsqueda"
+
+    def __str__(self):
+        return f"Preferencia de {self.contacto}"
+
+
 @receiver(post_save, sender=Contacto)
 def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **kwargs):
     if kwargs.get('raw', False):
@@ -169,12 +208,11 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
-    # Evento ocurrido (pasado o hoy)
+    
     if evento_dt <= now:
         
         update_fields_list = []
         
-        # Actualiza el último contacto si este evento es más reciente
         if not contacto.last_contact_at or evento_dt > contacto.last_contact_at:
             contacto.last_contact_at = evento_dt
             update_fields_list.append("last_contact_at")
@@ -205,7 +243,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         if update_fields_list:
             contacto.save(update_fields=update_fields_list)
             
-        # Marca como completado o elimina el aviso relacionado
         try:
             aviso = Aviso.objects.get(evento=instance)
             if aviso.estado == 'pendiente':
@@ -216,7 +253,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
 
         return
 
-    # Evento futuro
     next_contact_actual = (
         timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
     )
@@ -237,7 +273,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
             contacto.next_contact_note = base
         contacto.save(update_fields=["next_contact_at", "next_contact_note"])
 
-    # Crear o actualizar un aviso para este evento futuro
     aviso_titulo = f"Próximo contacto con {contacto.nombre} {contacto.apellido}"
     aviso_descripcion = f"{instance.tipo} sobre la propiedad {instance.propiedad.titulo}" if instance.propiedad else f"{instance.tipo} con el lead"
 
