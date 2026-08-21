@@ -658,7 +658,14 @@ export default function DashboardPage() {
       )}
 
       {result && <ResultModal ok={result.ok} message={result.msg} onClose={() => setResult(null)} />}
-      {openAvisoModal && <AvisoCreateModal onClose={() => setOpenAvisoModal(false)} onCreated={() => {}} />}
+      {openAvisoModal && (
+        <AvisoCreateModal 
+          aviso={openAvisoModal.aviso} 
+          baseDate={openAvisoModal.baseDate}
+          onClose={() => setOpenAvisoModal(null)} 
+          onCreated={() => fetchStatic()} 
+        />
+      )}
       {loading && (
           <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
               <div className="text-white animate-pulse">Cargando datos...</div>
