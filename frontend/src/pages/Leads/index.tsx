@@ -794,9 +794,12 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
       
       setNotas(prev => prev.map(n => n.id === editingNote.id ? res.data : n));
       setEditingNote(null);
-    } catch (error) {
-      console.error("Error al editar la nota:", error);
-      alert("No se pudo editar la nota.");
+    } catch (error: any) {
+      console.error("Error al editar la nota:", error?.response?.data || error);
+      const errMsg = error?.response?.data 
+        ? JSON.stringify(error.response.data) 
+        : "No se pudo editar la nota.";
+      alert(errMsg);
     } finally {
       setSaving(false);
     }
