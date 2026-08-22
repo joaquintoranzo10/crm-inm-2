@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
+import PropiedadCard from "@/components/PropiedadCard";
+import { PropiedadDetailModal } from "@/pages/Propiedades";
 import { fetchMatchesForLead, type Propiedad } from "@/lib/api";
 
 type Props = {
@@ -13,17 +15,11 @@ type Props = {
   onEditarPreferencia?: () => void;
 };
 
-function formatPrecio(p: Propiedad) {
-  if (!p.precio) return "Precio a consultar";
-  const num = Number(p.precio);
-  const formateado = isNaN(num) ? p.precio : num.toLocaleString("es-AR");
-  return `${p.moneda || ""} ${formateado}`;
-}
-
 export default function MatchesModal({ contacto, onClose, onEditarPreferencia }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
+  const [detalle, setDetalle] = useState<Propiedad | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -52,7 +48,7 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
       open={true}
       onClose={onClose}
       title={`Propiedades sugeridas para ${contacto.nombre || ""} ${contacto.apellido || ""}`.trim()}
-      maxWidth="2xl"
+      maxWidth="4xl"
     >
       {loading && <div className="text-sm text-muted-clr text-center py-8">Buscando coincidencias...</div>}
 
@@ -81,28 +77,9 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
       )}
 
       {!loading && !error && propiedades.length > 0 && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 max-h-[70vh] overflow-y-auto pr-1">
           {propiedades.map((p) => (
-            <div
-              key={p.id}
-              className="p-4 rounded-xl bg-surface border border-soft flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-            >
-              <div>
-                <div className="font-semibold text-base-clr">{p.titulo}</div>
-                <div className="text-xs text-muted-clr">
-                  {p.codigo} · {p.tipo_de_propiedad} · {p.ubicacion || "—"}
-                </div>
-                <div className="text-xs text-muted-clr mt-1">
-                  {p.ambiente ? `${p.ambiente} amb.` : ""} {p.superficie ? `· ${p.superficie} m²` : ""}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-bold text-base-clr">{formatPrecio(p)}</div>
-                <span className="inline-flex mt-1 px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
-                  {p.estado}
-                </span>
-              </div>
-            </div>
+            <PropiedadCard key={p.id} propiedad={p} onVer={() => setDetalle(p)} />
           ))}
         </div>
       )}
@@ -116,6 +93,9 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
           Cerrar
         </button>
       </div>
+
+      {detalle && <PropiedadDetailModal propiedad={detalle} onClose={() => setDetalle(null)} />}
     </Modal>
   );
 }
+
