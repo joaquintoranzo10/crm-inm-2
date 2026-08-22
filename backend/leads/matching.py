@@ -1,10 +1,11 @@
+import unicodedata
 from decimal import Decimal, InvalidOperation
 
 from propiedades.models import Propiedad
 
 
 def _to_decimal(value):
-    
+   
     if value is None:
         return None
     try:
@@ -13,11 +14,30 @@ def _to_decimal(value):
         return None
 
 
+def _normalizar(texto):
+    
+    if not texto:
+        return ""
+    texto = str(texto).strip().lower()
+    sin_acentos = unicodedata.normalize("NFD", texto)
+    return "".join(c for c in sin_acentos if unicodedata.category(c) != "Mn")
+
+
+def _localidad_barrio_coinciden(pref, propiedad):
+    
+    if pref.localidad and _normalizar(pref.localidad) not in _normalizar(propiedad.localidad):
+        return False
+    if pref.barrio and _normalizar(pref.barrio) not in _normalizar(propiedad.barrio):
+        return False
+    return True
+
+
 def calcular_matches(contacto, top_n=10):
     
     pref = getattr(contacto, "preferencia", None)
     if pref is None:
-        return Propiedad.objects.none()
+        return []
+
 
     qs = Propiedad.objects.filter(
         owner=contacto.owner,
@@ -26,12 +46,6 @@ def calcular_matches(contacto, top_n=10):
 
     if pref.tipo_de_propiedad:
         qs = qs.filter(tipo_de_propiedad=pref.tipo_de_propiedad)
-
-    if pref.localidad:
-        qs = qs.filter(localidad__icontains=pref.localidad)
-
-    if pref.barrio:
-        qs = qs.filter(barrio__icontains=pref.barrio)
 
     if pref.presupuesto_min or pref.presupuesto_max:
         qs = qs.filter(moneda=pref.moneda)
@@ -43,12 +57,13 @@ def calcular_matches(contacto, top_n=10):
     if pref.ambientes_min:
         qs = qs.filter(ambiente__gte=pref.ambientes_min)
 
-    return qs[:top_n]
+    resultado = [p for p in qs if _localidad_barrio_coinciden(pref, p)]
+    return resultado[:top_n]
 
 
 def calcular_leads_interesados(propiedad, top_n=20):
     
-    from .models import Contacto 
+    from .models import Contacto  
 
     if propiedad.estado != "disponible":
         return Contacto.objects.none()
@@ -65,10 +80,7 @@ def calcular_leads_interesados(propiedad, top_n=20):
         if pref.tipo_de_propiedad and pref.tipo_de_propiedad != propiedad.tipo_de_propiedad:
             continue
 
-        if pref.localidad and pref.localidad.lower() not in (propiedad.localidad or "").lower():
-            continue
-
-        if pref.barrio and pref.barrio.lower() not in (propiedad.barrio or "").lower():
+        if not _localidad_barrio_coinciden(pref, propiedad):
             continue
 
         if pref.presupuesto_min or pref.presupuesto_max:
