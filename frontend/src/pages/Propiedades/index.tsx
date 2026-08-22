@@ -83,31 +83,27 @@ const customSelectStyles = {
   placeholder: (base: any) => ({ ...base, color: 'var(--muted)' })
 };
 
-// Normaliza respuestas del backend para asegurar arrays
 function toArray<T>(data: any): T[] {
   if (Array.isArray(data)) return data as T[];
   if (data && Array.isArray(data.results)) return data.results as T[];
   return [];
 }
 
-// URL base del backend 
 const BACKEND_ORIGIN =
   (import.meta as any).env?.VITE_BACKEND_ORIGIN || "https://crm-real-connect.onrender.com";
 
-// Devuelve la ruta completa de un archivo multimedia
+
 function absMedia(url?: string | null) {
   if (!url) return null;
   return url.startsWith("http") ? url : `${BACKEND_ORIGIN}${url}`;
 }
 
-// Toma la primera imagen de la propiedad
 function firstImage(p: Propiedad): string | null {
   const raw = p.imagenes && p.imagenes.length ? p.imagenes[0].imagen : null;
   const abs = absMedia(raw);
   return abs || null;
 }
 
-// Formatea número como precio con símbolo de moneda
 function money(n: number | string, moneda: "USD" | "ARS") {
   const num = typeof n === "string" ? Number(n) : n;
   try {
@@ -121,7 +117,6 @@ function money(n: number | string, moneda: "USD" | "ARS") {
   }
 }
 
-// Define los estilos de estado (Disponible / Reservado / Vendido)
 function badgeEstado(estado: Propiedad["estado"]) {
   const base = "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium";
   if (estado === "disponible")
@@ -131,7 +126,6 @@ function badgeEstado(estado: Propiedad["estado"]) {
   return `${base} bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-white`;
 }
 
-// Define los estilos del badge de tipo de propiedad
 function badgeTipo(tipo: Propiedad["tipo_de_propiedad"]) {
   return { className: "inline-flex items-center rounded-md px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wide shadow-md transition-colors bg-zinc-900 text-white dark:bg-white dark:text-zinc-900", label: tipo };
 }
@@ -207,6 +201,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
+// Normaliza texto para búsquedas
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
@@ -214,6 +209,7 @@ const norm = (s?: string | number | null) =>
     .replace(/\p{Diacritic}/gu, "")
     .trim();
 
+// Convierte cualquier texto a “venta” o “alquiler”
 const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   const n = (s ?? "").toString().toLowerCase();
   if (n.startsWith("alq")) return "alquiler";
@@ -221,7 +217,7 @@ const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   return "venta";
 };
 
-
+/* Select muestra 4 en el desplegable */
 import type { ReactNode } from "react";
 
 function Select4<T extends string>({
@@ -301,14 +297,12 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
   const [i, setI] = useState(0);
   const len = valid.length;
 
-  // Si no hay imágenes, mostramos placeholder
   if (len === 0) {
     return <div className="relative aspect-[2/1] sm:aspect-[16/9] bg-gray-200 dark:bg-gray-800 rounded-t-xl flex items-center justify-center text-gray-400 text-xs">Sin imagen</div>;
   }
 
   const prev = () => setI((v) => (v - 1 + len) % len);
   const next = () => setI((v) => (v + 1) % len);
-
   const touch = useRef<{ x: number | null }>({ x: null });
   const onTouchStart = (e: React.TouchEvent) => { touch.current.x = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -335,7 +329,6 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
    
       {len > 1 && (
         <>
-          
           <button
             type="button"
             onClick={(e) => {
@@ -350,7 +343,6 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
             ‹
           </button>
 
-          
           <button
             type="button"
             onClick={(e) => {
@@ -365,7 +357,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
             ›
           </button>
 
-        
+          
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {valid.map((_, idx) => (
               <button
@@ -386,9 +378,8 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
   );
 }
 
-
 export default function PropiedadesPage() {
-  // Estados principales
+  
   const [items, setItems] = useState<Propiedad[]>([]);
   const [loading, setLoading] = useState(true);
   const [openCreate, setOpenCreate] = useState(false);
@@ -399,7 +390,6 @@ export default function PropiedadesPage() {
   const [leadsInteresadosTarget, setLeadsInteresadosTarget] = useState<Propiedad | null>(null);
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
-  /*Traer propiedades desde el backend */
   async function fetchProps() {
     setLoading(true);
     try {
@@ -593,6 +583,8 @@ export default function PropiedadesPage() {
         </div>
       )}
 
+      {/* MODALES */}
+
       <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={fetchProps} />
       {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} onVerLeadsInteresados={() => { setLeadsInteresadosTarget(detail); setDetail(null); }} />}
       {editTarget && <PropiedadEditModal propiedad={editTarget} onClose={() => setEditTarget(null)} onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Actualizada" }); }} />}
@@ -607,7 +599,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag,
   return (
     <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="2xl">
       <div className="flex flex-col gap-3 sm:gap-5 p-1">
-       
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-2">
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
@@ -633,7 +625,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag,
                         {propiedad.tipo_de_propiedad}
                     </span>
                 </div>
-              
+                {/* Título y Ubicación combinada */}
                 <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
                   {propiedad.titulo}
                 </h2>
@@ -768,7 +760,11 @@ function LeadsInteresadosModal({ propiedad, onClose }: { propiedad: Propiedad; o
                   {c.preferencias.map((pref: any, idx: number) => (
                     <div key={pref.id ?? idx} className="pl-2 border-l-2 border-[var(--border)]">
                       {pref.etiqueta && <div className="font-semibold">{pref.etiqueta}</div>}
-                      {pref.tipo_de_propiedad && <div>Busca: {pref.tipo_de_propiedad}</div>}
+                      {pref.tipo_de_propiedad && (
+                        <div>
+                          Busca: {pref.tipo_de_propiedad}{pref.operacion ? ` (${pref.operacion})` : ""}
+                        </div>
+                      )}
                       {(pref.presupuesto_min || pref.presupuesto_max) && (
                         <div>
                           Presupuesto: {pref.presupuesto_min ?? "0"} - {pref.presupuesto_max ?? "s/límite"} {pref.moneda}
@@ -893,7 +889,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [newPreviews, setNewPreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageToDelete, setImageToDelete] = useState<number | null>(null);
@@ -989,7 +984,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-          {/* Formulario */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
               <Row label="Código">
@@ -1304,7 +1298,6 @@ function ConfirmModal({
 
     <div className="fixed inset-0 z-50">
       <div className="rc-modal-backdrop" onClick={onCancel} aria-hidden="true" />
-      
       <div className="absolute inset-0 grid place-items-center px-4">
         <div
           className="rc-modal-panel w-full max-w-lg p-6"

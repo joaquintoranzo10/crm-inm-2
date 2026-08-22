@@ -4,7 +4,6 @@ import type { PreferenciaBusqueda } from "@/lib/api";
 import PreferenciaModal from "./PreferenciaModal";
 import MatchesModal from "./MatchesModal";
 
-
 type EstadoLead = { id: number; fase: string; descripcion?: string };
 
 type Contacto = {
@@ -67,14 +66,13 @@ function statusChipClass(label?: string) {
   return STATUS_BADGE.pendiente;
 }
 
+/*  Page */
 export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [estados, setEstados] = useState<EstadoLead[]>([]);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
-  
-  
   const [editTarget, setEditTarget] = useState<Contacto | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Contacto | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Contacto | null>(null);
@@ -86,7 +84,6 @@ export default function LeadsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [vencimiento, setVencimiento] = useState<"" | "pendiente" | "vencido" | "hoy" | "proximo">("");
   const [estadoFiltro, setEstadoFiltro] = useState<string>("");
-
   const PAGE_SIZE = 10;
 
   async function fetchEstados() {
@@ -138,13 +135,11 @@ export default function LeadsPage() {
 
   /* EDICION Y BORRADO  */
 
-  // Confirmar Borrado
   async function handleConfirmDelete() {
     if (!deleteTarget) return;
     setIsProcessing(true);
     try {
       await api.delete(`contactos/${deleteTarget.id}/`);
-      // Eliminamos localmente para que sea rápido
       setContactos((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       setDeleteTarget(null);
     } catch (error) {
@@ -165,7 +160,6 @@ export default function LeadsPage() {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  // Guardar Edición
   async function handleSaveEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!editTarget) return;
@@ -286,7 +280,8 @@ export default function LeadsPage() {
     <div className="relative w-full h-full">
  
       <div className="flex flex-col gap-8 max-w-[1600px] mx-auto relative z-10">
-       
+        
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
                 <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
@@ -350,8 +345,7 @@ export default function LeadsPage() {
 
         {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-3">
-    
-          
+        
           <div className="relative flex-1">
               <input
                   value={q}
@@ -368,8 +362,6 @@ export default function LeadsPage() {
                   </button>
               )}
           </div>
-
-        
           
           <div className="w-full md:w-56 shrink-0">
               <select
@@ -400,6 +392,7 @@ export default function LeadsPage() {
           </div>
       </div>
 
+        {/* Tabla (Desktop) */}
         <div className="hidden md:block rounded-2xl border border-soft bg-surface overflow-hidden shadow-sm">
             <table className="w-full text-sm">
                 <thead className="bg-surface-2 text-muted-clr uppercase text-xs tracking-wider font-semibold border-b border-soft">
@@ -555,7 +548,7 @@ export default function LeadsPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 pt-2 border-t border-soft">
+                        <div className="flex flex-wrap justify-start sm:justify-end gap-2 pt-2 border-t border-soft">
                             <button 
                                 className="px-3 py-1.5 rounded-lg border border-soft text-xs text-base-clr hover:bg-surface-2"
                                 onClick={() => setEditTarget(c)}
@@ -673,6 +666,7 @@ export default function LeadsPage() {
         />
       )}
 
+      {/* MODAL DE EDICIÓN */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">

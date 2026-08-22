@@ -42,7 +42,6 @@ type Props = {
 const inputClass =
   "mt-1 w-full border rounded-md px-3 py-2 bg-app dark:bg-gray-950 border-soft dark:border-gray-700";
 
-
 type ItemEditable = PreferenciaBusqueda & { _key: string };
 
 let contador = 0;
@@ -56,6 +55,7 @@ function itemVacio(): ItemEditable {
     _key: nuevaKey(),
     etiqueta: "",
     tipo_de_propiedad: "",
+    operacion: "",
     localidad: "",
     barrio: "",
     presupuesto_min: null,
@@ -71,6 +71,7 @@ function aItemEditable(p: PreferenciaBusqueda): ItemEditable {
     id: p.id,
     etiqueta: p.etiqueta || "",
     tipo_de_propiedad: p.tipo_de_propiedad || "",
+    operacion: p.operacion || "",
     localidad: p.localidad || "",
     barrio: p.barrio || "",
     presupuesto_min: p.presupuesto_min ?? null,
@@ -114,6 +115,7 @@ export default function PreferenciaModal({ contacto, onClose, onSaved }: Props) 
         id: it.id,
         etiqueta: (it.etiqueta || "").trim(),
         tipo_de_propiedad: it.tipo_de_propiedad || "",
+        operacion: it.operacion || "",
         localidad: (it.localidad || "").trim(),
         barrio: (it.barrio || "").trim(),
         presupuesto_min: it.presupuesto_min || null,
@@ -221,6 +223,21 @@ export default function PreferenciaModal({ contacto, onClose, onSaved }: Props) 
                           }
                           placeholder="Ej: 2"
                         />
+                      </div>
+
+                      <div>
+                        <label className="text-sm">Operación</label>
+                        <select
+                          className={inputClass}
+                          value={item.operacion || ""}
+                          onChange={(e) =>
+                            actualizarItem(item._key, { operacion: e.target.value as "venta" | "alquiler" | "" })
+                          }
+                        >
+                          <option value="">Venta o alquiler</option>
+                          <option value="venta">Venta</option>
+                          <option value="alquiler">Alquiler</option>
+                        </select>
                       </div>
 
                       <div>

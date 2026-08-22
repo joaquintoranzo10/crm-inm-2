@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import Q
-
 from propiedades.models import Propiedad
 from avisos.models import Aviso
 
@@ -151,6 +150,19 @@ class PreferenciaBusqueda(models.Model):
         blank=True,
         default="",
     )
+
+    OPERACION_CHOICES = [
+        ("venta", "Venta"),
+        ("alquiler", "Alquiler"),
+    ]
+    operacion = models.CharField(
+        max_length=20,
+        choices=OPERACION_CHOICES,
+        blank=True,
+        default="",
+        help_text="Si busca comprar o alquilar. Vacío = cualquiera de las dos.",
+    )
+
     localidad = models.CharField(max_length=100, blank=True, default="")
     barrio = models.CharField(max_length=100, blank=True, default="")
 
@@ -248,7 +260,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         if update_fields_list:
             contacto.save(update_fields=update_fields_list)
             
-       
         try:
             aviso = Aviso.objects.get(evento=instance)
             if aviso.estado == 'pendiente':
@@ -259,7 +270,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
 
         return
 
-    
     next_contact_actual = (
         timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
     )
@@ -280,7 +290,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
             contacto.next_contact_note = base
         contacto.save(update_fields=["next_contact_at", "next_contact_note"])
 
-   
     aviso_titulo = f"Próximo contacto con {contacto.nombre} {contacto.apellido}"
     aviso_descripcion = f"{instance.tipo} sobre la propiedad {instance.propiedad.titulo}" if instance.propiedad else f"{instance.tipo} con el lead"
 

@@ -2,7 +2,6 @@ import unicodedata
 from decimal import Decimal, InvalidOperation
 from propiedades.models import Propiedad
 
-
 def _to_decimal(value):
     if value is None:
         return None
@@ -11,7 +10,6 @@ def _to_decimal(value):
     except (InvalidOperation, ValueError):
         return None
 
-
 def _clean(text):
     if not text:
         return ""
@@ -19,10 +17,12 @@ def _clean(text):
     text = text.encode('ascii', 'ignore').decode('utf-8')
     return text.lower().strip()
 
-
 def _pref_matches_propiedad(pref, propiedad):
-   
+    
     if pref.tipo_de_propiedad and pref.tipo_de_propiedad != propiedad.tipo_de_propiedad:
+        return False
+
+    if pref.operacion and _clean(pref.operacion) != _clean(propiedad.disponibilidad):
         return False
 
     prop_loc = _clean(propiedad.localidad) + " " + _clean(propiedad.ubicacion)
@@ -54,7 +54,7 @@ def _pref_matches_propiedad(pref, propiedad):
 
 
 def calcular_matches(contacto, top_n=10):
-    
+   
     prefs = list(contacto.preferencias.all())
     if not prefs:
         return Propiedad.objects.none()

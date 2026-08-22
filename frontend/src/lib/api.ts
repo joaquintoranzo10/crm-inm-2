@@ -1,6 +1,4 @@
 import axios from "axios";
-
-
 export const API_BASE =
   import.meta.env.VITE_API_URL || "https://crm-real-connect.onrender.com/api/";
 
@@ -44,6 +42,7 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
+/*  Leads */
 export type Contacto = {
   id: number;
   nombre: string;
@@ -62,7 +61,6 @@ export async function fetchLeads(params: Record<string, any> = {}) {
   return data.results ?? data;
 }
 
-
 export type TipoPropiedad =
   | "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local"
   | "oficina" | "consultorio" | "quinta" | "chacra" | "galpon"
@@ -72,6 +70,7 @@ export type PreferenciaBusqueda = {
   id?: number;
   etiqueta?: string;
   tipo_de_propiedad?: TipoPropiedad | "";
+  operacion?: "venta" | "alquiler" | "";
   localidad?: string;
   barrio?: string;
   presupuesto_min?: string | number | null;
@@ -81,12 +80,10 @@ export type PreferenciaBusqueda = {
   actualizado_en?: string;
 };
 
-
 export async function updatePreferenciasLead(contactoId: number, preferencias: PreferenciaBusqueda[]) {
   const { data } = await api.patch(`contactos/${contactoId}/`, { preferencias });
   return data as Contacto;
 }
-
 
 export async function clearPreferenciasLead(contactoId: number) {
   const { data } = await api.patch(`contactos/${contactoId}/`, { preferencias: null });
@@ -97,7 +94,6 @@ export async function fetchMatchesForLead(contactoId: number): Promise<Propiedad
   const { data } = await api.get(`contactos/${contactoId}/matches/`);
   return Array.isArray(data) ? data : (data.resultados ?? []);
 }
-
 
 export async function fetchLeadsInteresados(propiedadId: number): Promise<Contacto[]> {
   const { data } = await api.get(`propiedades/${propiedadId}/leads-interesados/`);

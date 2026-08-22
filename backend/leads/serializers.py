@@ -32,6 +32,7 @@ class PreferenciaBusquedaSerializer(serializers.ModelSerializer):
             "id",
             "etiqueta",
             "tipo_de_propiedad",
+            "operacion",
             "localidad",
             "barrio",
             "presupuesto_min",
@@ -53,7 +54,7 @@ class ContactoSerializer(serializers.ModelSerializer):
     estado_detalle = EstadoLeadSerializer(source="estado", read_only=True)
     last_contact_at = serializers.DateTimeField(required=False, allow_null=True)
     next_contact_at = serializers.DateTimeField(required=False, allow_null=True)
-    next_contact_note = serializers.CharField(required=False, allow_blank=True, max_length=255)   
+    next_contact_note = serializers.CharField(required=False, allow_blank=True, max_length=255)
     proximo_contacto_estado = serializers.ReadOnlyField()
     dias_sin_seguimiento = serializers.ReadOnlyField()
     preferencias = PreferenciaBusquedaSerializer(required=False, many=True, allow_null=True)
@@ -104,15 +105,14 @@ class ContactoSerializer(serializers.ModelSerializer):
 
    
     def create(self, validated_data):
-       
+        
         preferencias_data = validated_data.pop("preferencias", None)
-
         contacto = Contacto.objects.create(**validated_data)
 
         if preferencias_data:
             for item in preferencias_data:
                 item = dict(item)
-                item.pop("id", None)  
+                item.pop("id", None) 
                 PreferenciaBusqueda.objects.create(contacto=contacto, **item)
 
         nota_inicial = validated_data.get("next_contact_note")
