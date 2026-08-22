@@ -12,7 +12,7 @@ from .serializers import (
 )
 
 class OwnedQuerysetMixin:
-   
+    
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -44,7 +44,6 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 {"detail": f"Error al guardar la propiedad: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
 
         imagenes_data = request.FILES.getlist("imagenes")
         for imagen_file in imagenes_data:
@@ -88,7 +87,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             )
             imagenes_subidas.append(obj)
 
-       
+        
         imagenes = serializer.validated_data.get("imagenes", [])
         for img in imagenes:
             obj = PropiedadImagen.objects.create(
@@ -104,7 +103,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-   
+    
     @action(detail=True, methods=["get"], url_path="leads-interesados")
     def leads_interesados(self, request, pk=None):
         
@@ -122,6 +121,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         leads = calcular_leads_interesados(propiedad)
         ser = ContactoSerializer(leads, many=True)
         return Response(ser.data)
+
 
 
 class PropiedadImagenViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
