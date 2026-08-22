@@ -11,13 +11,11 @@ export const api = axios.create({
   timeout: 15000,
 });
 
-
 function normalizeUrl(u?: string) {
   if (!u) return u;
   if (/^https?:\/\//i.test(u)) return u; 
 
   let url = u;
-  
   if (url.startsWith("/api/")) url = url.slice(5);
   else if (url.startsWith("api/")) url = url.slice(4);
 
@@ -46,7 +44,6 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-/*  Leads */
 export type Contacto = {
   id: number;
   nombre: string;
@@ -57,13 +54,14 @@ export type Contacto = {
   estado_fase?: string | null;
   proximo_contacto?: string | null;
   ultimo_contacto?: string | null;
-  preferencia?: PreferenciaBusqueda | null;
+  preferencias?: PreferenciaBusqueda[];
 };
 
 export async function fetchLeads(params: Record<string, any> = {}) {
   const { data } = await api.get("contactos/", { params });
   return data.results ?? data;
 }
+
 
 export type TipoPropiedad =
   | "casa" | "departamento" | "ph" | "terreno" | "cochera" | "local"
@@ -72,6 +70,7 @@ export type TipoPropiedad =
 
 export type PreferenciaBusqueda = {
   id?: number;
+  etiqueta?: string;
   tipo_de_propiedad?: TipoPropiedad | "";
   localidad?: string;
   barrio?: string;
@@ -83,14 +82,14 @@ export type PreferenciaBusqueda = {
 };
 
 
-export async function updatePreferenciaLead(contactoId: number, preferencia: PreferenciaBusqueda) {
-  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencia });
+export async function updatePreferenciasLead(contactoId: number, preferencias: PreferenciaBusqueda[]) {
+  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencias });
   return data as Contacto;
 }
 
 
-export async function clearPreferenciaLead(contactoId: number) {
-  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencia: null });
+export async function clearPreferenciasLead(contactoId: number) {
+  const { data } = await api.patch(`contactos/${contactoId}/`, { preferencias: null });
   return data as Contacto;
 }
 
@@ -155,7 +154,7 @@ export type Evento = {
   contacto: number | null;
   propiedad: number;
   tipo: "Reunion" | "Visita" | "Llamada";
-  fecha_hora: string; // ISO
+  fecha_hora: string; 
   notas?: string;
   creado_en?: string;
 };
@@ -193,7 +192,6 @@ export async function updateEvento(id: number, payload: EventoUpdate): Promise<E
   const { data } = await api.patch(`eventos/${id}/`, payload);
   return data;
 }
-
 
 export async function deleteEvento(id: number): Promise<void> {
   await api.delete(`eventos/${id}/`);

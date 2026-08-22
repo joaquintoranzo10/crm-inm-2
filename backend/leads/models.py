@@ -136,8 +136,13 @@ class EstadoLeadHistorial(models.Model):
 
 class PreferenciaBusqueda(models.Model):
     
-    contacto = models.OneToOneField(
-        Contacto, on_delete=models.CASCADE, related_name="preferencia"
+    contacto = models.ForeignKey(
+        Contacto, on_delete=models.CASCADE, related_name="preferencias"
+    )
+
+    etiqueta = models.CharField(
+        max_length=100, blank=True, default="",
+        help_text="Nombre corto para diferenciar este criterio de otros del mismo lead (ej: 'Casa para vivir').",
     )
 
     tipo_de_propiedad = models.CharField(
@@ -168,9 +173,10 @@ class PreferenciaBusqueda(models.Model):
     class Meta:
         verbose_name = "Preferencia de búsqueda"
         verbose_name_plural = "Preferencias de búsqueda"
+        ordering = ["-id"]
 
     def __str__(self):
-        return f"Preferencia de {self.contacto}"
+        return f"Preferencia de {self.contacto}" + (f" ({self.etiqueta})" if self.etiqueta else "")
 
 
 @receiver(post_save, sender=Contacto)
@@ -208,7 +214,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
-    
     if evento_dt <= now:
         
         update_fields_list = []
@@ -243,6 +248,7 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         if update_fields_list:
             contacto.save(update_fields=update_fields_list)
             
+       
         try:
             aviso = Aviso.objects.get(evento=instance)
             if aviso.estado == 'pendiente':
@@ -253,6 +259,7 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
 
         return
 
+    
     next_contact_actual = (
         timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
     )
@@ -273,6 +280,7 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
             contacto.next_contact_note = base
         contacto.save(update_fields=["next_contact_at", "next_contact_note"])
 
+   
     aviso_titulo = f"Próximo contacto con {contacto.nombre} {contacto.apellido}"
     aviso_descripcion = f"{instance.tipo} sobre la propiedad {instance.propiedad.titulo}" if instance.propiedad else f"{instance.tipo} con el lead"
 

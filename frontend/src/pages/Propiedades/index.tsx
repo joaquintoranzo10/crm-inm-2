@@ -17,7 +17,7 @@ type TipoProp =
   | "consultorio" | "quinta" | "chacra" | "galpon" | "deposito" | "campo"
   | "hotel" | "fondo de comercio" | "edificio" | "otro";
 
- 
+// Modelo principal de Propiedad 
 type Propiedad = {
   localidad?: string;
   barrio?: string;
@@ -121,6 +121,7 @@ function money(n: number | string, moneda: "USD" | "ARS") {
   }
 }
 
+// Define los estilos de estado (Disponible / Reservado / Vendido)
 function badgeEstado(estado: Propiedad["estado"]) {
   const base = "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium";
   if (estado === "disponible")
@@ -130,6 +131,7 @@ function badgeEstado(estado: Propiedad["estado"]) {
   return `${base} bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-white`;
 }
 
+// Define los estilos del badge de tipo de propiedad
 function badgeTipo(tipo: Propiedad["tipo_de_propiedad"]) {
   return { className: "inline-flex items-center rounded-md px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wide shadow-md transition-colors bg-zinc-900 text-white dark:bg-white dark:text-zinc-900", label: tipo };
 }
@@ -140,7 +142,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   const valid = images.filter(Boolean) as string[];
   const [i, setI] = useState(0); 
 
-  
+  // Si no hay imágenes, mostramos un placeholder
   if (valid.length === 0) {
     return (
       <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400">
@@ -205,14 +207,12 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
-
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
     .trim();
-
 
 const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   const n = (s ?? "").toString().toLowerCase();
@@ -301,14 +301,13 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
   const [i, setI] = useState(0);
   const len = valid.length;
 
-
+  // Si no hay imágenes, mostramos placeholder
   if (len === 0) {
     return <div className="relative aspect-[2/1] sm:aspect-[16/9] bg-gray-200 dark:bg-gray-800 rounded-t-xl flex items-center justify-center text-gray-400 text-xs">Sin imagen</div>;
   }
 
   const prev = () => setI((v) => (v - 1 + len) % len);
   const next = () => setI((v) => (v + 1) % len);
-
 
   const touch = useRef<{ x: number | null }>({ x: null });
   const onTouchStart = (e: React.TouchEvent) => { touch.current.x = e.touches[0].clientX; };
@@ -336,7 +335,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
    
       {len > 1 && (
         <>
-          {/* Flecha Izquierda */}
+          
           <button
             type="button"
             onClick={(e) => {
@@ -351,7 +350,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
             ‹
           </button>
 
-          {/* Flecha Derecha */}
+          
           <button
             type="button"
             onClick={(e) => {
@@ -366,7 +365,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
             ›
           </button>
 
-         
+        
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {valid.map((_, idx) => (
               <button
@@ -387,7 +386,7 @@ function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
   );
 }
 
-/* Componente principal: PropiedadesPage*/
+
 export default function PropiedadesPage() {
   // Estados principales
   const [items, setItems] = useState<Propiedad[]>([]);
@@ -594,8 +593,6 @@ export default function PropiedadesPage() {
         </div>
       )}
 
-      {/* MODALES */}
-
       <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={fetchProps} />
       {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} onVerLeadsInteresados={() => { setLeadsInteresadosTarget(detail); setDetail(null); }} />}
       {editTarget && <PropiedadEditModal propiedad={editTarget} onClose={() => setEditTarget(null)} onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Actualizada" }); }} />}
@@ -636,7 +633,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag,
                         {propiedad.tipo_de_propiedad}
                     </span>
                 </div>
-               
+              
                 <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
                   {propiedad.titulo}
                 </h2>
@@ -656,6 +653,7 @@ function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag,
             </div>
         </div>
 
+        {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="w-full h-[140px] sm:h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
@@ -765,14 +763,19 @@ function LeadsInteresadosModal({ propiedad, onClose }: { propiedad: Propiedad; o
                   {c.email || "sin email"} {c.telefono ? `· ${c.telefono}` : ""}
                 </div>
               </div>
-              {c.preferencia && (
-                <div className="text-xs rc-muted text-right">
-                  {c.preferencia.tipo_de_propiedad && <div>Busca: {c.preferencia.tipo_de_propiedad}</div>}
-                  {(c.preferencia.presupuesto_min || c.preferencia.presupuesto_max) && (
-                    <div>
-                      Presupuesto: {c.preferencia.presupuesto_min ?? "0"} - {c.preferencia.presupuesto_max ?? "s/límite"} {c.preferencia.moneda}
+              {c.preferencias && c.preferencias.length > 0 && (
+                <div className="text-xs rc-muted text-right space-y-1.5">
+                  {c.preferencias.map((pref: any, idx: number) => (
+                    <div key={pref.id ?? idx} className="pl-2 border-l-2 border-[var(--border)]">
+                      {pref.etiqueta && <div className="font-semibold">{pref.etiqueta}</div>}
+                      {pref.tipo_de_propiedad && <div>Busca: {pref.tipo_de_propiedad}</div>}
+                      {(pref.presupuesto_min || pref.presupuesto_max) && (
+                        <div>
+                          Presupuesto: {pref.presupuesto_min ?? "0"} - {pref.presupuesto_max ?? "s/límite"} {pref.moneda}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
               )}
             </div>
@@ -986,7 +989,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
       <div className="max-h-none overflow-visible pr-2 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-          
+          {/* Formulario */}
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-12 gap-3 content-start">
             <div className="col-span-12 sm:col-span-3">
               <Row label="Código">
@@ -1001,7 +1004,7 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
 
             {/* Buscador  Ubicación */}
             <div className="col-span-12">
-              <Row label="Buscador Inteligente de Ubicación">
+              <Row label="Buscador de Ubicación">
                 <Select
                   options={opcionesUbicacion}
                   placeholder="Empezá a escribir (Ej: Marcos Juárez)..."

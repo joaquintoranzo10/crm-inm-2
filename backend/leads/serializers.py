@@ -1,16 +1,12 @@
-# leads/serializers.py
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import F, Value, ExpressionWrapper, DateTimeField
 from django.utils import timezone
 from datetime import timedelta
-
-# Importamos Aviso para gestionar el quick-contact
 from avisos.models import Aviso 
 from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial, HistorialLead, PreferenciaBusqueda
 from propiedades.models import Propiedad
 
-# Duración por defecto de un evento (minutos)
 DEFAULT_EVENT_DURATION_MIN = 30
 
 class EstadoLeadSerializer(serializers.ModelSerializer):
@@ -27,30 +23,40 @@ class HistorialLeadSerializer(serializers.ModelSerializer):
 
 
 class PreferenciaBusquedaSerializer(serializers.ModelSerializer):
+    
+    id = serializers.IntegerField(required=False)
+
     class Meta:
         model = PreferenciaBusqueda
-        exclude = ["id", "contacto"]
+        fields = [
+            "id",
+            "etiqueta",
+            "tipo_de_propiedad",
+            "localidad",
+            "barrio",
+            "presupuesto_min",
+            "presupuesto_max",
+            "moneda",
+            "ambientes_min",
+            "actualizado_en",
+        ]
+        read_only_fields = ["actualizado_en"]
+
 
 class ContactoSerializer(serializers.ModelSerializer):
    
     owner = serializers.ReadOnlyField(source="owner.id")
-
-
     estado = serializers.PrimaryKeyRelatedField(
         queryset=EstadoLead.objects.all(), allow_null=True, required=False
     )
 
     estado_detalle = EstadoLeadSerializer(source="estado", read_only=True)
-
-   
     last_contact_at = serializers.DateTimeField(required=False, allow_null=True)
     next_contact_at = serializers.DateTimeField(required=False, allow_null=True)
-    next_contact_note = serializers.CharField(required=False, allow_blank=True, max_length=255)
-
-   
+    next_contact_note = serializers.CharField(required=False, allow_blank=True, max_length=255)   
     proximo_contacto_estado = serializers.ReadOnlyField()
     dias_sin_seguimiento = serializers.ReadOnlyField()
-    preferencia = PreferenciaBusquedaSerializer(required=False, allow_null=True)
+    preferencias = PreferenciaBusquedaSerializer(required=False, many=True, allow_null=True)
 
     class Meta:
         model = Contacto
@@ -63,12 +69,12 @@ class ContactoSerializer(serializers.ModelSerializer):
             "telefono",
             "estado",
             "estado_detalle",
-            "preferencia",
             "last_contact_at",
             "next_contact_at",
             "next_contact_note",
             "proximo_contacto_estado",
             "dias_sin_seguimiento",
+            "preferencias",
             "creado_en",
         ]
         read_only_fields = [
@@ -98,12 +104,16 @@ class ContactoSerializer(serializers.ModelSerializer):
 
    
     def create(self, validated_data):
-        preferencia_data = validated_data.pop("preferencia", None) 
-        
+       
+        preferencias_data = validated_data.pop("preferencias", None)
+
         contacto = Contacto.objects.create(**validated_data)
-        
-        if preferencia_data:
-            PreferenciaBusqueda.objects.create(contacto=contacto, **preferencia_data)
+
+        if preferencias_data:
+            for item in preferencias_data:
+                item = dict(item)
+                item.pop("id", None)  
+                PreferenciaBusqueda.objects.create(contacto=contacto, **item)
 
         nota_inicial = validated_data.get("next_contact_note")
         if nota_inicial:
@@ -114,30 +124,48 @@ class ContactoSerializer(serializers.ModelSerializer):
         return contacto
 
     def update(self, instance, validated_data):
-        
-        preferencia_data = validated_data.pop("preferencia", None)
-        
+        preferencias_data = validated_data.pop("preferencias", serializers.empty)
+
         for attr, val in validated_data.items():
             setattr(instance, attr, val)
-        instance.save() 
+        instance.save()
 
-        if preferencia_data is not None:
-            if not preferencia_data: 
+        if preferencias_data is not serializers.empty:
+            if preferencias_data is None:
                 PreferenciaBusqueda.objects.filter(contacto=instance).delete()
             else:
-                pref, created = PreferenciaBusqueda.objects.get_or_create(contacto=instance)
-                for attr, val in preferencia_data.items():
-                    setattr(pref, attr, val)
-                pref.save()
+                ids_mantenidos = []
+                for item in preferencias_data:
+                    item = dict(item)
+                    pref_id = item.pop("id", None)
+                    obj = None
+                    if pref_id:
+                        obj = PreferenciaBusqueda.objects.filter(
+                            id=pref_id, contacto=instance
+                        ).first()
+                    if obj is not None:
+                        for attr, val in item.items():
+                            setattr(obj, attr, val)
+                        obj.save()
+                    else:
+                        obj = PreferenciaBusqueda.objects.create(contacto=instance, **item)
+                    ids_mantenidos.append(obj.id)
 
-      
+                PreferenciaBusqueda.objects.filter(contacto=instance).exclude(
+                    id__in=ids_mantenidos
+                ).delete()
+
+        
         if "next_contact_at" in validated_data or "next_contact_note" in validated_data:
+            
+           
             quick_aviso_qs = Aviso.objects.filter(lead=instance, evento__isnull=True)
             
             next_contact_at = validated_data.get("next_contact_at")
             next_contact_note = validated_data.get("next_contact_note")
             
             if next_contact_at is not None:
+                
                 titulo = f"Seguimiento programado con {instance.nombre} {instance.apellido}"
                 descripcion = next_contact_note or "Próximo contacto registrado manualmente."
                 
@@ -152,6 +180,7 @@ class ContactoSerializer(serializers.ModelSerializer):
                         'propiedad': None, 
                     }
                 )
+                
             else:
                 quick_aviso_qs.delete()
         

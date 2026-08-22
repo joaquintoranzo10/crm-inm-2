@@ -21,7 +21,7 @@ type Contacto = {
   proximo_contacto_estado?: string;
   dias_sin_seguimiento?: number | null;
   creado_en?: string;
-  preferencia?: PreferenciaBusqueda | null;
+  preferencias?: PreferenciaBusqueda[];
 };
 
 
@@ -73,6 +73,8 @@ export default function LeadsPage() {
   const [estados, setEstados] = useState<EstadoLead[]>([]);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+  
+  
   const [editTarget, setEditTarget] = useState<Contacto | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Contacto | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Contacto | null>(null);
@@ -134,6 +136,8 @@ export default function LeadsPage() {
     };
   }, []);
 
+  /* EDICION Y BORRADO  */
+
   // Confirmar Borrado
   async function handleConfirmDelete() {
     if (!deleteTarget) return;
@@ -161,6 +165,7 @@ export default function LeadsPage() {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
+  // Guardar Edición
   async function handleSaveEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!editTarget) return;
@@ -202,6 +207,7 @@ export default function LeadsPage() {
   }
 
 
+  /* CALCULOS DE TABLA */
   const estadoById = useMemo(() => {
     const m = new Map<number, EstadoLead>();
     estados.forEach((e) => m.set(e.id, e));
@@ -280,8 +286,7 @@ export default function LeadsPage() {
     <div className="relative w-full h-full">
  
       <div className="flex flex-col gap-8 max-w-[1600px] mx-auto relative z-10">
-        
-        {/* HEADER */}
+       
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
                 <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
@@ -343,6 +348,7 @@ export default function LeadsPage() {
             ))}
         </section>
 
+        {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-3">
     
           
@@ -667,7 +673,6 @@ export default function LeadsPage() {
         />
       )}
 
-     
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-surface border border-soft rounded-2xl p-6 shadow-2xl text-base-clr">

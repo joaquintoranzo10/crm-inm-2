@@ -3,13 +3,11 @@ from datetime import datetime, timedelta, time as dt_time
 from django.db.models import Q, F, ExpressionWrapper, DateTimeField, Value
 from django.utils import timezone
 from django.db import transaction
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
-
 from .models import EstadoLead, Contacto, Evento, EstadoLeadHistorial,HistorialLead
 from .matching import calcular_matches
 from .serializers import (
@@ -97,7 +95,7 @@ def _parse_date_or_datetime(s: str, end_of_day: bool = False) -> datetime | None
     if not s:
         return None
     s = s.strip()
-    
+    # Solo fecha
     if len(s) == 10 and s[4] == "-" and s[7] == "-":
         try:
             d = datetime.strptime(s, "%Y-%m-%d").date()
@@ -159,12 +157,11 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
                 | Q(telefono__icontains=q)
             )
 
-        # Filtro por estado
         estado_id = params.get("estado")
         if estado_id:
             qs = qs.filter(estado_id=estado_id)
 
-        # Filtro por vencimiento
+       
         vencimiento = params.get("vencimiento")
         proximo_en_dias = params.get("proximo_en_dias")
         try:
@@ -197,7 +194,6 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             )
             qs = qs.filter(next_contact_at__gte=inicio_manana, next_contact_at__lt=fin_limite)
 
-        # Filtro sin seguimiento
         sin_seg_dias = params.get("sin_seguimiento_en_dias")
         if sin_seg_dias:
             try:
@@ -208,7 +204,6 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             except ValueError:
                 pass
 
-        # Ordenamiento
         ordering = params.get("ordering")
         allowed = {"id", "creado_en", "last_contact_at", "next_contact_at"}
         if ordering:
@@ -241,9 +236,9 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="matches")
     def matches(self, request, pk=None):
-       
+        
         try:
-            contacto = Contacto.objects.select_related("preferencia").get(pk=pk)
+            contacto = Contacto.objects.prefetch_related("preferencias").get(pk=pk)
         except Contacto.DoesNotExist:
             return Response({"detail": "Contacto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -251,7 +246,7 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
         if not (user.is_staff or user.is_superuser) and contacto.owner_id != user.id:
             return Response({"detail": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
 
-        if not hasattr(contacto, "preferencia"):
+        if not contacto.preferencias.exists():
             return Response(
                 {"detail": "Este lead todavía no tiene criterios de búsqueda cargados.", "resultados": []},
                 status=status.HTTP_200_OK,
@@ -270,7 +265,7 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         if recordame_param is None:
             try:
-                from usuarios.models import Usuario  # noqa
+                from usuarios.models import Usuario 
                 auth_user = request.user
                 email = getattr(auth_user, "email", None) or getattr(auth_user, "username", None)
                 pref = None
@@ -408,7 +403,7 @@ class EventoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
             start = _parse_date_or_datetime(date_only, end_of_day=False)
             if start:
                 end = _parse_date_or_datetime(date_only, end_of_day=True)
-                end = end + timedelta(microseconds=1)  
+                end = end + timedelta(microseconds=1) 
                 qs = qs.filter(fecha_hora__gte=start, fecha_hora__lt=end)
 
         else:

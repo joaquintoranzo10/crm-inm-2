@@ -7,7 +7,7 @@ type Props = {
     id: number;
     nombre?: string;
     apellido?: string;
-    preferencia?: unknown | null;
+    preferencias?: unknown[] | null;
   };
   onClose: () => void;
   onEditarPreferencia?: () => void;
@@ -45,7 +45,7 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
     };
   }, [contacto.id]);
 
-  const sinPreferencia = !contacto.preferencia;
+  const sinPreferencia = !contacto.preferencias || contacto.preferencias.length === 0;
 
   return (
     <Modal
