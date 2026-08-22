@@ -1,11 +1,8 @@
 import unicodedata
 from decimal import Decimal, InvalidOperation
-
 from propiedades.models import Propiedad
 
-
 def _to_decimal(value):
-   
     if value is None:
         return None
     try:
@@ -13,32 +10,21 @@ def _to_decimal(value):
     except (InvalidOperation, ValueError):
         return None
 
-
-def _normalizar(texto):
+def _clean(text):
     
-    if not texto:
+    if not text:
         return ""
-    texto = str(texto).strip().lower()
-    sin_acentos = unicodedata.normalize("NFD", texto)
-    return "".join(c for c in sin_acentos if unicodedata.category(c) != "Mn")
-
-
-def _localidad_barrio_coinciden(pref, propiedad):
     
-    if pref.localidad and _normalizar(pref.localidad) not in _normalizar(propiedad.localidad):
-        return False
-    if pref.barrio and _normalizar(pref.barrio) not in _normalizar(propiedad.barrio):
-        return False
-    return True
-
+    text = unicodedata.normalize('NFD', text)
+    text = text.encode('ascii', 'ignore').decode('utf-8')
+    return text.lower().strip()
 
 def calcular_matches(contacto, top_n=10):
-    
     pref = getattr(contacto, "preferencia", None)
     if pref is None:
-        return []
+        return Propiedad.objects.none()
 
-
+   
     qs = Propiedad.objects.filter(
         owner=contacto.owner,
         estado="disponible",
@@ -57,13 +43,28 @@ def calcular_matches(contacto, top_n=10):
     if pref.ambientes_min:
         qs = qs.filter(ambiente__gte=pref.ambientes_min)
 
-    resultado = [p for p in qs if _localidad_barrio_coinciden(pref, p)]
-    return resultado[:top_n]
+
+    loc_pref = _clean(pref.localidad)
+    bar_pref = _clean(pref.barrio)
+
+    match_ids = []
+    for prop in qs:
+        
+        prop_loc = _clean(prop.localidad) + " " + _clean(prop.ubicacion)
+        prop_bar = _clean(prop.barrio) + " " + _clean(prop.ubicacion)
+
+        if loc_pref and loc_pref not in prop_loc:
+            continue
+        if bar_pref and bar_pref not in prop_bar:
+            continue
+
+        match_ids.append(prop.id)
+
+    return Propiedad.objects.filter(id__in=match_ids).order_by('-fecha_alta')[:top_n]
 
 
 def calcular_leads_interesados(propiedad, top_n=20):
-    
-    from .models import Contacto  
+    from .models import Contacto
 
     if propiedad.estado != "disponible":
         return Contacto.objects.none()
@@ -74,13 +75,22 @@ def calcular_leads_interesados(propiedad, top_n=20):
     ).select_related("preferencia")
 
     ids_match = []
+    
+    prop_loc = _clean(propiedad.localidad) + " " + _clean(propiedad.ubicacion)
+    prop_bar = _clean(propiedad.barrio) + " " + _clean(propiedad.ubicacion)
+
     for contacto in candidatos:
         pref = contacto.preferencia
 
         if pref.tipo_de_propiedad and pref.tipo_de_propiedad != propiedad.tipo_de_propiedad:
             continue
 
-        if not _localidad_barrio_coinciden(pref, propiedad):
+        loc_pref = _clean(pref.localidad)
+        if loc_pref and loc_pref not in prop_loc:
+            continue
+
+        bar_pref = _clean(pref.barrio)
+        if bar_pref and bar_pref not in prop_bar:
             continue
 
         if pref.presupuesto_min or pref.presupuesto_max:
