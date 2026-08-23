@@ -17,6 +17,7 @@ type TipoProp =
   | "consultorio" | "quinta" | "chacra" | "galpon" | "deposito" | "campo"
   | "hotel" | "fondo de comercio" | "edificio" | "otro";
 
+// Modelo principal de Propiedad 
 type Propiedad = {
   localidad?: string;
   barrio?: string;
@@ -200,6 +201,7 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
+// Normaliza texto para búsquedas
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
@@ -207,7 +209,7 @@ const norm = (s?: string | number | null) =>
     .replace(/\p{Diacritic}/gu, "")
     .trim();
 
-
+// Convierte cualquier texto a “venta” o “alquiler”
 const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   const n = (s ?? "").toString().toLowerCase();
   if (n.startsWith("alq")) return "alquiler";
@@ -578,8 +580,6 @@ export default function PropiedadesPage() {
         </div>
       )}
 
-      {/* MODALES */}
-
       <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={fetchProps} />
       {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} onVerLeadsInteresados={() => { setLeadsInteresadosTarget(detail); setDetail(null); }} />}
       {editTarget && <PropiedadEditModal propiedad={editTarget} onClose={() => setEditTarget(null)} onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Actualizada" }); }} />}
@@ -684,7 +684,9 @@ export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onC
           </button>
         )}
         <button className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
-        <button className="px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
+        {onEdit && (
+          <button className="px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
+        )}
       </div>
     </Modal>
   );
