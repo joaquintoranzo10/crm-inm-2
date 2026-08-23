@@ -220,77 +220,83 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         return
 
     contacto = instance.contacto
-    if not contacto:
-        return
-
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
     if evento_dt <= now:
-        
-        update_fields_list = []
-        
-        if not contacto.last_contact_at or evento_dt > contacto.last_contact_at:
-            contacto.last_contact_at = evento_dt
-            update_fields_list.append("last_contact_at")
+       
+        if contacto:
+            update_fields_list = []
 
-        
-        is_relevant_event = (
-            not contacto.next_contact_at 
-            or evento_dt.date() >= timezone.localtime(contacto.next_contact_at).date()
-        )
+            if not contacto.last_contact_at or evento_dt > contacto.last_contact_at:
+                contacto.last_contact_at = evento_dt
+                update_fields_list.append("last_contact_at")
 
-        if is_relevant_event:
-            
-            dias_recordatorio = 3
-            if contacto.owner and getattr(contacto.owner, 'email', None):
-                try:
-                    from usuarios.models import Usuario
-                    u = Usuario.objects.filter(email__iexact=contacto.owner.email).first()
-                    if u and u.reminder_every_days:
-                        dias_recordatorio = u.reminder_every_days
-                except Exception:
-                    pass
+            is_relevant_event = (
+                not contacto.next_contact_at
+                or evento_dt.date() >= timezone.localtime(contacto.next_contact_at).date()
+            )
 
-            
-            contacto.next_contact_at = now + timezone.timedelta(days=dias_recordatorio)
-            contacto.next_contact_note = "Programar próximo seguimiento"
-            update_fields_list.extend(["next_contact_at", "next_contact_note"])
+            if is_relevant_event:
+                dias_recordatorio = 3
+                if contacto.owner and getattr(contacto.owner, 'email', None):
+                    try:
+                        from usuarios.models import Usuario
+                        u = Usuario.objects.filter(email__iexact=contacto.owner.email).first()
+                        if u and u.reminder_every_days:
+                            dias_recordatorio = u.reminder_every_days
+                    except Exception:
+                        pass
 
-        if update_fields_list:
-            contacto.save(update_fields=update_fields_list)
-            
+                contacto.next_contact_at = now + timezone.timedelta(days=dias_recordatorio)
+                contacto.next_contact_note = "Programar próximo seguimiento"
+                update_fields_list.extend(["next_contact_at", "next_contact_note"])
+
+            if update_fields_list:
+                contacto.save(update_fields=update_fields_list)
+
         try:
             aviso = Aviso.objects.get(evento=instance)
             if aviso.estado == 'pendiente':
                 aviso.estado = 'completado'
                 aviso.save(update_fields=['estado'])
         except Aviso.DoesNotExist:
-            pass 
+            pass
 
         return
 
-    next_contact_actual = (
-        timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
-    )
-    should_update_next = (
-        not next_contact_actual
-        or next_contact_actual <= now  
-        or evento_dt < next_contact_actual
-    )
-    if should_update_next:
-        contacto.next_contact_at = evento_dt
-        if not contacto.next_contact_note or contacto.next_contact_note == "Programar próximo seguimiento":
-            base = f"{instance.tipo}"
-            if instance.notas:
-                snippet = (instance.notas or "").strip().replace("\n", " ")
-                if len(snippet) > 80:
-                    snippet = snippet[:77] + "..."
-                base = f"{base} · {snippet}"
-            contacto.next_contact_note = base
-        contacto.save(update_fields=["next_contact_at", "next_contact_note"])
+    if contacto:
+        next_contact_actual = (
+            timezone.localtime(contacto.next_contact_at) if contacto.next_contact_at else None
+        )
+        should_update_next = (
+            not next_contact_actual
+            or next_contact_actual <= now
+            or evento_dt < next_contact_actual
+        )
+        if should_update_next:
+            contacto.next_contact_at = evento_dt
+            if not contacto.next_contact_note or contacto.next_contact_note == "Programar próximo seguimiento":
+                base = f"{instance.tipo}"
+                if instance.notas:
+                    snippet = (instance.notas or "").strip().replace("\n", " ")
+                    if len(snippet) > 80:
+                        snippet = snippet[:77] + "..."
+                    base = f"{base} · {snippet}"
+                contacto.next_contact_note = base
+            contacto.save(update_fields=["next_contact_at", "next_contact_note"])
 
-    aviso_titulo = f"Próximo contacto con {contacto.nombre} {contacto.apellido}"
+   
+    if contacto:
+        nombre_completo = f"{contacto.nombre} {contacto.apellido}".strip()
+        owner_aviso = contacto.owner
+        lead_aviso = contacto
+    else:
+        nombre_completo = (f"{instance.nombre} {instance.apellido}".strip()) or "un visitante"
+        owner_aviso = instance.owner
+        lead_aviso = None
+
+    aviso_titulo = f"Próximo contacto con {nombre_completo}"
     aviso_descripcion = f"{instance.tipo} sobre la propiedad {instance.propiedad.titulo}" if instance.propiedad else f"{instance.tipo} con el lead"
 
     Aviso.objects.update_or_create(
@@ -299,10 +305,10 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
             'titulo': aviso_titulo,
             'descripcion': aviso_descripcion,
             'fecha': instance.fecha_hora,
-            'lead': contacto,
+            'lead': lead_aviso,
             'propiedad': instance.propiedad,
             'estado': 'pendiente',
-            'owner': contacto.owner 
+            'owner': owner_aviso,
         }
     )
 

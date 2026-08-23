@@ -23,6 +23,10 @@ class Aviso(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField()
     estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
+    email_enviado = models.BooleanField(
+        default=False,
+        help_text="Evita mandar el recordatorio diario más de una vez para el mismo aviso.",
+    )
     
 
     evento = models.ForeignKey("leads.Evento", on_delete=models.CASCADE, null=True, blank=True, related_name="aviso")

@@ -11,7 +11,6 @@ from leads.views import EstadoLeadViewSet, ContactoViewSet, EventoViewSet
 from propiedades.views import PropiedadViewSet,PropiedadImagenViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-# Usuarios
 from usuarios.views import (
     ListaYCreaUsuario, DetalleUsuario,
     RegisterView, MeUsuarioView,
@@ -34,12 +33,21 @@ def disparar_recordatorios_view(request):
     if token != 'realconnect2405':  
         return JsonResponse({'error': 'No autorizado'}, status=401)
     
+    resultados = {}
+    try:
+        call_command('enviar_recordatorios')
+        resultados['enviar_recordatorios'] = 'ok'
+    except Exception as e:
+        resultados['enviar_recordatorios'] = f'error: {e}'
+
     try:
         
-        call_command('enviar_recordatorios')
-        return JsonResponse({'status': 'ok', 'mensaje': 'Recordatorios procesados correctamente'})
+        call_command('enviar_recordatorios_diarios')
+        resultados['enviar_recordatorios_diarios'] = 'ok'
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        resultados['enviar_recordatorios_diarios'] = f'error: {e}'
+
+    return JsonResponse({'status': 'ok', 'resultados': resultados})
 
 def health_check(request):
     return JsonResponse({"status": "ok", "mensaje": "¡El servidor está vivo!"})
@@ -79,7 +87,6 @@ urlpatterns = [
     path('api/cron/enviar-recordatorios/', disparar_recordatorios_view),
 ]
 
-#reseteo de contraseña
 try:
     from usuarios.password_reset_views import PasswordResetRequestView, PasswordResetConfirmView
     urlpatterns += [
