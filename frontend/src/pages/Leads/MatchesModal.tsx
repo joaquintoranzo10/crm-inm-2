@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import PropiedadCard from "@/components/PropiedadCard";
 import { PropiedadDetailModal } from "@/pages/Propiedades";
+import EventCreateModal from "./EventCreateModal";
 import { fetchMatchesForLead, type Propiedad } from "@/lib/api";
 
 type Props = {
@@ -20,6 +21,7 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
   const [error, setError] = useState<string | null>(null);
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
   const [detalle, setDetalle] = useState<Propiedad | null>(null);
+  const [eventoPropiedadId, setEventoPropiedadId] = useState<number | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -96,7 +98,26 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
         </button>
       </div>
 
-      {detalle && <PropiedadDetailModal propiedad={detalle} onClose={() => setDetalle(null)} />}
+      {detalle && (
+        <PropiedadDetailModal
+          propiedad={detalle}
+          onClose={() => setDetalle(null)}
+          onCrearEvento={() => {
+            setEventoPropiedadId(detalle.id);
+            setDetalle(null);
+          }}
+        />
+      )}
+
+      {eventoPropiedadId != null && (
+        <EventCreateModal
+          open={true}
+          presetContacto={contacto}
+          presetPropiedadId={eventoPropiedadId}
+          onClose={() => setEventoPropiedadId(null)}
+          onCreated={() => setEventoPropiedadId(null)}
+        />
+      )}
     </Modal>
   );
 }

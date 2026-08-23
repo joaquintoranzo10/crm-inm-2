@@ -7,6 +7,7 @@ import { Ruler } from "lucide-react";
 import Select from "react-select";
 import geoData from "@/data/arg-geo.json";
 import { fetchLeadsInteresados, type Contacto as LeadInteresado } from "@/lib/api";
+import EventCreateModal from "@/pages/Leads/EventCreateModal";
 
 // Tipo de imagen asociada a una propiedad
 type PropiedadImagen = { id: number; imagen: string; descripcion?: string | null };
@@ -201,7 +202,6 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
-// Normaliza texto para búsquedas
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
@@ -209,7 +209,7 @@ const norm = (s?: string | number | null) =>
     .replace(/\p{Diacritic}/gu, "")
     .trim();
 
-// Convierte cualquier texto a “venta” o “alquiler”
+
 const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   const n = (s ?? "").toString().toLowerCase();
   if (n.startsWith("alq")) return "alquiler";
@@ -217,7 +217,6 @@ const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   return "venta";
 };
 
-/* Select muestra 4 en el desplegable */
 import type { ReactNode } from "react";
 
 function Select4<T extends string>({
@@ -385,6 +384,7 @@ export default function PropiedadesPage() {
   const [editTarget, setEditTarget] = useState<Propiedad | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Propiedad | null>(null);
   const [leadsInteresadosTarget, setLeadsInteresadosTarget] = useState<Propiedad | null>(null);
+  const [eventoPropiedadId, setEventoPropiedadId] = useState<number | null>(null);
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   async function fetchProps() {
@@ -414,7 +414,6 @@ export default function PropiedadesPage() {
     }
   }
 
-  /* Búsqueda inteligente */
   const filtered = useMemo(() => {
     const query = norm(q);
     if (!query) return items;
@@ -535,7 +534,6 @@ export default function PropiedadesPage() {
                   )}
                 </div>
 
-                {/* Footer de la card */}
                 <div className="mt-auto px-3 py-2.5 sm:px-5 sm:py-4 border-t border-gray-100 dark:border-white/10">
                   <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2.5 sm:mb-4">
                     {[
@@ -581,7 +579,15 @@ export default function PropiedadesPage() {
       )}
 
       <PropiedadCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={fetchProps} />
-      {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} onVerLeadsInteresados={() => { setLeadsInteresadosTarget(detail); setDetail(null); }} />}
+      {detail && <PropiedadDetailModal propiedad={detail} onClose={() => setDetail(null)} onEdit={() => { setEditTarget(detail); setDetail(null); }} onDelete={() => { setDeleteTarget(detail); setDetail(null); }} onCopyTag={() => copyPropTag(detail)} onVerLeadsInteresados={() => { setLeadsInteresadosTarget(detail); setDetail(null); }} onCrearEvento={() => { setEventoPropiedadId(detail.id); setDetail(null); }} />}
+      {eventoPropiedadId != null && (
+        <EventCreateModal
+          open={true}
+          presetPropiedadId={eventoPropiedadId}
+          onClose={() => setEventoPropiedadId(null)}
+          onCreated={() => setEventoPropiedadId(null)}
+        />
+      )}
       {editTarget && <PropiedadEditModal propiedad={editTarget} onClose={() => setEditTarget(null)} onSaved={() => { setEditTarget(null); fetchProps(); setResult({ ok: true, msg: "Actualizada" }); }} />}
       {deleteTarget && <ConfirmModal title="Eliminar" message={`¿Borrar "${deleteTarget.titulo}"?`} confirmLabel="Borrar" confirmType="danger" onCancel={() => setDeleteTarget(null)} onConfirm={async () => { await axios.delete(`/api/propiedades/${deleteTarget.id}/`); setDeleteTarget(null); fetchProps(); setResult({ ok: true, msg: "Eliminada" }); }} />}
       {leadsInteresadosTarget && <LeadsInteresadosModal propiedad={leadsInteresadosTarget} onClose={() => setLeadsInteresadosTarget(null)} />}
@@ -590,11 +596,11 @@ export default function PropiedadesPage() {
   );
 }
 
-export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag, onVerLeadsInteresados }: any) {
+export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag, onVerLeadsInteresados, onCrearEvento }: any) {
   return (
     <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="2xl">
       <div className="flex flex-col gap-3 sm:gap-5 p-1">
-        {/* HEADER */}
+     
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-gray-200 dark:border-zinc-700 pb-2">
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
@@ -620,7 +626,6 @@ export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onC
                         {propiedad.tipo_de_propiedad}
                     </span>
                 </div>
-                {/* Título y Ubicación combinada */}
                 <h2 className="text-base sm:text-lg font-black text-[var(--text-main)] leading-tight">
                   {propiedad.titulo}
                 </h2>
@@ -640,7 +645,6 @@ export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onC
             </div>
         </div>
 
-        {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="w-full h-[140px] sm:h-[300px] rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900/50">
             <ThumbnailCarousel images={(propiedad.imagenes || []).map((x: any) => absMedia(x.imagen))} />
@@ -681,6 +685,11 @@ export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onC
         {onVerLeadsInteresados && (
           <button onClick={onVerLeadsInteresados} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white shadow-sm transition-all">
             Ver leads interesados
+          </button>
+        )}
+        {onCrearEvento && (
+          <button onClick={onCrearEvento} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white shadow-sm transition-all">
+            Agendar evento
           </button>
         )}
         <button className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
@@ -993,7 +1002,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
               </Row>
             </div>
 
-            {/* Buscador  Ubicación */}
             <div className="col-span-12">
               <Row label="Buscador de Ubicación">
                 <Select
@@ -1154,7 +1162,6 @@ function PropiedadEditModal({ propiedad, onClose, onSaved }: any) {
               </Row>
             </div>
 
-            {/* Checkboxes  */}
             <div className="col-span-12 flex flex-wrap gap-6 mt-1 p-3 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-gray-200 dark:border-zinc-800">
               <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                 <input type="checkbox" checked={!!form.tiene_patio} onChange={e => set("tiene_patio", e.target.checked)} className="accent-blue-600 w-4 h-4 rounded" />

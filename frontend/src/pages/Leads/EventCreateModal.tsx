@@ -9,6 +9,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onCreated?: () => void;
+  presetContacto?: { id: number; nombre?: string; apellido?: string; email?: string } | null;
+  presetPropiedadId?: number | null;
 };
 
 type PropiedadOption = { id: number; titulo?: string };
@@ -19,7 +21,6 @@ function toArray<T>(data: any): T[] {
   return [];
 }
 
-// Función para obtener la fecha y hora actual en el formato requerido
 function getTodayMin() {
   const now = new Date();
   const year = now.getFullYear();
@@ -30,7 +31,7 @@ function getTodayMin() {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-export default function EventCreateModal({ open, onClose, onCreated }: Props) {
+export default function EventCreateModal({ open, onClose, onCreated, presetContacto, presetPropiedadId }: Props) {
   const [propsOpts, setPropsOpts] = useState<PropiedadOption[]>([]);
   const [loadingProps, setLoadingProps] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +46,6 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
   const [tipo, setTipo] = useState<"Reunion" | "Visita" | "Llamada" | "">("");
 
 
-  // Carga las propiedades y los contactos al abrir el modal
   useEffect(() => {
     if (!open) return;
     setLoadingProps(true);
@@ -54,7 +54,6 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
       .then((res) => setPropsOpts(toArray<PropiedadOption>(res.data)))
       .catch(() => setPropsOpts([]));
       
-    // Carga inicial de contactos para el autocomplete
     const loadContacts = fetchLeads({ limit: 20 }) 
       .then((data) => setContactos(Array.isArray(data) ? data : data?.results ?? []))
       .catch(() => setContactos([]));
@@ -64,7 +63,22 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     });
   }, [open]);
 
-  // Limpia el formulario al cambiar de modo
+  
+  useEffect(() => {
+    if (!open) return;
+    if (presetContacto) {
+      setMode("select");
+      setContactoId(presetContacto.id);
+      setNombre(presetContacto.nombre || "");
+      setApellido(presetContacto.apellido || "");
+      setEmail(presetContacto.email || "");
+    }
+    if (presetPropiedadId) {
+      setPropiedadId(presetPropiedadId);
+    }
+  }, [open, presetContacto, presetPropiedadId]);
+
+  
   function toggleMode() {
     setContactoId(null);
     setNombre("");
@@ -73,7 +87,7 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     setMode(mode === "select" ? "new" : "select");
   }
 
-  // Lógica de envío
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!propiedadId || !fechaHora || !tipo) return;
@@ -116,7 +130,20 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
     } catch (err: any) {
       console.error(err);
       const errorMsg = err?.response?.data;
-      const cleanMsg = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : "No se pudo crear el evento.";
+      let cleanMsg = "No se pudo crear el evento.";
+      if (typeof errorMsg === "string" && errorMsg.trim()) {
+        cleanMsg = errorMsg;
+      } else if (errorMsg && typeof errorMsg === "object") {
+      
+        if (typeof errorMsg.detail === "string") {
+          cleanMsg = errorMsg.detail;
+        } else {
+          const partes = Object.entries(errorMsg).map(
+            ([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+          );
+          if (partes.length) cleanMsg = partes.join("\n");
+        }
+      }
       alert(cleanMsg);
     } finally {
       setSubmitting(false);
@@ -239,7 +266,6 @@ export default function EventCreateModal({ open, onClose, onCreated }: Props) {
 }
 
 
-// Hook de Debounce
 function useDebouncedValue<T>(value: T, delay = 300) {
   const [v, setV] = useState(value);
   useEffect(() => {
@@ -249,7 +275,7 @@ function useDebouncedValue<T>(value: T, delay = 300) {
   return v;
 }
 
-// Componente Field 
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -259,7 +285,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-// Componente ContactAutocomplete 
 function ContactAutocomplete({
   valueId,
   initialList,
@@ -305,7 +330,6 @@ function ContactAutocomplete({
     return () => { done = true; };
   }, [debounced, initialList]);
 
-  // Cerrar al click fuera
   useEffect(() => {
     function onDoc(e: MouseEvent) {
       if (!wrapRef.current) return;
@@ -343,7 +367,6 @@ function ContactAutocomplete({
 
   return (
     <div className="relative" ref={wrapRef}>
-      {/* Input + estado seleccionado */}
       <div className="flex gap-2">
         <input
           className="rc-input flex-1 h-10 text-sm px-3"
