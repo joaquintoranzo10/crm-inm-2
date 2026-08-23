@@ -48,7 +48,7 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
       open={true}
       onClose={onClose}
       title={`Propiedades sugeridas para ${contacto.nombre || ""} ${contacto.apellido || ""}`.trim()}
-      maxWidth="4xl"
+      maxWidth="5xl"
     >
       {loading && <div className="text-sm text-muted-clr text-center py-8">Buscando coincidencias...</div>}
 
@@ -77,9 +77,11 @@ export default function MatchesModal({ contacto, onClose, onEditarPreferencia }:
       )}
 
       {!loading && !error && propiedades.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="flex flex-wrap gap-4 sm:gap-5">
           {propiedades.map((p) => (
-            <PropiedadCard key={p.id} propiedad={p} onVer={() => setDetalle(p)} />
+            <div key={p.id} className="w-full sm:w-[280px]">
+              <PropiedadCard propiedad={p} onVer={() => setDetalle(p)} />
+            </div>
           ))}
         </div>
       )}

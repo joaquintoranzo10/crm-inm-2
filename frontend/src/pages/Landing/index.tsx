@@ -300,7 +300,7 @@ export default function Landing() {
               <StepCard 
                 number="03"
                 title="Gestión Inteligente"
-                description="Automatizá tu día a día con recordatorios por WhatsApp y correo. Que ninguna oportunidad se enfríe."
+                description="Automatizá tu día a día con recordatorios por correo. Que ninguna oportunidad se enfríe."
                 color="purple"
                 delay={200}
               />
