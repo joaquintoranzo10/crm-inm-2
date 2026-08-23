@@ -159,3 +159,12 @@ body.modal-open { overflow: hidden; }
 .animate-fade-in-up {
     animation: fadeInUp 1s ease-out forwards;
 }
+
+.card_box { width: 100%; border-radius: 20px; position: relative; transition: all .3s; cursor: pointer; }
+.card_box:hover { transform: scale(0.97); }
+.ribbon-wrapper { position: absolute; overflow: hidden; width: 120px; height: 120px; top: -10px; left: -10px; display: flex; align-items: center; justify-content: center; z-index: 20; pointer-events: none; }
+.ribbon-content { position: absolute; width: 150%; height: 30px; background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%); transform: rotate(-45deg) translateY(-15px); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 0 5px 10px rgba(0,0,0,0.23); }
+@media (max-width: 639px) {
+  .ribbon-wrapper { width: 90px; height: 90px; top: -8px; left: -8px; }
+  .ribbon-content { height: 22px; font-size: 8px; transform: rotate(-45deg) translateY(-11px); }
+}
