@@ -17,7 +17,6 @@ type TipoProp =
   | "consultorio" | "quinta" | "chacra" | "galpon" | "deposito" | "campo"
   | "hotel" | "fondo de comercio" | "edificio" | "otro";
 
-// Modelo principal de Propiedad 
 type Propiedad = {
   localidad?: string;
   barrio?: string;
@@ -201,7 +200,6 @@ function ThumbnailCarousel({ images }: { images: (string | null | undefined)[] }
   );
 }
 
-// Normaliza texto para búsquedas
 const norm = (s?: string | number | null) =>
   String(s ?? "")
     .toLowerCase()
@@ -209,7 +207,7 @@ const norm = (s?: string | number | null) =>
     .replace(/\p{Diacritic}/gu, "")
     .trim();
 
-// Convierte cualquier texto a “venta” o “alquiler”
+
 const asDisponibilidad = (s?: string | null): "venta" | "alquiler" => {
   const n = (s ?? "").toString().toLowerCase();
   if (n.startsWith("alq")) return "alquiler";
@@ -288,9 +286,6 @@ function Select4<T extends string>({
   );
 }
 
-
-
-/* carrusel  para mostrar imágenes */
 
 function CardCarousel({ images }: { images: (string | null | undefined)[] }) {
   const valid = images.filter(Boolean) as string[];
@@ -595,7 +590,7 @@ export default function PropiedadesPage() {
   );
 }
 
-function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag, onVerLeadsInteresados }: any) {
+export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onCopyTag, onVerLeadsInteresados }: any) {
   return (
     <Modal open={true} onClose={onClose} title="Detalle de Propiedad" maxWidth="2xl">
       <div className="flex flex-col gap-3 sm:gap-5 p-1">
