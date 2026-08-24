@@ -176,7 +176,7 @@ class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
 
         if vencimiento == "pendiente":
            
-            qs = qs.exclude(eventos__fecha_hora__gte=now).distinct()
+            qs = qs.filter(next_contact_at__isnull=True)
         elif vencimiento == "vencido":
             qs = qs.filter(
                 next_contact_at__lt=timezone.make_aware(
