@@ -51,7 +51,13 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
     setLoadingProps(true);
     
     const loadProps = axios.get("/api/propiedades/")
-      .then((res) => setPropsOpts(toArray<PropiedadOption>(res.data)))
+      .then((res) => {
+        const allProps = toArray<any>(res.data);
+        const disponibles = allProps.filter(
+          (p) => p.estado === 'disponible' || p.id === presetPropiedadId
+        );
+        setPropsOpts(disponibles);
+      })
       .catch(() => setPropsOpts([]));
       
     const loadContacts = fetchLeads({ limit: 20 }) 

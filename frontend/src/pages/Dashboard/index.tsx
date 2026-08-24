@@ -438,15 +438,16 @@ export default function DashboardPage() {
             Bienvenido a Real Connect
           </h2>
 
-          <button
-            className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
-            onClick={() => setOpenAvisoModal({})}
-          >
-            <Bell className="w-5 h-5" />
-            <span>Recordatorio</span>
-          </button>
-
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-end gap-2.5 sm:gap-3">
+            
+            <button
+              className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-500 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
+              onClick={() => setOpenAvisoModal({})}
+            >
+              <Bell className="w-5 h-5" />
+              <span>Recordatorio</span>
+            </button>
+
             <button
               className="h-11 sm:h-10 px-4 rounded-lg text-sm font-bold transition-all border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
               onClick={() => navigate("/app/metricas")}
@@ -794,7 +795,7 @@ function DayEventsModal({
         </span>
       </div>
 
-      <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="pr-2">
         {eventos.length === 0 && avisos.length === 0 ? (
           <div className="py-8 text-center text-[var(--muted)] border border-dashed border-[var(--border)] rounded-xl">
               No hay eventos ni avisos agendados para este día.
@@ -1003,19 +1004,20 @@ function EventModal({
           {/* Propiedad */}
           <div className="md:col-span-2">
              <Field label="Propiedad">
-                
-                <select
-                    className="rc-input w-full h-10 text-sm" 
+                 <select
+                    className="rc-input w-full h-10 text-sm"
                     value={String(form.propiedad || "")}
                     onChange={(e) => set("propiedad", Number(e.target.value))}
-                >
-                    {propiedades.map((p) => (
-                    <option key={p.id} value={String(p.id)}>
-                        {p.titulo || (p as any).direccion || `Propiedad #${p.id}`}
-                    </option>
+                 >
+                    {propiedades
+                      .filter((p) => p.estado === 'disponible' || p.id === form.propiedad)
+                      .map((p) => (
+                        <option key={p.id} value={String(p.id)}>
+                            {p.titulo || (p as any).direccion || `Propiedad #${p.id}`}
+                        </option>
                     ))}
-                </select>
-            </Field>
+                 </select>
+             </Field>
           </div>
         </div>
 
