@@ -890,16 +890,25 @@ function EventModal({
   onCancel: () => void;
   onSave: (data: Partial<Evento>, mode: "create" | "edit", id?: number) => void | Promise<void>;
 }) {
-  const [form, setForm] = useState<Partial<Evento>>(
-    evento
-      ? { ...evento }
+  const [form, setForm] = useState<Partial<Evento>>(() => {
+    let initFecha = "";
+    if (evento && evento.fecha_hora) {
+      initFecha = toLocalInputValue(new Date(evento.fecha_hora));
+    } else if (baseDate) {
+      initFecha = toLocalInputValue(baseDate);
+    } else {
+      initFecha = toLocalInputValue(new Date());
+    }
+
+    return evento
+      ? { ...evento, fecha_hora: initFecha }
       : {
-        tipo: "Reunion",
-        fecha_hora: toLocalInputValue(baseDate || new Date()),
-        propiedad: propiedades[0]?.id,
-        contacto: undefined,
-      }
-  );
+          tipo: "Reunion",
+          fecha_hora: initFecha,
+          propiedad: propiedades[0]?.id,
+          contacto: undefined,
+        };
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -927,6 +936,7 @@ function EventModal({
     setError(null);
     if (!form.propiedad) { setError("Seleccioná una propiedad."); return; }
     if (!form.fecha_hora) { setError("Cargá fecha y hora."); return; }
+    
     setSaving(true);
     try {
       let fechaISO = String(form.fecha_hora);
@@ -934,14 +944,15 @@ function EventModal({
         const d = new Date(fechaISO);
         fechaISO = d.toISOString();
       }
+      
       await onSave(
         {
           ...form,
           fecha_hora: fechaISO,
-          contacto: (form as any).contacto === "" ? null : form.contacto,
-          email: form.email || undefined,
-          nombre: form.nombre || undefined,
-          apellido: form.apellido || undefined,
+          contacto: form.contacto ? form.contacto : null,
+          email: form.contacto ? null : (form.email || undefined),
+          nombre: form.contacto ? "" : (form.nombre || undefined),
+          apellido: form.contacto ? "" : (form.apellido || undefined),
           notas: form.notas || undefined,
         },
         mode,
@@ -983,11 +994,7 @@ function EventModal({
                 <input
                   type="datetime-local"
                   className="rc-input w-full h-10 text-sm"
-                  value={
-                      form.fecha_hora && form.fecha_hora.includes("T") && form.fecha_hora.length > 16
-                      ? toLocalInputValue(new Date(form.fecha_hora))
-                      : String(form.fecha_hora || "")
-                  }
+                  value={form.fecha_hora || ""}
                   onChange={(e) => set("fecha_hora", e.target.value)}
                 />
             </Field>
