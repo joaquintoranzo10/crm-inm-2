@@ -71,7 +71,7 @@ function StepCard({ number, title, description, color, delay }: StepCardProps) {
         border: 'hover:border-emerald-200 dark:hover:border-emerald-800/50',
         text: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
         badge: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
-    }
+    },
     amber: {
         bg: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/10',
         border: 'hover:border-amber-200 dark:hover:border-amber-800/50',
@@ -114,10 +114,9 @@ function StepCard({ number, title, description, color, delay }: StepCardProps) {
 }
 
 
-// --- COMPONENTE PRINCIPAL ---
 
 export default function Landing() {
-  // Optimizamos el scroll quitando el estado de React y usando un ref directo al DOM
+ 
   const scrollLineRef = useRef<HTMLDivElement>(null);
   
   const [activeProperty, setActiveProperty] = useState(0);
@@ -130,13 +129,12 @@ export default function Landing() {
   useEffect(() => {
     let ticking = false;
     
-    // Listener de scroll optimizado (no bloquea el renderizado)
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           if (scrollLineRef.current) {
              const y = window.scrollY;
-             // Manipulación directa del DOM, cero lag
+             
              scrollLineRef.current.style.height = `${Math.min(100, Math.max(0, y - 50))}px`;
           }
           ticking = false;
@@ -179,7 +177,7 @@ export default function Landing() {
         }
       `}</style>
 
-      {/* --- FONDO --- */}
+    
       <div className="fixed inset-0 -z-10 bg-white dark:bg-[#050505] transition-colors duration-300">
         <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]" 
              style={{ 
@@ -188,13 +186,12 @@ export default function Landing() {
                  color: 'inherit' 
              }}>
         </div>
-        {/* Agregado transform-gpu y will-change para aceleración de video */}
+      
         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] blur-[180px] rounded-full pointer-events-none transition-colors duration-300 opacity-[0.06] dark:opacity-[0.15] transform-gpu will-change-transform ${properties[activeProperty].glow}`} />
       </div>
 
       <div className="relative container mx-auto px-4 max-w-7xl">
-        
-        {/* HERO SECTION */}
+      
         <div className="w-full flex flex-col items-center justify-center text-center pb-12 pt-4 relative min-h-[calc(100vh-140px)]">
             
             <div className="relative w-full h-[320px] mb-4 flex flex-col items-center justify-center">
@@ -206,7 +203,6 @@ export default function Landing() {
                         return (
                             <div 
                                 key={prop.id}
-                                /* transform-gpu añadido para renderizado suave */
                                 className={`absolute flex flex-col items-center transition-all duration-300 ease-out transform-gpu
                                     ${isActive ? 'opacity-100 scale-100 translate-y-[-20px]' : 'opacity-0 scale-75 translate-y-10'}`}
                             >
@@ -224,7 +220,7 @@ export default function Landing() {
                     })}
                 </div>
 
-                {/* Centro: Orbe */}
+              
                 <div className="relative z-10 w-32 h-32 flex items-center justify-center animate-float transform-gpu mt-20">
                     <div className={`absolute -inset-2 blur-xl rounded-full transition-colors duration-300 opacity-50 dark:opacity-70 transform-gpu ${properties[activeProperty].glow}`}></div>
                     <div className="absolute inset-0 rounded-full border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-slate-900/60 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.2)] backdrop-blur-2xl">
@@ -272,7 +268,7 @@ export default function Landing() {
               </button>
             </div>
 
-             {/* LÍNEA VERTICAL CON REF (No causa re-renders) */}
+            
              <div 
                 ref={scrollLineRef}
                 className={`absolute bottom-0 left-1/2 w-px bg-gradient-to-b from-transparent to-current transition-colors duration-300 ease-out will-change-[height] ${properties[activeProperty].text}`}
@@ -281,7 +277,7 @@ export default function Landing() {
         </div>
 
 
-        {/* --- STORYTELLING SCROLL --- */}
+        
         <div className="relative pb-24 max-w-5xl mx-auto mt-10">
           
           <div className="absolute top-10 bottom-10 left-[2.25rem] lg:left-[50%] w-px bg-slate-200 dark:bg-white/5 lg:-translate-x-1/2 z-0 hidden lg:block"></div>
@@ -320,7 +316,7 @@ export default function Landing() {
               <StepCard 
                 number="05"
                 title="Cierre de Operaciones"
-                description="Registra cada interacción en el historial del cliente y actualiza su estado ("En negociación", "Vendido") hasta concretar la venta de forma organizada."
+                description="Registra cada interacción en el historial del cliente y actualiza su estado ('En negociación', 'Vendido') hasta concretar la venta de forma organizada."
                 color="amber"
                 delay={400}
               />
@@ -367,7 +363,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* --- FINAL CTA --- */}
         <div className="py-20 text-center relative z-10 border-t border-slate-100 dark:border-white/5 mt-10">
              <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white tracking-tight">Optimizá tu gestión hoy mismo</h2>
              
