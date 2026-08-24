@@ -123,6 +123,7 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
     try {
       await api.post("/api/eventos/", payload);
       window.dispatchEvent(new CustomEvent("calendar:refresh"));
+      window.dispatchEvent(new CustomEvent("refrescar-leads"));
       onCreated?.();
       onClose();
       setNombre(""); setApellido(""); setEmail(""); setPropiedadId("");

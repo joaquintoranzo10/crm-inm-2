@@ -17,7 +17,7 @@ import {
 type Contacto = ContactoApi;
 type Propiedad = PropiedadApi;
 type Evento = EventoApi;
-type Aviso = { id: number; titulo: string; descripcion?: string; fecha: string; estado: string; };
+type Aviso = { id: number; titulo: string; descripcion?: string; fecha: string; estado: string; evento?: number | null; };
 type Filters = { date?: string; from?: string; to?: string; types?: string };
 
 type DashboardData = {
@@ -275,6 +275,8 @@ export default function DashboardPage() {
   const avisosByDay = useMemo(() => {
     const map = new Map<string, Aviso[]>();
     for (const av of avisos) {
+      if (av.evento != null) continue; 
+
       if (!av.fecha) continue;
       const key = toKey(new Date(av.fecha));
       if (!map.has(key)) map.set(key, []);
