@@ -680,21 +680,21 @@ export function PropiedadDetailModal({ propiedad, onClose, onEdit, onDelete, onC
       </div>
       
       {/* Footer */}
-      <div className="mt-2 sm:mt-4 pt-3 sm:pt-4 border-t rc-border flex justify-end gap-2">
-        {onDelete && <button onClick={onDelete} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all">Eliminar</button>}
+      <div className="mt-2 sm:mt-4 pt-3 sm:pt-4 border-t rc-border flex flex-wrap justify-center sm:justify-end gap-2">
+        {onDelete && <button onClick={onDelete} className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-rose-600 text-rose-600 dark:text-rose-500 dark:border-rose-500 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 transition-all text-center">Eliminar</button>}
         {onVerLeadsInteresados && (
-          <button onClick={onVerLeadsInteresados} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white shadow-sm transition-all">
+          <button onClick={onVerLeadsInteresados} className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400 hover:bg-emerald-600 hover:text-white shadow-sm transition-all text-center">
             Ver leads interesados
           </button>
         )}
         {onCrearEvento && (
-          <button onClick={onCrearEvento} className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white shadow-sm transition-all">
+          <button onClick={onCrearEvento} className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white shadow-sm transition-all text-center">
             Agendar evento
           </button>
         )}
-        <button className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all" onClick={onClose}>Cerrar</button>
+        <button className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border border-zinc-500 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500 hover:text-white shadow-sm transition-all text-center" onClick={onClose}>Cerrar</button>
         {onEdit && (
-          <button className="px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all" onClick={onEdit}>Editar</button>
+          <button className="flex-1 sm:flex-none px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-xs font-bold border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 shadow-sm transition-all text-center" onClick={onEdit}>Editar</button>
         )}
       </div>
     </Modal>
