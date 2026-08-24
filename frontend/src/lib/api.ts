@@ -193,4 +193,30 @@ export async function deleteEvento(id: number): Promise<void> {
   await api.delete(`eventos/${id}/`);
 }
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("rc_token");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("rc_user_id");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("rc_token");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("rc_user_id");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

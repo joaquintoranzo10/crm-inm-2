@@ -212,7 +212,7 @@ export default function PropiedadCreateModal({ open, onClose, onCreated }: Props
 
             
             <div className="col-span-12">
-              <Row label="Buscador Inteligente de Ubicación">
+              <Row label="Buscador de Ubicación">
                 <Select
                   options={opcionesUbicacion}
                   placeholder="Empezá a escribir (Ej: Marcos Juárez)..."
