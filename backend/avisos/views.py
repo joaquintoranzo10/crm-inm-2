@@ -1,9 +1,8 @@
-# avisos/views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Q # Importamos Q
+from django.db.models import Q 
 from django.utils import timezone
 from .models import Aviso
 from .serializers import AvisoSerializer
@@ -15,9 +14,20 @@ try:
 except ImportError:
     EMAIL_ENABLED = False
 
+class OwnedQuerysetMixin:
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.is_staff or user.is_superuser:
+            return qs
+        return qs.filter(owner=user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 def _enviar_notificacion_aviso(aviso: Aviso, auth_user) -> None:
-
     if not EMAIL_ENABLED:
         return
 
@@ -26,7 +36,6 @@ def _enviar_notificacion_aviso(aviso: Aviso, auth_user) -> None:
         if not email:
             return
 
-        # Obtener nombre desde tabla usuarios_usuario
         nombre = auth_user.first_name or "Usuario"
         try:
             usuario_obj = Usuario.objects.get(email__iexact=email)
@@ -34,13 +43,11 @@ def _enviar_notificacion_aviso(aviso: Aviso, auth_user) -> None:
         except Usuario.DoesNotExist:
             pass
 
-        # Fecha formateada
         fecha_str = ""
         if aviso.fecha:
             fecha_local = timezone.localtime(aviso.fecha)
             fecha_str = fecha_local.strftime("%d/%m/%Y %H:%M")
 
-        # Nombre del lead asociado (si existe)
         lead_nombre = ""
         if aviso.lead:
             lead_nombre = str(aviso.lead)
@@ -62,55 +69,28 @@ def _enviar_notificacion_aviso(aviso: Aviso, auth_user) -> None:
             exc_info=True,
         )
 
-
-class AvisoViewSet(viewsets.ModelViewSet):
-    
-    # El queryset base que DRF usa para registrar la URL.
-    queryset = Aviso.objects.all().order_by("-fecha")
-    
+class AvisoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
+    queryset = Aviso.objects.all().order_by("-fecha") 
     serializer_class = AvisoSerializer
-    permission_classes = [IsAuthenticated] #  autenticación
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Filtra para mostrar solo los avisos PENDIENTES del usuario logueado.
-        """
-        user = self.request.user
+        qs = super().get_queryset()
         
-        # Empezamos con el queryset base
-        qs = super().get_queryset() 
+        return qs
 
-        # Filtramos por  (dueño)
-        if not (user.is_staff or user.is_superuser):
-            # Asumimos que filtramos por el 'owner' del Lead asociado
-            # O avisos que no tienen lead 
-            
-            qs = qs.filter(Q(lead__owner=user) | Q(lead__isnull=True))
-
-        # Filtramos solo los pendientes y ordenamos
-        return qs.filter(estado="pendiente").order_by("-fecha")
-    
     def perform_create(self, serializer):
-        """
-        Al crear un aviso, lo guarda y luego envía la notificación por correo.
-        """
-        aviso = serializer.save()
-        # Enviar notificación al usuario autenticado
-        _enviar_notificacion_aviso(aviso, self.request.user)
+        super().perform_create(serializer)
+        
+        _enviar_notificacion_aviso(serializer.instance, self.request.user)
 
     @action(detail=True, methods=["post"], url_path="marcar-leido")
     def marcar_leido(self, request, pk=None):
-        """
-        Marca un aviso específico como 'completado'.
-        """
         try:
-            # get_object() usa get_queryset(), así que ya filtra por 'owner' y 'pendiente'
             aviso = self.get_object()
         except Aviso.DoesNotExist:
-            
             return Response({"detail": "No encontrado o ya completado."}, status=status.HTTP_404_NOT_FOUND)
 
-        
         aviso.estado = "completado"
         aviso.save(update_fields=["estado", "actualizado_en"])
         
@@ -118,4 +98,3 @@ class AvisoViewSet(viewsets.ModelViewSet):
             {"detail": "Aviso marcado como completado."},
             status=status.HTTP_200_OK
         )
-

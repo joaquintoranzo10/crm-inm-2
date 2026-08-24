@@ -1,4 +1,3 @@
-
 import logging
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -67,7 +66,6 @@ def send_aviso_email(user_email: str, nombre: str, aviso_data: dict) -> bool:
         return False
 
 
-# Mapeo tipo → emoji y clase CSS para el template de eventos
 _TIPO_META = {
     "reunion":  {"emoji": "🤝", "css": "reunion"},
     "visita":   {"emoji": "🏠", "css": "visita"},
