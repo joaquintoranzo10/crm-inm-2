@@ -34,7 +34,7 @@ function useOnScreen(options: IntersectionObserverInit): UseOnScreenReturn {
   return [ref, isVisible];
 }
 
-type ColorKey = 'blue' | 'indigo' | 'purple' | 'green';
+type ColorKey = 'blue' | 'indigo' | 'purple' | 'green' | 'amber';
 
 interface StepCardProps {
     number: string;
@@ -71,6 +71,12 @@ function StepCard({ number, title, description, color, delay }: StepCardProps) {
         border: 'hover:border-emerald-200 dark:hover:border-emerald-800/50',
         text: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
         badge: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
+    }
+    amber: {
+        bg: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/10',
+        border: 'hover:border-amber-200 dark:hover:border-amber-800/50',
+        text: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+        badge: 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
     }
   };
   
@@ -306,10 +312,17 @@ export default function Landing() {
               />
               <StepCard 
                 number="04"
-                title="Cierre de Operaciones"
-                description="Negocia con datos concretos. Tablero Kanban visual para avanzar cada lead hasta concretar la venta."
+                title="Decisiones Inteligentes"
+                description="Analiza el rendimiento de tu negocio en tiempo real. Visualiza métricas de tus leads y propiedades más elegidas para cerrar más operaciones."
                 color="green"
                 delay={300}
+              />
+              <StepCard 
+                number="05"
+                title="Cierre de Operaciones"
+                description="Registra cada interacción en el historial del cliente y actualiza su estado ("En negociación", "Vendido") hasta concretar la venta de forma organizada."
+                color="amber"
+                delay={400}
               />
             </div>
 
