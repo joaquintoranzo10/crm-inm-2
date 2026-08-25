@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Real Connect{% endblock %}</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+    .accent-bar { height: 5px; background: {{ accent_color|default:"#059669" }}; }
+
+    .header { background: #ffffff; padding: 32px 40px 22px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+    .header img { height: 54px; display: block; margin: 0 auto 14px; }
+    .header .type-badge { display: inline-block; background: {{ accent_soft|default:"#d1fae5" }}; color: {{ accent_dark|default:"#065f46" }}; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 10px; }
+    .header h1 { color: #111827; margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header p.tagline { color: #6b7280; margin: 6px 0 0; font-size: 13.5px; }
+
+    .body { padding: 40px; }
+    .body p { color: #374151; font-size: 15px; line-height: 1.7; margin: 0 0 16px; }
+    .body p.greeting { font-size: 17px; font-weight: 600; color: #111827; }
+
+    /* Tarjeta de info reutilizable (aviso / evento / lead) */
+    .info-card { background: {{ accent_soft|default:"#f0fdf4" }}; border: 1px solid {{ accent_border|default:"#bbf7d0" }}; border-radius: 8px; padding: 20px 24px; margin: 20px 0; }
+    .info-card + .info-card { margin-top: 14px; }
+    .info-card .titulo { font-size: 17px; font-weight: 700; color: {{ accent_dark|default:"#065f46" }}; margin: 0 0 8px; }
+    .info-card .descripcion { font-size: 14px; color: #374151; margin: 0 0 14px; }
+    .info-card .meta { margin: 0; }
+    .info-card .meta .badge { display: inline-block; background: {{ accent_chip|default:"#d1fae5" }}; color: {{ accent_dark|default:"#065f46" }}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 0 8px 8px 0; }
+    .info-card .meta .badge.fecha { background: #e0e7ff; color: #3730a3; }
+    .info-card .meta .badge.lead { background: #fef3c7; color: #92400e; }
+
+    .row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .row:last-child { margin-bottom: 0; }
+    .row-icon { font-size: 18px; min-width: 24px; text-align: center; margin-top: 1px; }
+    .row-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+    .row-value { font-size: 15px; color: #111827; font-weight: 500; }
+    .row-value.big { font-size: 17px; font-weight: 700; color: #1f2937; }
+
+    .notas-box { background: #f9fafb; border-radius: 6px; padding: 12px 16px; margin-top: 14px; border-left: 3px solid {{ accent_color|default:"#059669" }}; }
+    .notas-box p { font-size: 13px; color: #6b7280; margin: 0; font-style: italic; }
+
+    .fallback-url { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 18px; margin: 20px 0; word-break: break-all; font-size: 12px; color: #6b7280; font-family: monospace; }
+    .warning { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 20px 0; }
+    .warning p { color: #92400e; font-size: 13px; margin: 0; }
+
+    .btn-wrap { text-align: center; margin: 32px 0; }
+    .btn { display: inline-block; background: {{ accent_color|default:"#059669" }}; color: #ffffff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+
+    .footer { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 24px 40px; text-align: center; }
+    .footer p { color: #9ca3af; font-size: 12px; margin: 4px 0; }
+    .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+
+    {% block extra_styles %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="accent-bar"></div>
+    <div class="header">
+      <img src="cid:logo_real_connect" alt="Real Connect" />
+      {% block header_badge %}{% endblock %}
+      <h1>{% block header_title %}REAL CONNECT{% endblock %}</h1>
+      <p class="tagline">{% block tagline %}Domina tu mercado{% endblock %}</p>
+    </div>
+    <div class="body">
+      {% block content %}{% endblock %}
+    </div>
+    <div class="footer">
+      <p>Real Connect — Domina tu mercado</p>
+      <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+    </div>
+  </div>
+</body>
+</html>
