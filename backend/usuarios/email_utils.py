@@ -1,21 +1,22 @@
 import logging
-import os
-
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
-LOGO_PATH = os.path.join(
-    settings.BASE_DIR, "usuarios", "static", "emails", "img", "logo.png"
-)
-LOGO_CID = "logo_real_connect"
+
+def _get_logo_url() -> str:
+    
+    backend_url = getattr(settings, "BACKEND_URL", "http://localhost:8000").rstrip("/")
+    return backend_url + static("emails/img/logo.png")
 
 
 def _send_branded_email(subject: str, to_email: str, template_name: str, context: dict) -> bool:
    
+    context.setdefault("logo_url", _get_logo_url())
     try:
         html_message = render_to_string(template_name, context)
         plain_message = strip_tags(html_message)
@@ -27,18 +28,6 @@ def _send_branded_email(subject: str, to_email: str, template_name: str, context
             to=[to_email],
         )
         email.attach_alternative(html_message, "text/html")
-
-        try:
-            with open(LOGO_PATH, "rb") as f:
-                from email.mime.image import MIMEImage
-                logo = MIMEImage(f.read())
-                logo.add_header("Content-ID", f"<{LOGO_CID}>")
-                logo.add_header("Content-Disposition", "inline", filename="logo.png")
-                email.attach(logo)
-            email.mixed_subtype = "related"
-        except FileNotFoundError:
-            logger.warning(f"[EMAIL] No se encontró el logo en {LOGO_PATH}; se envía sin logo embebido.")
-
         email.send(fail_silently=True)
         return True
 
@@ -122,9 +111,7 @@ def send_evento_email(user_email: str, nombre: str, evento_data: dict) -> bool:
 
 
 def send_recordatorios_email(user_email: str, nombre: str, leads: list) -> bool:
-    """
-    leads: lista de dicts [{"nombre":..., "apellido":..., "telefono":..., "nota":...}, ...]
-    """
+    
     subject = f"Real Connect: Tenés {len(leads)} seguimiento{'s' if len(leads) != 1 else ''} para hoy"
     context = {
         "nombre": nombre or "Usuario",

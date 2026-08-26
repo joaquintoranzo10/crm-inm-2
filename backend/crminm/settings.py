@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-c45orq2z2o^*ogbjw_tb$fdd1d7lh(9nl7q&%u6s+jrapg23!m",
 )
 
-# DEBUG=False en producción. En tu PC, si no seteás la variable, sigue en True.
+
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "DESKTOP-0LTCLJK", "desktop-0ltcljk"]
@@ -19,6 +19,10 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", "DESKTOP-0LTCLJK", "desktop-0ltcljk"]
 render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if render_host:
     ALLOWED_HOSTS.append(render_host)
+
+BACKEND_URL = os.environ.get("BACKEND_URL") or (
+    f"https://{render_host}" if render_host else "http://localhost:8000"
+)
 
 extra_hosts = os.environ.get("ALLOWED_HOSTS", "")
 if extra_hosts:
@@ -89,7 +93,7 @@ if os.environ.get("DATABASE_URL"):
         )
     }
 else:
-    # En tu PC, sigue usando tu MySQL local de siempre.
+    # En PC, sigue usando MySQL .
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -111,7 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-# Zona horaria local (Córdoba)
 TIME_ZONE = 'America/Argentina/Cordoba'
 USE_I18N = True
 USE_TZ = True
@@ -179,7 +182,7 @@ CACHES = {
 }
 
 CLOUDINARY_STORAGE = {
-    # Usamos os.environ para que tome la clave segura en Render
+    
     'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL', 'cloudinary://<your_api_key>:<your_api_secret>@xcv9k9v9')
 }
 
