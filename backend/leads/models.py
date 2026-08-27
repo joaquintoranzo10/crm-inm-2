@@ -220,6 +220,11 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         return
 
     contacto = instance.contacto
+
+    if created and contacto and instance.notas and instance.notas.strip():
+        texto_nota = f"Evento ({instance.tipo}): {instance.notas.strip()}"
+        HistorialLead.objects.create(contacto=contacto, nota=texto_nota)
+
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
