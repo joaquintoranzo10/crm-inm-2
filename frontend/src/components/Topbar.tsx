@@ -4,7 +4,7 @@ import { FiBell, FiCheckCircle } from "react-icons/fi";
 import ThemeToggle from "@/components/ThemeToggle"; 
 import { api } from "@/lib/api"; 
 import clsx from "clsx";
-/* ===================== Tipos ===================== */
+
 type Aviso = {
   id: number;
   titulo: string;
@@ -16,7 +16,6 @@ type Aviso = {
   evento?: number | null;
 };
 
-/* ===================== Componente principal ===================== */
 export default function Topbar({ title }: { title: string }) {
   const navigate = useNavigate();
   const token = localStorage.getItem("rc_token") || "";
@@ -50,7 +49,9 @@ export default function Topbar({ title }: { title: string }) {
     try {
       const res = await api.get(`/avisos/`);
       const data: Aviso[] = res.data?.results ?? (Array.isArray(res.data) ? res.data : []);
-      setAvisos(data);
+     
+      const pendientes = data.filter((a) => a.estado !== "completado");
+      setAvisos(pendientes);
     } catch {
       setErrorAvisos("Error al cargar.");
       setAvisos(null);
@@ -267,7 +268,6 @@ export default function Topbar({ title }: { title: string }) {
           )}
         </div>
 
-        {/* Theme Toggle */}
         <div className="opacity-50 hover:opacity-100 transition-opacity">
             <ThemeToggle />
         </div>
