@@ -47,6 +47,13 @@ def disparar_recordatorios_view(request):
     except Exception as e:
         resultados['enviar_recordatorios_diarios'] = f'error: {e}'
 
+    try:
+        
+        call_command('actualizar_estados_avisos')
+        resultados['actualizar_estados_avisos'] = 'ok'
+    except Exception as e:
+        resultados['actualizar_estados_avisos'] = f'error: {e}'
+
     return JsonResponse({'status': 'ok', 'resultados': resultados})
 
 def health_check(request):
@@ -82,7 +89,7 @@ urlpatterns = [
     
     path("api/", include("dashboard.urls")),
 
-    #para que uptime lo encuentre y de ok en el servidor
+    # uptime da ok en el servidor
     path('api/health/', health_check),
     path('api/cron/enviar-recordatorios/', disparar_recordatorios_view),
 ]
