@@ -196,6 +196,14 @@ def programar_seguimiento_inicial(sender, instance: Contacto, created: bool, **k
     if kwargs.get('raw', False):
         return
     if created and not instance.next_contact_at:
+        estado_fase = (
+            instance.estado.fase.strip().lower()
+            if instance.estado and instance.estado.fase
+            else ""
+        )
+        if estado_fase in ("vendido", "rechazado"):
+            return
+
         dias_recordatorio = 3
         if instance.owner and getattr(instance.owner, 'email', None):
             try:
@@ -220,11 +228,6 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
         return
 
     contacto = instance.contacto
-
-    if created and contacto and instance.notas and instance.notas.strip():
-        texto_nota = f"Evento ({instance.tipo}): {instance.notas.strip()}"
-        HistorialLead.objects.create(contacto=contacto, nota=texto_nota)
-
     now = timezone.localtime()
     evento_dt = timezone.localtime(instance.fecha_hora)
 
@@ -242,7 +245,14 @@ def sync_contacto_and_aviso_from_evento(sender, instance: Evento, created: bool,
                 or evento_dt.date() >= timezone.localtime(contacto.next_contact_at).date()
             )
 
-            if is_relevant_event:
+            estado_fase = (
+                contacto.estado.fase.strip().lower()
+                if contacto.estado and contacto.estado.fase
+                else ""
+            )
+            es_estado_cerrado = estado_fase in ("vendido", "rechazado")
+
+            if is_relevant_event and not es_estado_cerrado:
                 dias_recordatorio = 3
                 if contacto.owner and getattr(contacto.owner, 'email', None):
                     try:
