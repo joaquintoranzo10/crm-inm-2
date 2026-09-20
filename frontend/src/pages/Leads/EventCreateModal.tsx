@@ -35,6 +35,7 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
   const [propsOpts, setPropsOpts] = useState<PropiedadOption[]>([]);
   const [loadingProps, setLoadingProps] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [contactos, setContactos] = useState<Contacto[]>([]); // Lista para el autocomplete
   const [mode, setMode] = useState<"select" | "new">("select"); // "select" o "new"
   const [contactoId, setContactoId] = useState<number | null>(null); // ID del lead existente
@@ -96,14 +97,24 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    setError(null);
+
     if (!propiedadId || !fechaHora || !tipo) return;
 
     if (mode === 'select' && !contactoId) {
-        alert("Por favor, seleccioná un contacto existente.");
+        setError("Por favor, seleccioná un contacto existente.");
         return;
     }
     if (mode === 'new' && !email.trim() && !nombre.trim()) {
-        alert("Por favor, ingresá al menos un nombre o email para el nuevo visitante.");
+        setError("Por favor, ingresá al menos un nombre o email para el nuevo visitante.");
+        return;
+    }
+
+    const selectedDate = new Date(fechaHora);
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - 2);
+    if (selectedDate < now) {
+        setError("La fecha y hora del evento no puede estar en el pasado.");
         return;
     }
 
@@ -253,6 +264,11 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
             <option value="Llamada">Llamada</option>
           </select>
         </Field>
+        {error && (
+          <div className="mt-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-sm text-rose-500">
+            {error}
+          </div>
+        )}
 
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-2 pt-4">
           <button 

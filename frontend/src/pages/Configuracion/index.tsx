@@ -136,6 +136,8 @@ export default function ConfiguracionPage() {
     setExportResources((prev) => prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]);
   };
 
+  const [exportarTodo, setExportarTodo] = useState(false);
+
   const handleExport = async () => {
     setExportLoading(true);
     setExportError(null);
@@ -145,16 +147,22 @@ export default function ConfiguracionPage() {
       return;
     }
     try {
+      // Si "exportarTodo" está tildado, no mandamos year/month: el backend
+      // (exportacion/views.py) solo filtra por fecha cuando AMBOS vienen
+      // presentes, así que mandar filters vacío ya trae toda la cartera.
+      const filters = exportarTodo ? {} : { year, month };
       const res = await api.post(
         "/api/exportacion/export/",
-        { format, resources: exportResources, filters: { year, month } },
+        { format, resources: exportResources, filters },
         { responseType: "blob" }
       );
       const blob = new Blob([res.data], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `export_${year}_${String(month).padStart(2, "0")}.${format}`;
+      a.download = exportarTodo
+        ? `export_completo.${format}`
+        : `export_${year}_${String(month).padStart(2, "0")}.${format}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -265,13 +273,22 @@ export default function ConfiguracionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <Label>Periodo</Label>
-                <div className="flex gap-2">
-                  <Select value={year} onChange={(e:any)=>setYear(Number(e.target.value))}>
+                <label className="flex gap-2 items-center text-sm font-bold mb-2">
+                  <input
+                    type="checkbox"
+                    className="accent-blue-600"
+                    checked={exportarTodo}
+                    onChange={(e) => setExportarTodo(e.target.checked)}
+                  />
+                  Exportar toda la cartera (sin filtrar por período)
+                </label>
+                <div className={`flex gap-2 ${exportarTodo ? "opacity-40 pointer-events-none" : ""}`}>
+                  <Select value={year} onChange={(e:any)=>setYear(Number(e.target.value))} disabled={exportarTodo}>
                     {[2023,2024,2025,2026].map(y=> (
                       <option key={y} value={y} style={optionStyle}>{y}</option>
                     ))}
                   </Select>
-                  <Select value={month} onChange={(e:any)=>setMonth(Number(e.target.value))}>
+                  <Select value={month} onChange={(e:any)=>setMonth(Number(e.target.value))} disabled={exportarTodo}>
                     {[...Array(12)].map((_,i)=> (
                       <option key={i+1} value={i+1} style={optionStyle}>{i+1}</option>
                     ))}

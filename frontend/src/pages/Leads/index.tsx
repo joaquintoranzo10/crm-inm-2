@@ -246,6 +246,7 @@ export default function LeadsPage() {
     }
 
     return [
+      { label: "Nuevos", value: counts["nuevo"] || counts["nuevos"] || 0 },
       {label: "En negociación", value: counts["en negociacion"] || counts["negociacion"] || 0,},
       { label: "Rechazados", value: counts["rechazado"] || 0 },
       { label: "Vendidos", value: counts["vendido"] || 0 },
@@ -316,7 +317,7 @@ export default function LeadsPage() {
         </div>
 
         {/* KPIs */}
-        <section className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <section className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             {kpis.map((k) => (
             <div
                 key={k.label}

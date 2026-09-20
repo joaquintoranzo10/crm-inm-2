@@ -938,6 +938,14 @@ function EventModal({
     if (!form.propiedad) { setError("Seleccioná una propiedad."); return; }
     if (!form.fecha_hora) { setError("Cargá fecha y hora."); return; }
     
+    const selectedDate = new Date(form.fecha_hora);
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - 2);
+    if (selectedDate < now) {
+       setError("La fecha y hora del evento no puede ser en el pasado.");
+       return;
+    }
+    
     setSaving(true);
     try {
       let fechaISO = String(form.fecha_hora);

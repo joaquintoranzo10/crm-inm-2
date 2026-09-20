@@ -259,6 +259,19 @@ function LeadModal({
       setError("Ingresá al menos nombre o email.");
       return;
     }
+
+    if (form.next_contact_at) {
+      const selectedDate = new Date(form.next_contact_at);
+      const now = new Date();
+     
+      now.setMinutes(now.getMinutes() - 2); 
+      
+      if (selectedDate < now) {
+        setError("La fecha de próximo contacto no puede ser en el pasado.");
+        return;
+      }
+    }
+
     const estadoElegido = form.estadoId || (nuevoId ? String(nuevoId) : "");
     if (!estadoElegido) {
       setError("No hay estados cargados.");
