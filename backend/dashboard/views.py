@@ -20,7 +20,7 @@ def dashboard_data(request):
     # Excluimos las vendidas para contar los alquileres y ventas activos
     propiedades_activas = Propiedad.objects.exclude(estado__icontains="vendid")
     prop_en_venta = propiedades_activas.filter(disponibilidad__iexact="venta").count()
-    prop_en_alquiler = propiedades_activas.filter(disponibilidad__iexact="alquiler")
+    prop_en_alquiler = propiedades_activas.filter(disponibilidad__iexact="alquiler").count()
 
     # Contactos por estado (fase del lead)
     contactos_por_estado = (
