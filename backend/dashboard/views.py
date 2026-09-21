@@ -10,44 +10,39 @@ from propiedades.models import Propiedad
 
 @api_view(["GET"])
 def dashboard_data(request):
-    """API REST para métricas del dashboard basadas en Contacto y Avisos"""
+    """API REST para métricas del dashboard filtradas por el usuario autenticado"""
+    usuario = request.user
 
-    # Total de contactos
-    total_contactos = Contacto.objects.count()
-    total_propiedades = Propiedad.objects.count()
-    propiedades_vendidas = Propiedad.objects.filter(estado__icontains="vendid").count()
+    # 1. Filtramos todo por el dueño actual
+    contactos_usuario = Contacto.objects.filter(owner=usuario)
+    propiedades_usuario = Propiedad.objects.filter(owner=usuario)
+    avisos_usuario = Aviso.objects.filter(owner=usuario)
+
+    # 2. Hacemos los cálculos sobre los querysets ya filtrados
+    total_contactos = contactos_usuario.count()
+    total_propiedades = propiedades_usuario.count()
+    propiedades_vendidas = propiedades_usuario.filter(estado__icontains="vendid").count()
     
-    # Excluimos las vendidas para contar los alquileres y ventas activos
-    propiedades_activas = Propiedad.objects.exclude(estado__icontains="vendid")
+    propiedades_activas = propiedades_usuario.exclude(estado__icontains="vendid")
     prop_en_venta = propiedades_activas.filter(disponibilidad__iexact="venta").count()
     prop_en_alquiler = propiedades_activas.filter(disponibilidad__iexact="alquiler").count()
 
-    # Contactos por estado (fase del lead)
     contactos_por_estado = (
-        Contacto.objects.values("estado__fase")
+        contactos_usuario.values("estado__fase")
         .annotate(total=Count("estado"))
         .order_by("estado__fase")
     )
 
-    # Próximos contactos programados (para hoy en adelante)
     ahora = timezone.now()
-    proximos_contactos_count = Contacto.objects.filter(
-        next_contact_at__gte=ahora
-    ).count()
+    proximos_contactos_count = contactos_usuario.filter(next_contact_at__gte=ahora).count()
+    atrasados_count = contactos_usuario.filter(next_contact_at__lt=ahora).count()
 
-    # Contactos atrasados (proximo_contacto en el pasado)
-    atrasados_count = Contacto.objects.filter(
-        next_contact_at__lt=ahora
-    ).count()
-
-    # Últimos 5 contactos registrados
     ultimos_contactos = list(
-        Contacto.objects.order_by("-id").values("id", "nombre", "apellido", "email")[:5]
+        contactos_usuario.order_by("-id").values("id", "nombre", "apellido", "email")[:5]
     )
     
-    # Nuevas consultas para avisos pendientes y atrasados
-    avisos_pendientes_count = Aviso.objects.filter(estado="pendiente").count()
-    avisos_atrasados_count = Aviso.objects.filter(estado="atrasado").count()
+    avisos_pendientes_count = avisos_usuario.filter(estado="pendiente").count()
+    avisos_atrasados_count = avisos_usuario.filter(estado="atrasado").count()
 
     data = {
         "total_contactos": total_contactos,
