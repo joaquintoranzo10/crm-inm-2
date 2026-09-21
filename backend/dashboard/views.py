@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from leads.models import Contacto, EstadoLead
-from avisos.models import Aviso # Nueva importación
-
+from avisos.models import Aviso 
+from propiedades.models import Propiedad
 
 @api_view(["GET"])
 def dashboard_data(request):
@@ -14,6 +14,13 @@ def dashboard_data(request):
 
     # Total de contactos
     total_contactos = Contacto.objects.count()
+    total_propiedades = Propiedad.objects.count()
+    propiedades_vendidas = Propiedad.objects.filter(estado__icontains="vendid").count()
+    
+    # Excluimos las vendidas para contar los alquileres y ventas activos
+    propiedades_activas = Propiedad.objects.exclude(estado__icontains="vendid")
+    prop_en_venta = propiedades_activas.filter(disponibilidad__iexact="venta").count()
+    prop_en_alquiler = propiedades_activas.filter(disponibilidad__iexact="alquiler")
 
     # Contactos por estado (fase del lead)
     contactos_por_estado = (
@@ -44,6 +51,10 @@ def dashboard_data(request):
 
     data = {
         "total_contactos": total_contactos,
+        "total_propiedades": total_propiedades,
+        "propiedades_vendidas": propiedades_vendidas,
+        "propiedades_en_venta": prop_en_venta,
+        "propiedades_en_alquiler": prop_en_alquiler,
         "contactos_por_estado": list(contactos_por_estado),
         "proximos_contactos": proximos_contactos_count,
         "atrasados": atrasados_count,

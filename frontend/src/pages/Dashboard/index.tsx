@@ -22,6 +22,11 @@ type Filters = { date?: string; from?: string; to?: string; types?: string };
 
 type DashboardData = {
   total_contactos: number;
+  total_propiedades: number;
+  propiedades_vendidas: number;
+  propiedades_en_venta: number;
+  propiedades_en_alquiler: number;
+
   contactos_por_estado: { fase: string; total: number }[];
   proximos_contactos: number;
   atrasados: number;
@@ -187,7 +192,7 @@ export default function DashboardPage() {
     if (!localStorage.getItem('rc_token')) return;
     const { from, to } = monthRange(d);
     try {
-      const data = await fetchEventos({ from, to, ordering: "fecha_hora" });
+      const data = await fetchEventos({ from, to, ordering: "fecha_hora", page_size: 100 });
       setEventos(Array.isArray(data) ? data : data?.results ?? []);
     } catch (e) {
       console.error("Error fetching month events:", e);
@@ -310,18 +315,10 @@ export default function DashboardPage() {
 
 
   const kpis = useMemo(() => {
-    const totalLeads = contactos.length;
-    const norm = (s?: string | null) => (s || "").trim().toLowerCase();
-    const isVendida = (p: Propiedad) => norm(p.estado).includes("vendid");
-
-    let enVenta = 0, enAlquiler = 0, vendidas = 0;
-    for (const p of propiedades) {
-      if (isVendida(p)) { vendidas++; continue; }
-      const d = norm(p.disponibilidad);
-      if (d === "venta") enVenta++;
-      else if (d === "alquiler") enAlquiler++;
-    }
-
+    const totalLeads = dashboardData?.total_contactos || 0;
+    const enVenta = dashboardData?.propiedades_en_venta || 0;
+    const enAlquiler = dashboardData?.propiedades_en_alquiler || 0;
+    const vendidas = dashboardData?.propiedades_vendidas || 0;
     const evInMonth = eventos.length;
 
     return [
@@ -331,7 +328,7 @@ export default function DashboardPage() {
       { label: "Propiedades vendidas", value: vendidas, hint: "" },
       { label: "Reuniones programadas", value: evInMonth, hint: "" },
     ];
-  }, [contactos, propiedades, eventos]);
+  }, [dashboardData, eventos]);
 
 
   const prevMonth = () => { const d = new Date(cursor); d.setMonth(cursor.getMonth() - 1); setCursor(d); };
