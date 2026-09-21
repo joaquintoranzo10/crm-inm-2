@@ -322,11 +322,11 @@ export default function DashboardPage() {
     const evInMonth = eventos.length;
 
     return [
-      { label: "Leads", value: totalLeads, hint: "" },
-      { label: "Propiedades en venta", value: enVenta, hint: "" },
-      { label: "Propiedades en alquiler", value: enAlquiler, hint: "" },
-      { label: "Propiedades vendidas", value: vendidas, hint: "" },
-      { label: "Reuniones programadas", value: evInMonth, hint: "" },
+      { label: "LEADS", value: totalLeads, hint: "" },
+      { label: "PROPIEDADES EN VENTA", value: enVenta, hint: "" },
+      { label: "PROPIEDADES EN ALQUILER", value: enAlquiler, hint: "" },
+      { label: "PROPIEDADES VENDIDAS", value: vendidas, hint: "" },
+      { label: "REUNIONES PROGRAMADAS", value: evInMonth, hint: "" },
     ];
   }, [dashboardData, eventos]);
 

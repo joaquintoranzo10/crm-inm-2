@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, time as dt_time
 from django.db.models import Q, F, ExpressionWrapper, DateTimeField, Value
 from django.utils import timezone
 from django.db import transaction
+from .pagination import DefaultPagination
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -140,6 +141,7 @@ class EstadoLeadViewSet(viewsets.ModelViewSet):
 class ContactoViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     queryset = Contacto.objects.all().order_by("-id")
     serializer_class = ContactoSerializer
+    pagination_class = DefaultPagination
 
     
     def get_queryset(self):

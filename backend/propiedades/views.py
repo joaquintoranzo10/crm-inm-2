@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
-
+from leads.pagination import DefaultPagination
 from .models import Propiedad, PropiedadImagen
 from .serializers import (
     PropiedadSerializer,
@@ -30,6 +30,7 @@ class PropiedadViewSet(OwnedQuerysetMixin, viewsets.ModelViewSet):
     queryset = Propiedad.objects.all().order_by("-id")
     serializer_class = PropiedadSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = DefaultPagination
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
