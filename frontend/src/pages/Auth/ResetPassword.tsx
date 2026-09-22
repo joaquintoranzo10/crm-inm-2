@@ -124,6 +124,9 @@ export default function ResetPassword() {
                 {showPwd ? "Ocultar" : "Ver"}
               </button>
             </div>
+            <p className="text-[10px] text-[var(--muted)] mt-1.5 ml-1 leading-tight opacity-80">
+              Mínimo 8 caracteres. Combiná letras y números. Evitá usar claves muy comunes.
+            </p>
           </div>
 
           <div>

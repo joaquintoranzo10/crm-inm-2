@@ -8,7 +8,7 @@ from .models import Usuario as UsuarioModel
 from .serializers import UsuarioSerializer, RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
-
+from django.db import transaction
 AuthUser = get_user_model()
 
 
@@ -106,9 +106,9 @@ class ChangePasswordView(APIView):
 
 
 class DeleteAccountView(APIView):
-   
+    
     permission_classes = [IsAuthenticated]
-
+    @transaction.atomic
     def post(self, request):
         current_password = request.data.get("current_password") or ""
         confirm_text = (request.data.get("confirm_text") or "").strip()

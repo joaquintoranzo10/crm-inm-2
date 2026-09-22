@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError as DjangoValidationError
-# from django.contrib.auth.password_validation import validate_password  # si querés validadores avanzados
+from django.contrib.auth.password_validation import validate_password 
 import re
 from .models import Usuario
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -104,15 +104,14 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return v
 
     def _validate_password_rules(self, raw_password: str):
-        if len(raw_password) < 8:
-            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
-        # Descomentar si querés validar con los validadores de Django
-        # try:
-        #     validate_password(raw_password, user=self.instance)
-        # except DjangoValidationError as e:
-        #     raise serializers.ValidationError(list(e.messages))
+     if len(raw_password) < 8:
+         raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
 
-    # ---------- Create / Update ----------
+     try:
+         validate_password(raw_password, user=self.instance)
+     except DjangoValidationError as e:
+         raise serializers.ValidationError(list(e.messages))
+
     def create(self, validated_data):
         password = validated_data.pop("password", None)
         if not password:

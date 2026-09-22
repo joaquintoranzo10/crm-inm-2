@@ -176,9 +176,13 @@ export default function Register() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
-                  placeholder="••••••••••••"
+                  placeholder="Tu contraseña secreta"
                 />
               </div>
+              
+              <p className="text-[10px] text-[var(--muted)] ml-1 leading-tight opacity-80">
+                Mínimo 8 caracteres. Combiná letras y números. Evitá usar claves muy comunes.
+              </p>
             </div>
 
             {/* Teléfono y DNI  */}

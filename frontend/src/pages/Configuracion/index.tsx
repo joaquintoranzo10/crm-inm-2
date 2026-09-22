@@ -377,7 +377,7 @@ export default function ConfiguracionPage() {
       <Section title="Seguridad">
         <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
             <div><Label>Actual</Label><Input type="password" value={pwdCur} onChange={(e:any)=>setPwdCur(e.target.value)} /></div>
-            <div><Label>Nueva</Label><Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} /></div>
+            <div><Label>Nueva</Label><Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} /><p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight">Mínimo 8 caracteres, letras y números.</p></div>
             <div><Label>Repetir</Label><Input type="password" value={pwdNew2} onChange={(e:any)=>setPwdNew2(e.target.value)} /></div>
             {pwdError && <div className="md:col-span-3"><Alert kind="error">{pwdError}</Alert></div>}
             <div className="md:col-span-3 flex items-center justify-end gap-3">
