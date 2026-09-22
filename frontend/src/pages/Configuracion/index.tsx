@@ -375,12 +375,31 @@ export default function ConfiguracionPage() {
       </Section>
 
       <Section title="Seguridad">
-        <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
-            <div><Label>Actual</Label><Input type="password" value={pwdCur} onChange={(e:any)=>setPwdCur(e.target.value)} /></div>
-            <div><Label>Nueva</Label><Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} /><p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight">Mínimo 8 caracteres, letras y números.</p></div>
-            <div><Label>Repetir</Label><Input type="password" value={pwdNew2} onChange={(e:any)=>setPwdNew2(e.target.value)} /></div>
+        <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+            <div className="flex flex-col">
+              <Label>Actual</Label>
+              <Input type="password" value={pwdCur} onChange={(e:any)=>setPwdCur(e.target.value)} />
+              
+              <p className="text-[10px] mt-1 ml-1 opacity-0 pointer-events-none">_</p>
+            </div>
+            
+            <div className="flex flex-col">
+              <Label>Nueva</Label>
+              <Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} />
+              <p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight opacity-80">
+                Mínimo 8 caracteres, letras y números.
+              </p>
+            </div>
+            
+            <div className="flex flex-col">
+              <Label>Repetir</Label>
+              <Input type="password" value={pwdNew2} onChange={(e:any)=>setPwdNew2(e.target.value)} />
+              <p className="text-[10px] mt-1 ml-1 opacity-0 pointer-events-none">_</p>
+            </div>
+
             {pwdError && <div className="md:col-span-3"><Alert kind="error">{pwdError}</Alert></div>}
-            <div className="md:col-span-3 flex items-center justify-end gap-3">
+            
+            <div className="md:col-span-3 flex items-center justify-end gap-3 mt-2">
                 {pwdSuccess && (
                   <div className="animate-in fade-in slide-in-from-right-5 duration-300 flex items-center gap-2 px-3 py-2 rounded-lg border shadow-sm
                     bg-emerald-50 border-emerald-200 text-emerald-700 

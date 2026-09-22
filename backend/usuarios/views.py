@@ -9,6 +9,8 @@ from .serializers import UsuarioSerializer, RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
 from django.db import transaction
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 AuthUser = get_user_model()
 
 
@@ -73,14 +75,12 @@ class DetalleUsuario(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ChangePasswordView(APIView):
- 
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         current_password = request.data.get("current_password") or ""
         new_password = request.data.get("new_password") or ""
         re_new_password = request.data.get("re_new_password") or ""
-
         user = request.user  # auth user
 
         if not current_password or not new_password or not re_new_password:
@@ -94,6 +94,14 @@ class ChangePasswordView(APIView):
 
         if len(new_password) < 8:
             return Response({"detail": "La nueva contraseña debe tener al menos 8 caracteres"}, status=400)
+
+        
+        try:
+            validate_password(new_password, user=user)
+        except DjangoValidationError as e:
+    
+            return Response({"detail": e.messages[0]}, status=400)
+        
 
         user.set_password(new_password)
         user.save(update_fields=["password"])
