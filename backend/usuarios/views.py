@@ -94,12 +94,20 @@ class ChangePasswordView(APIView):
 
         if len(new_password) < 8:
             return Response({"detail": "La nueva contraseña debe tener al menos 8 caracteres"}, status=400)
+            
+        allowed_specials = "@#$%^&+=_!?"
+        has_letter = any(char.isalpha() for char in new_password)
+        has_number = any(char.isdigit() for char in new_password)
+        has_special = any(char in allowed_specials for char in new_password)
 
-        
+        if not (has_letter and has_number and has_special):
+            return Response({
+                "detail": f"La nueva contraseña debe contener letras, números y al menos un símbolo ({allowed_specials})."
+            }, status=400)
+
         try:
             validate_password(new_password, user=user)
         except DjangoValidationError as e:
-    
             return Response({"detail": e.messages[0]}, status=400)
         
 

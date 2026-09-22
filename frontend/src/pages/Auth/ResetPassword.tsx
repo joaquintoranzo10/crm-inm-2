@@ -13,6 +13,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [showPwd, setShowPwd] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (!token) {
     return (
@@ -102,46 +103,61 @@ export default function ResetPassword() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label htmlFor="new_password" className="block text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5">
-              Nueva contraseña
-            </label>
-            <div className="relative">
-              <input
-                id="new_password"
-                type={showPwd ? "text" : "password"}
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 8 caracteres"
-                className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-sm font-medium transition-colors"
-              >
-                {showPwd ? "Ocultar" : "Ver"}
-              </button>
+          <div className="space-y-4">
+            {/* Input Nueva Contraseña */}
+            <div>
+              <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5 block">Nueva Contraseña</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl py-3 pl-11 pr-16 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
+                  placeholder="Mínimo 8 caracteres"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPassword ? "Ocultar" : "Ver"}
+                </button>
+              </div>
+              <p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight opacity-80">
+                Mín. 8 caracteres, letras, números y un símbolo (@#$%^&+=_!?).
+              </p>
             </div>
-            <p className="text-[10px] text-[var(--muted)] mt-1.5 ml-1 leading-tight opacity-80">
-              Mínimo 8 caracteres. Combiná letras y números. Evitá usar claves muy comunes.
-            </p>
-          </div>
 
-          <div>
-            <label htmlFor="re_new_password" className="block text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5">
-              Repetir contraseña
-            </label>
-            <input
-              id="re_new_password"
-              type={showPwd ? "text" : "password"}
-              required
-              value={reNewPassword}
-              onChange={(e) => setReNewPassword(e.target.value)}
-              placeholder="Repetí la contraseña"
-              className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
-            />
+           
+            <div>
+              <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1 mb-1.5 block">Repetir Contraseña</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  type={showPwd ? "text" : "password"}
+                  value={reNewPassword}
+                  onChange={(e) => setReNewPassword(e.target.value)}
+                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl py-3 pl-11 pr-16 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
+                  placeholder="Repetí tu nueva contraseña"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPwd ? "Ocultar" : "Ver"}
+                </button>
+              </div>
+            </div>
           </div>
 
           {error && (

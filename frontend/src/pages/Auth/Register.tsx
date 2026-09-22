@@ -180,8 +180,8 @@ export default function Register() {
                 />
               </div>
               
-              <p className="text-[10px] text-[var(--muted)] ml-1 leading-tight opacity-80">
-                Mínimo 8 caracteres. Combiná letras y números. Evitá usar claves muy comunes.
+              <p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight opacity-80">
+                Mín. 8 caracteres, incluyendo letras, números y un símbolo (@#$%^&+=_!?).
               </p>
             </div>
 

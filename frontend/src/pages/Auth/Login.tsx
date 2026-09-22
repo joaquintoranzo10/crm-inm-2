@@ -12,7 +12,7 @@ type JwtResponse = { access: string; refresh?: string };
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
   const [userOrEmail, setUserOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -142,25 +142,29 @@ export default function Login() {
             </div>
 
             {/* Input: Contraseña */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider ml-1">Contraseña</label>
-              <div className="relative group">
+            <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
-                  placeholder="••••••••••••"
+                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-main)] rounded-xl py-3 pl-11 pr-16 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-[var(--muted)]"
+                  placeholder="Tu contraseña"
                   autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPassword ? "Ocultar" : "Ver"}
+                </button>
               </div>
-            </div>
 
            
             <button

@@ -96,6 +96,9 @@ export default function ConfiguracionPage() {
   const [pwdCur, setPwdCur] = useState("");
   const [pwdNew, setPwdNew] = useState("");
   const [pwdNew2, setPwdNew2] = useState("");
+  const [showPwdCur, setShowPwdCur] = useState(false);
+  const [showPwdNew, setShowPwdNew] = useState(false);
+  const [showPwdNew2, setShowPwdNew2] = useState(false);
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdSuccess, setPwdSuccess] = useState(false);
   const [pwdError, setPwdError] = useState<string | null>(null);
@@ -378,22 +381,63 @@ export default function ConfiguracionPage() {
         <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
             <div className="flex flex-col">
               <Label>Actual</Label>
-              <Input type="password" value={pwdCur} onChange={(e:any)=>setPwdCur(e.target.value)} />
-              
+              <div className="relative">
+                <Input 
+                  type={showPwdCur ? "text" : "password"} 
+                  value={pwdCur} 
+                  onChange={(e:any)=>setPwdCur(e.target.value)} 
+                  className="w-full pr-14" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPwdCur(!showPwdCur)} 
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPwdCur ? "Ocultar" : "Ver"}
+                </button>
+              </div>
               <p className="text-[10px] mt-1 ml-1 opacity-0 pointer-events-none">_</p>
             </div>
             
             <div className="flex flex-col">
               <Label>Nueva</Label>
-              <Input type="password" value={pwdNew} onChange={(e:any)=>setPwdNew(e.target.value)} />
+              <div className="relative">
+                <Input 
+                  type={showPwdNew ? "text" : "password"} 
+                  value={pwdNew} 
+                  onChange={(e:any)=>setPwdNew(e.target.value)} 
+                  className="w-full pr-14" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPwdNew(!showPwdNew)} 
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPwdNew ? "Ocultar" : "Ver"}
+                </button>
+              </div>
               <p className="text-[10px] text-[var(--muted)] mt-1 ml-1 leading-tight opacity-80">
-                Mínimo 8 caracteres, letras y números.
+                Mín. 8 caracteres, letras, números y un símbolo (@#$%^&+=_!?).
               </p>
             </div>
             
             <div className="flex flex-col">
               <Label>Repetir</Label>
-              <Input type="password" value={pwdNew2} onChange={(e:any)=>setPwdNew2(e.target.value)} />
+              <div className="relative">
+                <Input 
+                  type={showPwdNew2 ? "text" : "password"} 
+                  value={pwdNew2} 
+                  onChange={(e:any)=>setPwdNew2(e.target.value)} 
+                  className="w-full pr-14" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPwdNew2(!showPwdNew2)} 
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-xs font-medium transition-colors"
+                >
+                  {showPwdNew2 ? "Ocultar" : "Ver"}
+                </button>
+              </div>
               <p className="text-[10px] mt-1 ml-1 opacity-0 pointer-events-none">_</p>
             </div>
 

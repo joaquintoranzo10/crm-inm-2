@@ -104,13 +104,23 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return v
 
     def _validate_password_rules(self, raw_password: str):
-     if len(raw_password) < 8:
-         raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
-
-     try:
-         validate_password(raw_password, user=self.instance)
-     except DjangoValidationError as e:
-         raise serializers.ValidationError(list(e.messages))
+        if len(raw_password) < 8:
+            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        
+        allowed_specials = "@#$%^&+=_!?"
+        has_letter = any(char.isalpha() for char in raw_password)
+        has_number = any(char.isdigit() for char in raw_password)
+        has_special = any(char in allowed_specials for char in raw_password)
+        
+        if not (has_letter and has_number and has_special):
+            raise serializers.ValidationError(
+                f"La contraseña debe contener letras, números y al menos un símbolo ({allowed_specials})."
+            )
+            
+        try:
+            validate_password(raw_password, user=self.instance)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)
