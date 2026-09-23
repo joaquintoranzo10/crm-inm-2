@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { FiCheckCircle } from "react-icons/fi";
+import { toast } from "react-hot-toast";
 
 function Section({ title, children }: any) {
   return (
@@ -129,7 +130,7 @@ export default function ConfiguracionPage() {
       setTimeout(() => setShowSuccess(false), 3000);
       
     } catch {
-      alert("Error al guardar la preferencia");
+      toast.error("Error al guardar la preferencia");
     } finally {
       setPrefSaving(false);
     }

@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import type { PreferenciaBusqueda } from "@/lib/api";
 import PreferenciaModal from "./PreferenciaModal";
 import MatchesModal from "./MatchesModal";
-
+import { toast } from "react-hot-toast";
 type EstadoLead = { id: number; fase: string; descripcion?: string };
 
 type Contacto = {
@@ -142,9 +142,10 @@ export default function LeadsPage() {
       await api.delete(`contactos/${deleteTarget.id}/`);
       setContactos((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast.success("Lead eliminado correctamente");
     } catch (error) {
       console.error("Error al eliminar", error);
-      alert("Error al eliminar el lead");
+      toast.error("Error al eliminar el lead");
     } finally {
       setIsProcessing(false);
     }
@@ -171,7 +172,7 @@ export default function LeadsPage() {
       const selectedDate = new Date(nextContactAtStr);
       const now = new Date();
       if (selectedDate < now) {
-        alert("La fecha de próximo contacto no puede ser una fecha pasada. Por favor, seleccioná la fecha/hora actual o una futura.");
+        toast.error("La fecha de próximo contacto no puede estar en el pasado.");
         return;
       }
     }
@@ -189,12 +190,13 @@ export default function LeadsPage() {
 
     try {
       await api.patch(`contactos/${editTarget.id}/`, payload);
-      await fetchContactos(); 
+      await fetchContactos();
       setEditTarget(null);
+      toast.success("Lead actualizado correctamente");
     } catch (error: any) {
       console.error("Error al editar", error);
       const msg = error?.response?.data?.next_contact_at || "Error al guardar los cambios";
-      alert(Array.isArray(msg) ? msg[0] : msg);
+      toast.error(Array.isArray(msg) ? msg[0] : msg);
     } finally {
       setIsProcessing(false);
     }
@@ -800,10 +802,10 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
     
       setNotas([res.data, ...notas]);
       setNuevaNota("");
+      toast.success("Nota agregada al historial");
     } catch (error) {
       console.error("Error al guardar la nota:", error);
-    
-      alert("No se pudo guardar la nota. Verificá tu conexión o intentá de nuevo.");
+      toast.error("No se pudo guardar la nota. Verificá tu conexión.");
     } finally {
       setSaving(false);
     }
@@ -812,17 +814,13 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
   
   async function confirmDeleteNote() {
     if (noteToDelete === null) return;
-    
     try {
-      
-      await api.delete(`contactos/${contacto.id}/historial/`, { 
-          params: { nota_id: noteToDelete } 
-      });
+      await api.delete(`contactos/${contacto.id}/historial/`, { params: { nota_id: noteToDelete } });
       setNotas(prevNotas => prevNotas.filter(n => n.id !== noteToDelete));
-      setNoteToDelete(null); 
+      setNoteToDelete(null);
+      toast.success("Nota eliminada");
     } catch (error) {
-      console.error("Error al eliminar la nota:", error);
-      alert("No se pudo eliminar la nota.");
+      toast.error("No se pudo eliminar la nota.");
     }
   }
 
@@ -831,20 +829,13 @@ function LeadHistoryModal({ contacto, onClose }: { contacto: Contacto; onClose: 
     if (!editingNote || !editingNote.nota.trim()) return;
     setSaving(true);
     try {
-      const res = await api.patch(`contactos/${contacto.id}/historial/`, {
-        nota_id: editingNote.id,
-        nota: editingNote.nota,
-        contacto: contacto.id
-      });
-      
+      const res = await api.patch(`contactos/${contacto.id}/historial/`, { /*...*/ });
       setNotas(prev => prev.map(n => n.id === editingNote.id ? res.data : n));
       setEditingNote(null);
+      toast.success("Nota actualizada");
     } catch (error: any) {
-      console.error("Error al editar la nota:", error?.response?.data || error);
-      const errMsg = error?.response?.data 
-        ? JSON.stringify(error.response.data) 
-        : "No se pudo editar la nota.";
-      alert(errMsg);
+      const errMsg = error?.response?.data ? JSON.stringify(error.response.data) : "No se pudo editar la nota.";
+      toast.error(errMsg);
     } finally {
       setSaving(false);
     }

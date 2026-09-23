@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import Modal from "@/components/Modal";
 import { api, fetchLeads, type Contacto } from "@/lib/api"; 
-
+import { toast } from "react-hot-toast";
 
 type Props = {
   open: boolean;
@@ -102,11 +102,11 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
     if (!propiedadId || !fechaHora || !tipo) return;
 
     if (mode === 'select' && !contactoId) {
-        setError("Por favor, seleccioná un contacto existente.");
+        toast.error("Por favor, seleccioná un contacto existente.");
         return;
     }
     if (mode === 'new' && !email.trim() && !nombre.trim()) {
-        setError("Por favor, ingresá al menos un nombre o email para el nuevo visitante.");
+        toast.error("Por favor, ingresá al menos un nombre o email para el nuevo visitante.");
         return;
     }
 
@@ -114,7 +114,7 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
     const now = new Date();
     now.setMinutes(now.getMinutes() - 2);
     if (selectedDate < now) {
-        setError("La fecha y hora del evento no puede estar en el pasado.");
+        toast.error("La fecha y hora del evento no puede estar en el pasado.");
         return;
     }
 
@@ -141,6 +141,9 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
       await api.post("/api/eventos/", payload);
       window.dispatchEvent(new CustomEvent("calendar:refresh"));
       window.dispatchEvent(new CustomEvent("refrescar-leads"));
+      
+      toast.success("¡Evento agendado con éxito!"); 
+      
       onCreated?.();
       onClose();
       setNombre(""); setApellido(""); setEmail(""); setPropiedadId("");
@@ -162,7 +165,7 @@ export default function EventCreateModal({ open, onClose, onCreated, presetConta
           if (partes.length) cleanMsg = partes.join("\n");
         }
       }
-      alert(cleanMsg);
+      toast.error(cleanMsg);
     } finally {
       setSubmitting(false);
     }
