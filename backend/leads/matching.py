@@ -2,7 +2,7 @@ from django.db.models import Q
 from propiedades.models import Propiedad
 from .models import Contacto
 
-def calcular_propiedades_sugeridas(contacto):
+def calcular_matches(contacto):
     
     preferencias = contacto.preferencias.all()
     
