@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from django.db import transaction
@@ -11,6 +12,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from django.db.models import Q, Count
 from leads.models import Contacto, Evento
 from propiedades.models import Propiedad
+from rest_framework.response import Response
 
 
 
@@ -65,97 +67,52 @@ def _to_decimal(x):
 
 
 class ExportView(APIView):
-    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        fmt = (request.data.get("format") or "csv").lower()
-        resources = request.data.get("resources") or []
-        filters = request.data.get("filters") or {}
-
-        year = filters.get("year")
-        month = filters.get("month")
-        date_from = filters.get("date_from")
-        date_to = filters.get("date_to")
-        estado_propiedad = filters.get("estado_propiedad")
-
-
-        start_dt = end_dt = None
-        if year and month:
-            start_dt, end_dt = _month_range(int(year), int(month))
-        elif date_from and date_to:
-            start_dt = _parse_dt(date_from)
-            end_dt = _parse_dt(date_to)
-
-      
-        start_dt = _to_aware(start_dt)
-        end_dt = _to_aware(end_dt)
-
-        user = request.user
-
-
-        qs_contactos = Contacto.objects.filter(owner=user)
-        if start_dt and end_dt:
-            qs_contactos = qs_contactos.filter(creado_en__range=(start_dt, end_dt))
-
-        qs_prop = Propiedad.objects.filter(owner=user)
-        if estado_propiedad:
-            qs_prop = qs_prop.filter(estado__in=estado_propiedad)
-        if start_dt and end_dt:
-            qs_prop = qs_prop.filter(fecha_alta__range=(start_dt, end_dt))
-
-        qs_eventos = Evento.objects.filter(owner=user)
-        if start_dt and end_dt:
-            qs_eventos = qs_eventos.filter(fecha_hora__range=(start_dt, end_dt))
-
-        data = {}
+        formato = request.data.get("format", "csv")
+        resources = request.data.get("resources", [])
+        
+        usuario = request.user
+        
+        datos_exportacion = {}
+        
         if "leads" in resources:
-            data["leads"] = list(
-                qs_contactos.values(
-                    "id", "nombre", "apellido", "email", "telefono",
-                    "estado__fase", "creado_en",
-                )
-            )
+            datos_exportacion["leads"] = list(Contacto.objects.filter(owner=usuario).values(
+                "id", "nombre", "apellido", "email", "telefono", "estado__fase", "creado_en"
+            ))
+            
         if "propiedades" in resources:
-            data["propiedades"] = list(
-                qs_prop.values(
-                    "id", "codigo", "titulo", "ubicacion", "tipo_de_propiedad",
-                    "disponibilidad", "precio", "moneda", "ambiente", "antiguedad",
-                    "banos", "superficie", "estado", "fecha_alta", "vendida_en",
-                )
-            )
-        if "eventos" in resources:
-            data["eventos"] = list(
-                qs_eventos.values(
-                    "id", "tipo", "fecha_hora", "propiedad_id", "contacto_id",
-                    "email", "nombre", "apellido"
-                )
-            )
+            datos_exportacion["propiedades"] = list(Propiedad.objects.filter(owner=usuario).values(
+                "codigo", "titulo", "tipo_de_propiedad", "disponibilidad", "precio", "moneda", "estado"
+            ))
 
-       
-        if fmt == "json":
-            return JsonResponse(data, safe=False)
+        # 2. Generar JSON
+        if formato == "json":
+            
+            response = HttpResponse(json.dumps(datos_exportacion, default=str), content_type="application/json")
+            response["Content-Disposition"] = 'attachment; filename="export.json"'
+            return response
+            
+        #  Genera CSV 
+        elif formato == "csv":
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = 'attachment; filename="export.csv"'
+            writer = csv.writer(response)
+            
+            for recurso, filas in datos_exportacion.items():
+                writer.writerow([f"--- RECURSO: {recurso.upper()} ---"])
+                if filas:
+                    
+                    writer.writerow(filas[0].keys())
+                    
+                    for fila in filas:
+                        writer.writerow(fila.values())
+                writer.writerow([]) 
+                
+            return response
 
-        buffer = io.StringIO()
-        writer = csv.writer(buffer)
-
-        for key in resources:
-            rows = data.get(key, [])
-            if not rows:
-                continue
-            writer.writerow([f"=== {key.upper()} ==="])
-            headers = list(rows[0].keys())
-            writer.writerow(headers)
-            for r in rows:
-                writer.writerow([r.get(h, "") for h in headers])
-            writer.writerow([])
-
-        resp = HttpResponse(buffer.getvalue(), content_type="text/csv")
-        filename = "export.csv"
-        if year and month:
-            filename = f"export_{int(year):04d}_{int(month):02d}.csv"
-        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
-        return resp
+        return Response({"detail": "Formato no válido"}, status=400)
 
 class ChartMetricsView(APIView):
     
@@ -329,274 +286,81 @@ class MetricsView(APIView):
 
 
 class ImportView(APIView):
-    
     permission_classes = [IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def post(self, request):
-        user = request.user
-
-        
-        resource = (request.data.get("resource") or "").strip().lower()
-        dry_run = str(request.data.get("dry_run") or "false").lower() in ("1", "true", "yes")
-
-        if not resource or resource not in ("leads", "propiedades", "eventos"):
-            return JsonResponse({"detail": "Parámetro 'resource' inválido."}, status=400)
-
-        rows = None
+        resource = request.data.get("resource", "leads")
+        dry_run = request.data.get("dry_run") == "true"
         file_obj = request.FILES.get("file")
 
-        if file_obj:
-            # CSV o JSON subido como archivo
-            name = (file_obj.name or "").lower()
-            content = file_obj.read()
-           
-            try:
-                text = content.decode("utf-8-sig")
-            except UnicodeDecodeError:
-                try:
-                    text = content.decode("latin-1")
-                except Exception:
-                    return JsonResponse({"detail": "No se pudo decodificar el archivo."}, status=400)
-
-            if name.endswith(".json"):
-                import json
-                try:
-                    rows = json.loads(text)
-                except Exception as e:
-                    return JsonResponse({"detail": f"JSON inválido: {e}"}, status=400)
-                if not isinstance(rows, list):
-                    return JsonResponse({"detail": "El JSON debe ser una lista de objetos."}, status=400)
-            else:
-                   
-                    lines = text.splitlines()
-                    target_section = f"=== {resource.upper()} ==="
-                    section_lines = []
-                    in_section = False
-                    
-                    
-                    if not any(l.startswith("===") for l in lines):
-                        section_lines = lines
-                    else:
-                        for line in lines:
-                            line_strip = line.strip()
-                            if line_strip == target_section:
-                                in_section = True
-                                continue
-                            elif in_section and line_strip.startswith("==="):
-                                break
-                            
-                            if in_section and line_strip:
-                                section_lines.append(line)
-
-                    if not section_lines:
-                        return JsonResponse({"detail": f"No se encontró información para el recurso '{resource}' en el CSV."}, status=400)
-
-                    buff = io.StringIO("\n".join(section_lines))
-                    reader = csv.DictReader(buff)
-                    rows = list(reader)
-        else:
+        if not file_obj:
+            return Response({"detail": "Debes adjuntar un archivo."}, status=400)
             
-            rows = request.data.get("rows")
-            if not isinstance(rows, list):
-                return JsonResponse({"detail": "Debe enviar 'file' (CSV/JSON) o 'rows' (lista JSON)."}, status=400)
+        if resource != "leads":
+            return Response({"detail": "Por ahora solo se soporta la importación de Leads."}, status=400)
 
-        created = 0
-        updated = 0
-        errors = []
+        # Manejo seguro de la codificación (UTF-8, pero evitamos crasheos)
+        try:
+            decoded_file = file_obj.read().decode('utf-8-sig') # utf-8-sig quita el BOM de Excel
+        except UnicodeDecodeError:
+            return Response({"detail": "El archivo debe estar codificado en UTF-8. Guardalo nuevamente desde Excel como 'CSV UTF-8'."}, status=400)
 
-        with transaction.atomic():
-            for idx, raw in enumerate(rows, start=1):
-                try:
-                    if resource == "leads":
-                        was_created, was_updated = self._upsert_contacto(user, raw)
-                    elif resource == "propiedades":
-                        was_created, was_updated = self._upsert_propiedad(user, raw)
-                    else:
-                        was_created, was_updated = self._upsert_evento(user, raw)
+        created_count = 0
+        errores = []
 
-                    created += int(was_created)
-                    updated += int(was_updated)
-                except Exception as e:
-                    errors.append({"row": idx, "error": str(e)})
-
-            if dry_run:
+        
+        try:
+            with transaction.atomic():
+                reader = csv.DictReader(io.StringIO(decoded_file))
                 
-                transaction.set_rollback(True)
+                # Normalizamos las cabeceras a minúsculas para evitar errores si el usuario escribe "Nombre" o "NOMBRE"
+                reader.fieldnames = [name.strip().lower() for name in reader.fieldnames if name]
 
-        return JsonResponse({
-            "resource": resource,
-            "dry_run": dry_run,
-            "created": created,
-            "updated": updated,
-            "errors": errors,
-        }, status=200 if not errors else 207)
+                for row_idx, row in enumerate(reader, start=2): # Start 2 por la cabecera
+                    # Usamos .get() con fallback vacío para que no tire KeyError si falta la columna
+                    nombre = row.get("nombre", "").strip()
+                    email = row.get("email", "").strip()
+                    apellido = row.get("apellido", "").strip()
+                    telefono = row.get("telefono", "").strip()
 
-    
+                    # Necesita al menos nombre o email
+                    if not nombre and not email:
+                        errores.append({"row": row_idx, "error": "Falta proveer nombre o email."})
+                        continue
 
-    def _upsert_contacto(self, user, raw: dict):
-        email = (raw.get("email") or "").strip()
-        if not email:
-            raise ValueError("Contacto requiere 'email' como clave.")
+                    # Creamos el contacto asociado estrictamente al usuario actual
+                    Contacto.objects.create(
+                        owner=request.user,
+                        nombre=nombre,
+                        apellido=apellido,
+                        email=email if email else None,
+                        telefono=telefono
+                    )
+                    created_count += 1
 
-        nombre = (raw.get("nombre") or "").strip()
-        apellido = (raw.get("apellido") or "").strip()
-        telefono = (raw.get("telefono") or "").strip()
-        creado_en = _parse_dt(raw.get("creado_en"))
+                # Si es un simulacro o si hubo errores en la subida, cancelamos TODO lo que se guardó.
+                if dry_run or errores:
+                    transaction.set_rollback(True)
 
-       
-        estado_fase = (raw.get("estado_fase") or raw.get("estado") or "").strip() or None
-        estado_obj = None
-        if estado_fase:
-            from leads.models import EstadoLead
-            estado_obj = EstadoLead.objects.filter(fase__iexact=estado_fase).first()
+        except csv.Error:
+            return Response({"detail": "El formato del CSV es inválido. Verificá que las columnas estén separadas por comas."}, status=400)
+        except Exception as e:
+            return Response({"detail": f"Ocurrió un error inesperado al procesar: {str(e)}"}, status=400)
 
-        obj, created = Contacto.objects.get_or_create(
-            owner=user, email__iexact=email,
-            defaults={"owner": user, "email": email}
-        )
+      # Si hubo errores y No prueba , igual fallamos la importación completa para proteger la DB
+        if errores and not dry_run:
+            return Response({
+                "detail": "Se encontraron errores en el archivo. No se importó ningún registro.",
+                "errors": errores,
+                "created": 0,
+                "dry_run": False
+            }, status=400)
 
-        
-        if not created and obj.email.lower() != email.lower():
-            obj = Contacto.objects.filter(owner=user, email__iexact=email).first()
-
-        before = (obj.nombre, obj.apellido, obj.telefono, obj.estado_id, obj.creado_en)
-        if nombre:
-            obj.nombre = nombre
-        if apellido:
-            obj.apellido = apellido
-        if telefono:
-            obj.telefono = telefono
-        if estado_obj:
-            obj.estado = estado_obj
-        if creado_en:
-            obj.creado_en = creado_en
-        obj.owner = user
-        obj.save()
-
-        after = (obj.nombre, obj.apellido, obj.telefono, obj.estado_id, obj.creado_en)
-        updated = (not created) and (before != after)
-        return created, updated
-
-    def _upsert_propiedad(self, user, raw: dict):
-        codigo = (raw.get("codigo") or "").strip()
-        if not codigo:
-            raise ValueError("Propiedad requiere 'codigo' como clave.")
-
-        defaults = {"owner": user}
-        
-        for key in ("titulo", "descripcion", "ubicacion", "tipo_de_propiedad",
-                    "disponibilidad", "moneda", "estado"):
-            val = raw.get(key)
-            if val is not None and val != "":
-                defaults[key] = val
-
-  
-        precio = _to_decimal(raw.get("precio"))
-        if precio is not None:
-            defaults["precio"] = precio
-
-        for int_field in ("ambiente", "antiguedad", "banos"):
-            v = raw.get(int_field)
-            try:
-                if v not in (None, ""):
-                    defaults[int_field] = int(v)
-            except Exception:
-                pass
-
-       
-        superficie = _to_decimal(raw.get("superficie"))
-        if superficie is not None:
-            defaults["superficie"] = superficie
-
-       
-        fecha_alta = _parse_dt(raw.get("fecha_alta"))
-        if fecha_alta:
-            defaults["fecha_alta"] = fecha_alta
-        vendida_en = _parse_dt(raw.get("vendida_en"))
-        if vendida_en:
-            defaults["vendida_en"] = vendida_en
-
-        obj, created = Propiedad.objects.get_or_create(
-            owner=user, codigo=codigo, defaults=defaults
-        )
-
-        if not created:
-            changed = False
-            for k, v in defaults.items():
-                if getattr(obj, k) != v and v is not None:
-                    setattr(obj, k, v)
-                    changed = True
-            if changed:
-                obj.save()
-            return False, changed
-        return True, False
-
-    def _upsert_evento(self, user, raw: dict):
-        tipo = (raw.get("tipo") or "").strip()
-        if not tipo:
-            raise ValueError("Evento requiere 'tipo'.")
-
-        fecha_hora = _parse_dt(raw.get("fecha_hora"))
-        if not fecha_hora:
-            raise ValueError("Evento requiere 'fecha_hora' válida.")
-
-       
-        prop = None
-        prop_id = raw.get("propiedad_id")
-        prop_codigo = raw.get("propiedad_codigo")
-        if prop_id:
-            prop = Propiedad.objects.filter(owner=user, id=prop_id).first()
-        if not prop and prop_codigo:
-            prop = Propiedad.objects.filter(owner=user, codigo=prop_codigo).first()
-        if not prop:
-            raise ValueError("No se encontró la propiedad (propiedad_id o propiedad_codigo).")
-
-       
-        ct = None
-        contacto_id = raw.get("contacto_id")
-        contacto_email = (raw.get("contacto_email") or "").strip()
-        if contacto_id:
-            ct = Contacto.objects.filter(owner=user, id=contacto_id).first()
-        if not ct and contacto_email:
-            ct = Contacto.objects.filter(owner=user, email__iexact=contacto_email).first()
-
-        nombre = (raw.get("nombre") or "").strip()
-        apellido = (raw.get("apellido") or "").strip()
-        email = (raw.get("email") or "").strip()
-        notas = (raw.get("notas") or "").strip()
-
-      
-        ev_id = raw.get("id")
-        if ev_id:
-            ev = Evento.objects.filter(owner=user, id=ev_id).first()
-            if not ev:
-               
-                ev = Evento.objects.create(
-                    owner=user, tipo=tipo, fecha_hora=fecha_hora,
-                    propiedad=prop, contacto=ct, nombre=nombre, apellido=apellido,
-                    email=email or None, notas=notas
-                )
-                return True, False
-            before = (ev.tipo, ev.fecha_hora, ev.propiedad_id, ev.contacto_id, ev.nombre, ev.apellido, ev.email, ev.notas)
-            ev.tipo = tipo
-            ev.fecha_hora = fecha_hora
-            ev.propiedad = prop
-            ev.contacto = ct
-            if nombre: ev.nombre = nombre
-            if apellido: ev.apellido = apellido
-            ev.email = email or None
-            if notas: ev.notas = notas
-            ev.owner = user
-            ev.save()
-            after = (ev.tipo, ev.fecha_hora, ev.propiedad_id, ev.contacto_id, ev.nombre, ev.apellido, ev.email, ev.notas)
-            return False, before != after
-
-   
-        Evento.objects.create(
-            owner=user, tipo=tipo, fecha_hora=fecha_hora,
-            propiedad=prop, contacto=ct, nombre=nombre, apellido=apellido,
-            email=email or None, notas=notas
-        )
-        return True, False
+        # Respuesta exitosa
+        return Response({
+            "created": created_count,
+            "updated": 0,
+            "errors": errores,
+            "dry_run": dry_run
+        })
 
