@@ -4,6 +4,7 @@ import type { PreferenciaBusqueda } from "@/lib/api";
 import PreferenciaModal from "./PreferenciaModal";
 import MatchesModal from "./MatchesModal";
 import { toast } from "react-hot-toast";
+import LeadsKanban from "./LeadsKanban";
 type EstadoLead = { id: number; fase: string; descripcion?: string };
 
 type Contacto = {
@@ -71,6 +72,7 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [estados, setEstados] = useState<EstadoLead[]>([]);
+  const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [editTarget, setEditTarget] = useState<Contacto | null>(null);
@@ -132,6 +134,10 @@ export default function LeadsPage() {
       window.removeEventListener("refrescar-leads", fetchContactos);
     };
   }, []);
+
+  const handleStatusChange = (leadId: number, newEstadoId: number) => {
+      setContactos(prev => prev.map(c => c.id === leadId ? { ...c, estado: newEstadoId } : c));
+  };
 
   /* EDICION Y BORRADO  */
 
@@ -296,20 +302,36 @@ export default function LeadsPage() {
             </div>
             
             <div className="flex items-center gap-3">
+                {/* Switch de Vistas */}
+                <div className="flex bg-surface-2 border border-soft rounded-lg p-1">
+                    <button
+                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-muted-clr hover:text-base-clr'}`}
+                        onClick={() => setViewMode('table')}
+                    >
+                        Tabla
+                    </button>
+                    <button
+                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === 'kanban' ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-muted-clr hover:text-base-clr'}`}
+                        onClick={() => setViewMode('kanban')}
+                    >
+                        Kanban
+                    </button>
+                </div>
+
                 {estados.length < 4 && (
                     <button
-                    className="h-10 px-4 rounded-xl border border-soft text-muted-clr text-xs font-medium hover:bg-surface-2 hover:text-base-clr transition-colors"
-                    onClick={seedEstados}
+                        className="h-10 px-4 rounded-xl border border-soft text-muted-clr text-xs font-medium hover:bg-surface-2 hover:text-base-clr transition-colors"
+                        onClick={seedEstados}
                     >
-                    Cargar estados por defecto
+                        Cargar estados por defecto
                     </button>
                 )}
 
+                {/* Botón de Registrar Lead */}
                 <button
                     className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center gap-2"
                     onClick={openCreateModal}
                 >
-                    
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                         <path fillRule="evenodd" d="M10 3a3 3 0 100 6 3 3 0 000-6zm-4.6 9a6.6 6.6 0 019.2 0 .75.75 0 01-.287 1.198C12.624 14.378 11.345 15 10 15s-2.624-.622-4.313-1.802A.75.75 0 015.4 12z" clipRule="evenodd" />
                     </svg>
@@ -395,223 +417,243 @@ export default function LeadsPage() {
           </div>
       </div>
 
-        {/* Tabla (Desktop) */}
-        <div className="hidden md:block rounded-2xl border border-soft bg-surface overflow-hidden shadow-sm">
-            <table className="w-full text-sm">
-                <thead className="bg-surface-2 text-muted-clr uppercase text-xs tracking-wider font-semibold border-b border-soft">
-                    <tr>
-                        <th className="text-left px-5 py-4">Nombre</th>
-                        <th className="text-left px-5 py-4">Contacto</th>
-                        <th className="text-left px-5 py-4">Último contacto</th>
-                        <th className="text-left px-5 py-4">Próximo contacto</th>
-                        <th className="text-left px-5 py-4">Estado</th>
-                        <th className="text-right px-5 py-4">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-soft">
-                    {loading && (
-                        <tr><td colSpan={6} className="px-5 py-8 text-center text-muted-clr">Cargando leads...</td></tr>
-                    )}
-                    {!loading && pageRows.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-8 text-center text-muted-clr">No se encontraron leads.</td></tr>
-                    )}
+        {viewMode === "table" ? (
+            <>
+                {/* Tabla (Desktop) */}
+                <div className="hidden md:block rounded-2xl border border-soft bg-surface overflow-hidden shadow-sm">
+                    <table className="w-full text-sm">
+                        <thead className="bg-surface-2 text-muted-clr uppercase text-xs tracking-wider font-semibold border-b border-soft">
+                            <tr>
+                                <th className="text-left px-5 py-4">Nombre</th>
+                                <th className="text-left px-5 py-4">Contacto</th>
+                                <th className="text-left px-5 py-4">Último contacto</th>
+                                <th className="text-left px-5 py-4">Próximo contacto</th>
+                                <th className="text-left px-5 py-4">Estado</th>
+                                <th className="text-right px-5 py-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-soft">
+                            {loading && (
+                                <tr><td colSpan={6} className="px-5 py-8 text-center text-muted-clr">Cargando leads...</td></tr>
+                            )}
+                            {!loading && pageRows.length === 0 && (
+                                <tr><td colSpan={6} className="px-5 py-8 text-center text-muted-clr">No se encontraron leads.</td></tr>
+                            )}
+                            {!loading && pageRows.map((c) => {
+                                const stateKey = norm((c as any).estadoFase);
+                                const badge = STATE_COLORS[stateKey] || "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400";
+                                const nextLabel = c.proximo_contacto_estado || "Pendiente";
+                                const nextChip = statusChipClass(nextLabel);
+
+                                return (
+                                    <tr key={c.id} className="hover:bg-surface-2 transition-colors group">
+                                        <td className="px-5 py-4">
+                                            <div className="font-medium text-base-clr">{(c.nombre || "") + " " + (c.apellido || "")}</div>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="text-base-clr">{c.email || "—"}</div>
+                                            <div className="text-xs text-muted-clr mt-0.5">{c.telefono || "—"}</div>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="text-base-clr">
+                                                {formatDate(c.last_contact_at || c.creado_en, true)}
+                                            </div>
+                                            {typeof c.dias_sin_seguimiento === "number" && (
+                                                <div className="text-xs text-muted-clr mt-0.5">Hace {c.dias_sin_seguimiento} días</div>
+                                            )}
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-base-clr">{formatDate(c.next_contact_at, true)}</span>
+                                                <span className={`inline-flex self-start px-2 py-0.5 rounded text-[10px] font-medium ${nextChip}`}>
+                                                    {nextLabel}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${badge}`}>
+                                                {(c as any).estadoFase}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-4 text-right">
+                                            <div className="flex justify-end gap-2"> 
+                                                <button 
+                                                    className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-zinc-600 text-zinc-600 dark:text-zinc-400 dark:border-zinc-400 hover:bg-zinc-600 hover:text-white dark:hover:bg-zinc-500 dark:hover:text-white shadow-sm"
+                                                    onClick={() => setEditTarget(c)}
+                                                    title="Editar"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
+                                                    onClick={() => setHistoryTarget(c)}
+                                                    title="Ver Historial"
+                                                >
+                                                    📝 Historial
+                                                </button>
+
+                                                <button
+                                                    className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-500 dark:hover:text-white shadow-sm"
+                                                    onClick={() => setPreferenciaTarget(c)}
+                                                    title="Qué busca"
+                                                >
+                                                    🔍 Busca
+                                                </button>
+
+                                                <button
+                                                    className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-600 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-500 dark:hover:text-white shadow-sm"
+                                                    onClick={() => setMatchesTarget(c)}
+                                                    title="Ver propiedades sugeridas"
+                                                >
+                                                    🏠 Sugerencias
+                                                </button>
+
+                                                <button 
+                                                    className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
+                                                    onClick={() => setDeleteTarget(c)}
+                                                    title="Eliminar"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                    
+                    {/* Paginación */}
+                    <div className="flex items-center justify-between px-5 py-3 border-t border-soft bg-surface-2/30">
+                        <button
+                            className="h-8 px-3 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                        >
+                            Anterior
+                        </button>
+                        <div className="text-xs text-muted-clr">
+                            Página {page} de {totalPages}
+                        </div>
+                        <button
+                            className="h-8 px-3 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+
+                {/* Cards (Mobile) */}
+                <div className="md:hidden space-y-4">
+                    {loading && <div className="text-center text-sm text-muted-clr">Cargando...</div>}
                     {!loading && pageRows.map((c) => {
                         const stateKey = norm((c as any).estadoFase);
                         const badge = STATE_COLORS[stateKey] || "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400";
-                        const nextLabel = c.proximo_contacto_estado || "Pendiente";
-                        const nextChip = statusChipClass(nextLabel);
-
+                        
                         return (
-                            <tr key={c.id} className="hover:bg-surface-2 transition-colors group">
-                                <td className="px-5 py-4">
-                                    <div className="font-medium text-base-clr">{(c.nombre || "") + " " + (c.apellido || "")}</div>
-                                </td>
-                                <td className="px-5 py-4">
-                                    <div className="text-base-clr">{c.email || "—"}</div>
-                                    <div className="text-xs text-muted-clr mt-0.5">{c.telefono || "—"}</div>
-                                </td>
-                                <td className="px-5 py-4">
-                                    <div className="text-base-clr">
-                                        {formatDate(c.last_contact_at || c.creado_en, true)}
+                            <div key={c.id} className="p-4 rounded-xl bg-surface border border-soft space-y-3 shadow-sm">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-semibold text-base-clr">{(c.nombre || "") + " " + (c.apellido || "")}</div>
+                                        <div className="text-xs text-muted-clr">{c.email || "—"}</div>
                                     </div>
-                                    {typeof c.dias_sin_seguimiento === "number" && (
-                                        <div className="text-xs text-muted-clr mt-0.5">Hace {c.dias_sin_seguimiento} días</div>
-                                    )}
-                                </td>
-                                <td className="px-5 py-4">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-base-clr">{formatDate(c.next_contact_at, true)}</span>
-                                        <span className={`inline-flex self-start px-2 py-0.5 rounded text-[10px] font-medium ${nextChip}`}>
-                                            {nextLabel}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-5 py-4">
-                                    <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${badge}`}>
+                                    <span className={`px-2 py-1 rounded text-[10px] font-medium ${badge}`}>
                                         {(c as any).estadoFase}
                                     </span>
-                                </td>
-                                <td className="px-5 py-4 text-right">
-                                    <div className="flex justify-end gap-2"> 
-                                        <button 
-                                            className="h-10 px-6 rounded-lg text-sm font-bold transition-all border border-zinc-600 text-zinc-600 dark:text-zinc-400 dark:border-zinc-400 hover:bg-zinc-600 hover:text-white dark:hover:bg-zinc-500 dark:hover:text-white shadow-sm"
-                                            onClick={() => setEditTarget(c)}
-                                            title="Editar"
-                                        >
-                                            ✏️
-                                        </button>
-                                        <button
-                                            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm"
-                                            onClick={() => setHistoryTarget(c)}
-                                            title="Ver Historial"
-                                        >
-                                            📝 Historial
-                                        </button>
-
-                                        <button
-                                            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-400 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-500 dark:hover:text-white shadow-sm"
-                                            onClick={() => setPreferenciaTarget(c)}
-                                            title="Qué busca"
-                                        >
-                                            🔍 Busca
-                                        </button>
-
-                                        <button
-                                            className="h-10 px-4 rounded-lg text-sm font-bold transition-all border border-amber-600 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-500 dark:hover:text-white shadow-sm"
-                                            onClick={() => setMatchesTarget(c)}
-                                            title="Ver propiedades sugeridas"
-                                        >
-                                            🏠 Sugerencias
-                                        </button>
-
-                                        <button 
-                                            className="h-10 px-5 rounded-lg text-sm font-bold transition-all border border-red-600 text-red-600 dark:text-red-500 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white"
-                                            onClick={() => setDeleteTarget(c)}
-                                            title="Eliminar"
-                                        >
-                                            🗑️
-                                        </button>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-2 text-xs text-muted-clr">
+                                    <div>
+                                        <span className="block text-base-clr font-bold uppercase tracking-wider text-[10px]">Teléfono</span>
+                                        {c.telefono || "—"}
                                     </div>
-                                </td>
-                            </tr>
-                        );
+                                    <div>
+                                        <span className="block text-base-clr font-bold uppercase tracking-wider text-[10px]">Próximo</span>
+                                        {formatDate(c.next_contact_at, true)}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-wrap justify-start sm:justify-end gap-2 pt-2 border-t border-soft">
+                                    <button 
+                                        className="px-3 py-1.5 rounded-lg border border-soft text-xs text-base-clr hover:bg-surface-2"
+                                        onClick={() => setEditTarget(c)}
+                                    >
+                                        Editar
+                                    </button>
+
+                                    <button
+                                        className="px-3 py-1.5 rounded-lg border border-blue-200 text-xs text-blue-600 dark:border-blue-500/30 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10"
+                                        onClick={() => setHistoryTarget(c)}
+                                    >
+                                        Historial
+                                    </button>
+
+                                    <button
+                                        className="px-3 py-1.5 rounded-lg border border-violet-200 text-xs text-violet-600 dark:border-violet-500/30 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10"
+                                        onClick={() => setPreferenciaTarget(c)}
+                                    >
+                                        Busca
+                                    </button>
+
+                                    <button
+                                        className="px-3 py-1.5 rounded-lg border border-amber-200 text-xs text-amber-600 dark:border-amber-500/30 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                                        onClick={() => setMatchesTarget(c)}
+                                    >
+                                        Sugerencias
+                                    </button>
+
+                                    <button 
+                                        className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-500"
+                                        onClick={() => setDeleteTarget(c)}
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        )
                     })}
-                </tbody>
-            </table>
-            
-            {/* Paginación */}
-             <div className="flex items-center justify-between px-5 py-3 border-t border-soft bg-surface-2/30">
-                <button
-                    className="h-8 px-3 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                >
-                    Anterior
-                </button>
-                <div className="text-xs text-muted-clr">
-                    Página {page} de {totalPages}
+                    {!loading && pageRows.length > 0 && (
+                        <div className="flex items-center justify-between pt-4 pb-2">
+                            <button
+                                className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                            >
+                                Anterior
+                            </button>
+                            <div className="text-xs text-muted-clr font-medium">
+                                Página {page} de {totalPages}
+                            </div>
+                            <button
+                                className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                            >
+                                Siguiente
+                            </button>
+                        </div>
+                    )}
                 </div>
-                <button
-                    className="h-8 px-3 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                >
-                    Siguiente
-                </button>
+            </>
+        ) : (
+            /* Vista Kanban */
+            <div className="pt-2 animate-fade-in-up">
+                <LeadsKanban 
+                    contactos={rows} 
+                    estados={estados} 
+                    onStatusChange={handleStatusChange}
+                    onRefresh={fetchContactos}
+                    onEdit={setEditTarget}
+                    onHistory={setHistoryTarget}
+                    onPreferences={setPreferenciaTarget}
+                    onMatches={setMatchesTarget}
+                    formatDate={formatDate}
+                    statusChipClass={statusChipClass}
+                />
             </div>
-        </div>
-
-        {/* Cards (Mobile) */}
-        <div className="md:hidden space-y-4">
-            {loading && <div className="text-center text-sm text-muted-clr">Cargando...</div>}
-            {!loading && pageRows.map((c) => {
-                const stateKey = norm((c as any).estadoFase);
-                const badge = STATE_COLORS[stateKey] || "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400";
-                
-                return (
-                    <div key={c.id} className="p-4 rounded-xl bg-surface border border-soft space-y-3 shadow-sm">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <div className="font-semibold text-base-clr">{(c.nombre || "") + " " + (c.apellido || "")}</div>
-                                <div className="text-xs text-muted-clr">{c.email || "—"}</div>
-                            </div>
-                            <span className={`px-2 py-1 rounded text-[10px] font-medium ${badge}`}>
-                                {(c as any).estadoFase}
-                            </span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-xs text-muted-clr">
-                            <div>
-                                <span className="block text-base-clr font-bold uppercase tracking-wider text-[10px]">Teléfono</span>
-                                {c.telefono || "—"}
-                            </div>
-                            <div>
-                                <span className="block text-base-clr font-bold uppercase tracking-wider text-[10px]">Próximo</span>
-                                {formatDate(c.next_contact_at, true)}
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap justify-start sm:justify-end gap-2 pt-2 border-t border-soft">
-                            <button 
-                                className="px-3 py-1.5 rounded-lg border border-soft text-xs text-base-clr hover:bg-surface-2"
-                                onClick={() => setEditTarget(c)}
-                            >
-                                Editar
-                            </button>
-
-                            <button
-                                className="px-3 py-1.5 rounded-lg border border-blue-200 text-xs text-blue-600 dark:border-blue-500/30 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10"
-                                onClick={() => setHistoryTarget(c)}
-                            >
-                                Historial
-                            </button>
-
-                            <button
-                                className="px-3 py-1.5 rounded-lg border border-violet-200 text-xs text-violet-600 dark:border-violet-500/30 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10"
-                                onClick={() => setPreferenciaTarget(c)}
-                            >
-                                Busca
-                            </button>
-
-                            <button
-                                className="px-3 py-1.5 rounded-lg border border-amber-200 text-xs text-amber-600 dark:border-amber-500/30 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                                onClick={() => setMatchesTarget(c)}
-                            >
-                                Sugerencias
-                            </button>
-
-                            <button 
-                                className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-500"
-                                onClick={() => setDeleteTarget(c)}
-                            >
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                )
-            })}
-            {!loading && pageRows.length > 0 && (
-                <div className="flex items-center justify-between pt-4 pb-2">
-                    <button
-                        className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                    >
-                        Anterior
-                    </button>
-                    <div className="text-xs text-muted-clr font-medium">
-                        Página {page} de {totalPages}
-                    </div>
-                    <button
-                        className="h-9 px-4 rounded-lg border border-soft text-xs text-muted-clr hover:text-base-clr hover:bg-surface-2 disabled:opacity-30"
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                    >
-                        Siguiente
-                    </button>
-                </div>
-            )}
-        </div>
+        )}
 
       </div>
 
