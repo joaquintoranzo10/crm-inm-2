@@ -15,7 +15,6 @@ from propiedades.models import Propiedad
 from rest_framework.response import Response
 
 
-
 def _month_range(year: int, month: int):
     from calendar import monthrange
     start = datetime(year, month, 1, 0, 0, 0)
@@ -87,7 +86,7 @@ class ExportView(APIView):
                 "codigo", "titulo", "tipo_de_propiedad", "disponibilidad", "precio", "moneda", "estado"
             ))
 
-        # 2. Generar JSON
+        #  Genera JSON
         if formato == "json":
             
             response = HttpResponse(json.dumps(datos_exportacion, default=str), content_type="application/json")
