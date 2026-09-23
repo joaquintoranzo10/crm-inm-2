@@ -386,6 +386,13 @@ export default function PropiedadesPage() {
   const [leadsInteresadosTarget, setLeadsInteresadosTarget] = useState<Propiedad | null>(null);
   const [eventoPropiedadId, setEventoPropiedadId] = useState<number | null>(null);
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [fTipo, setFTipo] = useState("");
+  const [fOperacion, setFOperacion] = useState("");
+  const [fEstado, setFEstado] = useState("");
+  const [fAmbientes, setFAmbientes] = useState("");
+  const [fPrecioMin, setFPrecioMin] = useState("");
+  const [fPrecioMax, setFPrecioMax] = useState("");
 
   async function fetchProps() {
     setLoading(true);
@@ -415,17 +422,27 @@ export default function PropiedadesPage() {
   }
 
   const filtered = useMemo(() => {
-    const query = norm(q);
-    if (!query) return items;
+    let result = items;
 
-    return items.filter((p) => {
+    if (fTipo) result = result.filter(p => p.tipo_de_propiedad === fTipo);
+    if (fOperacion) result = result.filter(p => p.disponibilidad?.toLowerCase() === fOperacion.toLowerCase());
+    if (fEstado) result = result.filter(p => p.estado === fEstado);
+    if (fAmbientes) result = result.filter(p => Number(p.ambiente || 0) >= Number(fAmbientes));
+    if (fPrecioMin) result = result.filter(p => Number(p.precio || 0) >= Number(fPrecioMin));
+    if (fPrecioMax) result = result.filter(p => Number(p.precio || 0) <= Number(fPrecioMax));
+
+    
+    const query = norm(q);
+    if (!query) return result;
+
+    return result.filter((p) => {
       const indexable = [
         p.titulo, p.descripcion, p.ubicacion, p.codigo,
         p.disponibilidad, p.tipo_de_propiedad, p.estado, p.moneda, p.precio,
       ].map(norm).join(" | ");
       return indexable.includes(query);
     });
-  }, [items, q]);
+  }, [items, q, fTipo, fOperacion, fEstado, fAmbientes, fPrecioMin, fPrecioMax]);
 
   const cardStyles = `
     .card_box { width: 100%; border-radius: 20px; position: relative; transition: all .3s; cursor: pointer; }
@@ -443,7 +460,6 @@ export default function PropiedadesPage() {
 
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-
         <div>
             <h2 className="text-3xl font-black tracking-tighter mb-1 text-base-clr">
                 Gestión de propiedades
@@ -452,28 +468,86 @@ export default function PropiedadesPage() {
                 Administra tu cartera de propiedades y su disponibilidad.
             </div>
         </div>
-
+        
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-4 md:mt-0">
+          {/* Búsqueda rápida */}
           <div className="relative w-full sm:w-auto">
-            <input 
-              value={q} 
-              onChange={(e) => setQ(e.target.value)} 
-              placeholder="Buscar..." 
-              className="bg-[var(--surface)] text-[var(--text-main)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors w-full md:w-64 placeholder-[var(--muted)] shadow-sm"
+            <input
+               value={q}
+               onChange={(e) => setQ(e.target.value)}
+               placeholder="Buscar..."
+               className="bg-[var(--surface)] text-[var(--text-main)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors w-full md:w-64 placeholder-[var(--muted)] shadow-sm"
             />
-            {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => setQ("")}>Limpiar</button>}
+            {q && <button className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-blue-500" onClick={() => setQ("")}>Limpiar</button>}
           </div>
-          <button 
-            onClick={() => setOpenCreate(true)} 
-            className="w-full sm:w-auto h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2"
+
+          {/* Botón Filtros Avanzados */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`h-10 px-3 rounded-lg text-sm font-bold transition-all border shadow-sm flex items-center justify-center gap-2 ${showFilters ? 'bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-500/30 dark:text-blue-400' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted)] hover:text-blue-500'}`}
+            title="Filtros Avanzados"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 01.628.74v2.288a2.25 2.25 0 01-.659 1.59l-4.682 4.683a2.25 2.25 0 00-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 018 18.25v-5.757a2.25 2.25 0 00-.659-1.591L2.659 6.22A2.25 2.25 0 012 4.629V2.34a.75.75 0 01.628-.74z" clipRule="evenodd" />
             </svg>
-            <span>Registrar propiedad</span>
+          </button>
+
+          {/* Botón Registrar */}
+          <button
+             onClick={() => setOpenCreate(true)}
+             className="w-full sm:w-auto h-10 px-4 rounded-lg text-sm font-bold transition-all border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white shadow-sm flex items-center justify-center gap-2 shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+            <span className="hidden sm:inline">Registrar propiedad</span>
+            <span className="sm:hidden">Nuevo</span>
           </button>
         </div>
       </div>
+
+      {showFilters && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-4 bg-gray-50 dark:bg-zinc-900/50 border border-[var(--border)] rounded-xl shadow-sm mt-2 animate-fade-in-up">
+          <select className="rc-input text-xs font-semibold" value={fTipo} onChange={e=>setFTipo(e.target.value)}>
+            <option value="">Tipo (Todos)</option>
+            <option value="casa">Casa</option>
+            <option value="departamento">Departamento</option>
+            <option value="ph">PH</option>
+            <option value="terreno">Terreno</option>
+            <option value="galpon">Galpón</option>
+            <option value="local">Local</option>
+          </select>
+          <select className="rc-input text-xs font-semibold" value={fOperacion} onChange={e=>setFOperacion(e.target.value)}>
+            <option value="">Operación (Todas)</option>
+            <option value="venta">Venta</option>
+            <option value="alquiler">Alquiler</option>
+          </select>
+          <select className="rc-input text-xs font-semibold" value={fEstado} onChange={e=>setFEstado(e.target.value)}>
+            <option value="">Estado (Todos)</option>
+            <option value="disponible">Disponible</option>
+            <option value="reservado">Reservado</option>
+            <option value="vendido">Vendido</option>
+            <option value="alquilado">Alquilado</option>
+          </select>
+          <select className="rc-input text-xs font-semibold" value={fAmbientes} onChange={e=>setFAmbientes(e.target.value)}>
+            <option value="">Ambientes (Todos)</option>
+            <option value="1">1 o más</option>
+            <option value="2">2 o más</option>
+            <option value="3">3 o más</option>
+            <option value="4">4 o más</option>
+          </select>
+          <input type="number" className="rc-input text-xs font-semibold placeholder-gray-400" placeholder="Precio Mínimo" value={fPrecioMin} onChange={e=>setFPrecioMin(e.target.value)} />
+          <input type="number" className="rc-input text-xs font-semibold placeholder-gray-400" placeholder="Precio Máximo" value={fPrecioMax} onChange={e=>setFPrecioMax(e.target.value)} />
+          
+          <div className="col-span-2 sm:col-span-3 lg:col-span-6 flex justify-end mt-1">
+            <button 
+              onClick={() => { setFTipo(""); setFOperacion(""); setFEstado(""); setFAmbientes(""); setFPrecioMin(""); setFPrecioMax(""); }} 
+              className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
+            >
+              Borrar filtros
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{cardStyles}</style>
       
 
