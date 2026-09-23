@@ -310,19 +310,35 @@ class ImportView(APIView):
         
         try:
             with transaction.atomic():
-                reader = csv.DictReader(io.StringIO(decoded_file))
+                f = io.StringIO(decoded_file)
                 
-                # Normalizamos las cabeceras a minúsculas para evitar errores si el usuario escribe "Nombre" o "NOMBRE"
-                reader.fieldnames = [name.strip().lower() for name in reader.fieldnames if name]
+                
+                reader_bruto = csv.reader(f)
+                headers = []
+                line_offset = 0
+                
+                for row in reader_bruto:
+                    line_offset += 1
+                    
+                    if not row or (len(row) == 1 and str(row[0]).startswith("---")):
+                        continue
+                   
+                    headers = [str(col).strip().lower() for col in row]
+                    break
+                
+                if "nombre" not in headers and "email" not in headers:
+                    return Response({"detail": "No se encontraron las columnas 'nombre' o 'email'."}, status=400)
 
-                for row_idx, row in enumerate(reader, start=2): # Start 2 por la cabecera
-                    # Usamos .get() con fallback vacío para que no tire KeyError si falta la columna
+                dict_reader = csv.DictReader(f, fieldnames=headers)
+
+                for row_idx, row in enumerate(dict_reader, start=line_offset + 1):
+                    
                     nombre = row.get("nombre", "").strip()
                     email = row.get("email", "").strip()
                     apellido = row.get("apellido", "").strip()
                     telefono = row.get("telefono", "").strip()
 
-                    # Necesita al menos nombre o email
+                    #  Necesita al menos nombre o email
                     if not nombre and not email:
                         errores.append({"row": row_idx, "error": "Falta proveer nombre o email."})
                         continue
@@ -337,7 +353,7 @@ class ImportView(APIView):
                     )
                     created_count += 1
 
-                # Si es un simulacro o si hubo errores en la subida, cancelamos TODO lo que se guardó.
+                # Si es un simulacro o si hubo errores en la subida, cancelamos TODO.
                 if dry_run or errores:
                     transaction.set_rollback(True)
 
